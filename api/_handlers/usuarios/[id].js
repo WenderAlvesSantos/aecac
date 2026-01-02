@@ -1,8 +1,8 @@
-import clientPromise from "../../lib/mongodb'
-import { hashPassword } from "../../lib/auth'
-import { requireAuth } from "../../middleware/auth'
+import clientPromise from '../../lib/mongodb'
+import { hashPassword } from '../../lib/auth'
+import { requireAuth } from '../../middleware/auth'
 import { ObjectId } from 'mongodb'
-import { corsHeaders, handleOptions } from "../../middleware/cors'
+import { corsHeaders, handleOptions } from '../../middleware/cors'
 
 export default async function handler(req, res) {
   if (handleOptions(req, res)) return
