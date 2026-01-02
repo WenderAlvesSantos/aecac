@@ -1,8 +1,8 @@
-import clientPromise from '../../../lib/mongodb'
-import { hashPassword, comparePassword } from '../../../lib/auth'
-import { requireAuth } from '../../../middleware/auth'
+import clientPromise from '../../lib/mongodb'
+import { hashPassword, comparePassword } from '../../lib/auth'
+import { requireAuth } from '../../middleware/auth'
 import { ObjectId } from 'mongodb'
-import { corsHeaders, handleOptions } from '../../../middleware/cors'
+import { corsHeaders, handleOptions } from '../../middleware/cors'
 
 async function handler(req, res) {
   corsHeaders(res)

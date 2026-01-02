@@ -5,6 +5,8 @@ const nextConfig = {
     // Desabilitar ESLint durante o build para evitar erros
     ignoreDuringBuilds: true,
   },
+  // Desabilitar geração estática - apenas API routes
+  output: 'standalone',
   webpack: (config, { isServer }) => {
     // MongoDB e outras bibliotecas do Node.js devem ser externas no cliente
     if (!isServer) {
@@ -41,12 +43,6 @@ const nextConfig = {
         ],
       },
     ]
-  },
-  // Configurar bodyParser para aceitar até 10MB (para uploads de imagens)
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
   },
 }
 

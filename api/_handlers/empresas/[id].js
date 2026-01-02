@@ -1,7 +1,7 @@
-import clientPromise from '../../../lib/mongodb'
-import { requireAuth } from '../../../middleware/auth'
+import clientPromise from "../../lib/mongodb'
+import { requireAuth } from "../../middleware/auth'
 import { ObjectId } from 'mongodb'
-import { corsHeaders, handleOptions } from '../../../middleware/cors'
+import { corsHeaders, handleOptions } from "../../middleware/cors'
 
 export const config = {
   api: {

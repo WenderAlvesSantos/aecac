@@ -1,7 +1,7 @@
-import clientPromise from '../../../lib/mongodb'
-import { hashPassword, generateToken } from '../../../lib/auth'
-import { requireAuth } from '../../../middleware/auth'
-import { corsHeaders, handleOptions } from '../../../middleware/cors'
+import clientPromise from '../../lib/mongodb'
+import { hashPassword, generateToken } from '../../lib/auth'
+import { requireAuth } from '../../middleware/auth'
+import { corsHeaders, handleOptions } from '../../middleware/cors'
 
 export default requireAuth(async function handler(req, res) {
   // Handle CORS preflight
