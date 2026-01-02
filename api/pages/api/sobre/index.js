@@ -52,7 +52,7 @@ export default async function handler(req, res) {
         if (objetivos !== undefined) updateData.objetivos = objetivos
 
         // Atualizar ou criar
-        const result = await db.collection('sobre').updateOne(
+        await db.collection('sobre').updateOne(
           {},
           { $set: updateData },
           { upsert: true }
