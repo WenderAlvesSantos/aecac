@@ -12,13 +12,16 @@
     },
     {
       "src": "api/package.json",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "zeroConfig": false
+      }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "api/$1"
+      "dest": "/api/$1"
     },
     {
       "handle": "filesystem"

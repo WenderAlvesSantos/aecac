@@ -39,8 +39,11 @@ export default async function handler(req, res) {
   console.log('=== ROUTE DEBUG ===')
   console.log('req.method:', req.method)
   console.log('req.url:', req.url)
+  console.log('req.path:', req.path)
   console.log('req.query:', JSON.stringify(req.query))
   console.log('req.query.route:', req.query.route)
+  console.log('typeof route:', typeof route)
+  console.log('route is array:', Array.isArray(route))
   console.log('==================')
   
   if (Array.isArray(route)) {
@@ -58,7 +61,15 @@ export default async function handler(req, res) {
     route = urlPath.split('/').filter(Boolean)
   }
   
+  // Tentar extrair do path se disponível
+  if (!routePath && req.path) {
+    const pathParts = req.path.replace(/^\/api\//, '').split('/').filter(Boolean)
+    routePath = pathParts.join('/')
+    route = pathParts
+  }
+  
   console.log('routePath final:', routePath)
+  console.log('route array:', route)
   
   // Se routePath ainda estiver vazio após todas as tentativas, retornar erro
   if (!routePath) {
@@ -67,6 +78,7 @@ export default async function handler(req, res) {
       error: 'Rota não encontrada',
       debug: {
         url: req.url,
+        path: req.path,
         query: req.query,
         method: req.method,
         route: route
