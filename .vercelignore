@@ -7,4 +7,13 @@ dist
 *.log
 .DS_Store
 api/scripts
+api/pages/api/auth
+api/pages/api/configuracoes
+api/pages/api/diretoria
+api/pages/api/empresas
+api/pages/api/eventos
+api/pages/api/galeria
+api/pages/api/parceiros
+api/pages/api/sobre
+api/pages/api/usuarios
 
