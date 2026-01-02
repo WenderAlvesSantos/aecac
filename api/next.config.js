@@ -5,7 +5,7 @@ const nextConfig = {
     // Desabilitar ESLint durante o build para evitar erros
     ignoreDuringBuilds: true,
   },
-  // Desabilitar geração estática - apenas API routes
+  // Configurar para produção no Vercel
   output: 'standalone',
   webpack: (config, { isServer }) => {
     // MongoDB e outras bibliotecas do Node.js devem ser externas no cliente

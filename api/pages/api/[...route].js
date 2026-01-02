@@ -35,6 +35,14 @@ export default async function handler(req, res) {
   let route = req.query.route || []
   let routePath = ''
   
+  // Debug: log para entender o que está acontecendo
+  console.log('=== ROUTE DEBUG ===')
+  console.log('req.method:', req.method)
+  console.log('req.url:', req.url)
+  console.log('req.query:', JSON.stringify(req.query))
+  console.log('req.query.route:', req.query.route)
+  console.log('==================')
+  
   if (Array.isArray(route)) {
     routePath = route.join('/')
   } else if (typeof route === 'string') {
@@ -50,14 +58,7 @@ export default async function handler(req, res) {
     route = urlPath.split('/').filter(Boolean)
   }
   
-  // Debug: log para entender o que está acontecendo
-  console.log('=== ROUTE DEBUG ===')
-  console.log('req.method:', req.method)
-  console.log('req.url:', req.url)
-  console.log('req.query:', JSON.stringify(req.query))
-  console.log('route:', route)
-  console.log('routePath:', routePath)
-  console.log('==================')
+  console.log('routePath final:', routePath)
   
   // Se routePath ainda estiver vazio após todas as tentativas, retornar erro
   if (!routePath) {
@@ -67,7 +68,8 @@ export default async function handler(req, res) {
       debug: {
         url: req.url,
         query: req.query,
-        method: req.method
+        method: req.method,
+        route: route
       }
     })
   }
