@@ -31,6 +31,7 @@ export default async function handler(req, res) {
   corsHeaders(res)
 
   // Extrair rota da query (Next.js passa como array no req.query.route)
+  // Quando a rota é /api/auth/login, req.query.route será ['auth', 'login']
   let route = req.query.route || []
   let routePath = ''
   
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
     routePath = route.join('/')
   } else if (typeof route === 'string') {
     routePath = route
-    route = route.split('/')
+    route = route.split('/').filter(Boolean)
   }
   
   // Se routePath estiver vazio, tentar extrair da URL diretamente
@@ -53,9 +54,23 @@ export default async function handler(req, res) {
   console.log('=== ROUTE DEBUG ===')
   console.log('req.method:', req.method)
   console.log('req.url:', req.url)
-  console.log('req.query:', req.query)
+  console.log('req.query:', JSON.stringify(req.query))
+  console.log('route:', route)
   console.log('routePath:', routePath)
   console.log('==================')
+  
+  // Se routePath ainda estiver vazio após todas as tentativas, retornar erro
+  if (!routePath) {
+    console.error('Erro: routePath está vazio')
+    return res.status(404).json({ 
+      error: 'Rota não encontrada',
+      debug: {
+        url: req.url,
+        query: req.query,
+        method: req.method
+      }
+    })
+  }
   
   const id = Array.isArray(route) && route.length > 0 ? route[route.length - 1] : null
 

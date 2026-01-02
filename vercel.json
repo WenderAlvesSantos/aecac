@@ -16,7 +16,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "api/pages/api/[...route].js"
+      "dest": "api/$1"
     },
     {
       "handle": "filesystem"
