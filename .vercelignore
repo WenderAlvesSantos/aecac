@@ -7,5 +7,4 @@ dist
 *.log
 .DS_Store
 api/scripts
-api/_handlers
 
