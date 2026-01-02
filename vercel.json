@@ -12,16 +12,20 @@
     },
     {
       "src": "api/package.json",
-      "use": "@vercel/next"
+      "use": "@vercel/next",
+      "config": {
+        "zeroConfig": false,
+        "rootDirectory": "api"
+      }
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "handle": "filesystem"
     },
     {
-      "handle": "filesystem"
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
     },
     {
       "src": "/(.*)",
