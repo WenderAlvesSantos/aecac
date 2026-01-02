@@ -1,5 +1,5 @@
 // Rota unificada para todas as APIs - resolve o limite de 12 funções serverless
-import { corsHeaders, handleOptions } from '../../../middleware/cors'
+import { corsHeaders, handleOptions } from '../../middleware/cors'
 
 // Importar handlers estáticos
 import eventosIndex from '../_handlers/eventos/index'
