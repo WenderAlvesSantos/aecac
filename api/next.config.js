@@ -5,6 +5,30 @@ const nextConfig = {
     // Desabilitar ESLint durante o build para evitar erros
     ignoreDuringBuilds: true,
   },
+  webpack: (config, { isServer }) => {
+    // MongoDB e outras bibliotecas do Node.js devem ser externas no cliente
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        child_process: false,
+        'fs/promises': false,
+      }
+    }
+    
+    // Marcar MongoDB como externo para evitar bundle no cliente
+    config.externals = config.externals || []
+    if (!isServer) {
+      config.externals.push({
+        mongodb: 'commonjs mongodb',
+        'mongodb-client-encryption': 'commonjs mongodb-client-encryption',
+      })
+    }
+    
+    return config
+  },
   async headers() {
     return [
       {
