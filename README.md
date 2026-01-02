@@ -108,19 +108,13 @@ Ou use o endpoint `/api/auth/register` (requer autenticação de outro admin).
 ## 🌐 Deploy
 
 ### Frontend
-O frontend pode ser hospedado em qualquer serviço de hospedagem estática (Vercel, Netlify, etc.).
+O frontend está configurado para deploy na Vercel. Veja instruções detalhadas em [DEPLOY.md](./DEPLOY.md).
 
-Configure a variável de ambiente:
-- `REACT_APP_API_URL`: URL da API backend
+**Variáveis de ambiente necessárias:**
+- `VITE_API_URL`: URL da API backend (ex: `https://api-aecac-xxx.vercel.app/api`)
 
 ### Backend
-O backend está configurado para deploy na Vercel:
-
-1. Conecte o repositório à Vercel
-2. Configure as variáveis de ambiente:
-   - `MONGODB_URI`: URI de conexão do MongoDB
-   - `JWT_SECRET`: Chave secreta para JWT
-3. O deploy será automático
+O backend está em um repositório separado (`api-aecac`). Veja instruções detalhadas no README do projeto da API.
 
 ## 📝 Variáveis de Ambiente
 
