@@ -12,10 +12,7 @@
     },
     {
       "src": "api/package.json",
-      "use": "@vercel/node",
-      "config": {
-        "zeroConfig": false
-      }
+      "use": "@vercel/next"
     }
   ],
   "routes": [
