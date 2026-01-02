@@ -14,8 +14,7 @@
       "src": "api/package.json",
       "use": "@vercel/next",
       "config": {
-        "zeroConfig": false,
-        "rootDirectory": "api"
+        "zeroConfig": false
       }
     }
   ],
