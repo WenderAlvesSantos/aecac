@@ -30,10 +30,34 @@ export default async function handler(req, res) {
   // Set CORS headers
   corsHeaders(res)
 
-  // Extrair rota da query
-  const route = req.query.route || []
-  const routePath = Array.isArray(route) ? route.join('/') : route
-  const id = route[route.length - 1] // Último segmento pode ser um ID
+  // Extrair rota da query (Next.js passa como array no req.query.route)
+  let route = req.query.route || []
+  let routePath = ''
+  
+  if (Array.isArray(route)) {
+    routePath = route.join('/')
+  } else if (typeof route === 'string') {
+    routePath = route
+    route = route.split('/')
+  }
+  
+  // Se routePath estiver vazio, tentar extrair da URL diretamente
+  if (!routePath && req.url) {
+    // Remove /api/ do início da URL e query string
+    const urlPath = req.url.replace(/^\/api\//, '').split('?')[0]
+    routePath = urlPath
+    route = urlPath.split('/').filter(Boolean)
+  }
+  
+  // Debug: log para entender o que está acontecendo
+  console.log('=== ROUTE DEBUG ===')
+  console.log('req.method:', req.method)
+  console.log('req.url:', req.url)
+  console.log('req.query:', req.query)
+  console.log('routePath:', routePath)
+  console.log('==================')
+  
+  const id = Array.isArray(route) && route.length > 0 ? route[route.length - 1] : null
 
   // Roteamento baseado no caminho
   try {
