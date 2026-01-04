@@ -5,6 +5,12 @@ import {
   TeamOutlined,
   TrophyOutlined,
   HeartOutlined,
+  SafetyOutlined,
+  GlobalOutlined,
+  BulbOutlined,
+  BankOutlined,
+  ReconciliationOutlined,
+  RiseOutlined,
 } from '@ant-design/icons'
 import { getSobre, getDiretoria } from '../lib/api'
 
@@ -83,49 +89,92 @@ const Sobre = () => {
             </Col>
             <Col xs={24} md={12}>
               <Card>
-                <Title level={2}>Nossos Valores</Title>
+                <Title level={2} style={{ marginBottom: '32px' }}>Nossos Valores</Title>
                 {sobre?.valores && sobre.valores.length > 0 ? (
                   <Timeline
-                    items={sobre.valores.map((valor, index) => ({
-                      color: ['blue', 'green', 'red', 'orange'][index % 4],
-                      children: (
-                        <div>
-                          <Title level={5}>
-                            {typeof valor === 'string' ? valor : (valor.titulo || valor)}
-                          </Title>
-                          {typeof valor === 'object' && valor.descricao && (
-                            <Paragraph>{valor.descricao}</Paragraph>
-                          )}
-                        </div>
-                      ),
-                    }))}
+                    mode="left"
+                    items={sobre.valores.map((valor, index) => {
+                      const valorTitulo = typeof valor === 'string' ? valor : (valor.titulo || valor)
+                      const valorDescricao = typeof valor === 'object' && valor.descricao ? valor.descricao : null
+                      const icons = [TeamOutlined, TrophyOutlined, HeartOutlined, SafetyOutlined, GlobalOutlined, BulbOutlined]
+                      const colors = ['blue', 'green', 'red', 'orange', 'purple', 'cyan']
+                      const IconComponent = icons[index % icons.length]
+                      const color = colors[index % colors.length]
+                      
+                      return {
+                        color: color,
+                        dot: <IconComponent style={{ fontSize: '20px' }} />,
+                        children: (
+                          <div>
+                            <Title level={5} style={{ marginBottom: '8px' }}>
+                              {valorTitulo}
+                            </Title>
+                            {valorDescricao && (
+                              <Paragraph style={{ marginBottom: 0, fontSize: '14px', color: '#666' }}>
+                                {valorDescricao}
+                              </Paragraph>
+                            )}
+                          </div>
+                        ),
+                      }
+                    })}
                   />
                 ) : (
                   <Timeline
+                    mode="left"
                     items={[
                       {
                         color: 'blue',
+                        dot: <TeamOutlined style={{ fontSize: '20px' }} />,
                         children: (
                           <div>
-                            <Title level={5}>
-                              <TeamOutlined /> União
+                            <Title level={5} style={{ marginBottom: '8px' }}>
+                              União
                             </Title>
-                            <Paragraph>
-                              Acreditamos no poder da união e da colaboração entre
-                              empresários.
+                            <Paragraph style={{ marginBottom: 0, fontSize: '14px', color: '#666' }}>
+                              Acreditamos no poder da união e da colaboração entre empresários.
                             </Paragraph>
                           </div>
                         ),
                       },
                       {
                         color: 'green',
+                        dot: <TrophyOutlined style={{ fontSize: '20px' }} />,
                         children: (
                           <div>
-                            <Title level={5}>
-                              <TrophyOutlined /> Excelência
+                            <Title level={5} style={{ marginBottom: '8px' }}>
+                              Excelência
                             </Title>
-                            <Paragraph>
+                            <Paragraph style={{ marginBottom: 0, fontSize: '14px', color: '#666' }}>
                               Buscamos sempre a excelência em tudo que fazemos.
+                            </Paragraph>
+                          </div>
+                        ),
+                      },
+                      {
+                        color: 'red',
+                        dot: <HeartOutlined style={{ fontSize: '20px' }} />,
+                        children: (
+                          <div>
+                            <Title level={5} style={{ marginBottom: '8px' }}>
+                              Comprometimento
+                            </Title>
+                            <Paragraph style={{ marginBottom: 0, fontSize: '14px', color: '#666' }}>
+                              Dedicamos-nos integralmente ao desenvolvimento do comércio local.
+                            </Paragraph>
+                          </div>
+                        ),
+                      },
+                      {
+                        color: 'orange',
+                        dot: <SafetyOutlined style={{ fontSize: '20px' }} />,
+                        children: (
+                          <div>
+                            <Title level={5} style={{ marginBottom: '8px' }}>
+                              Transparência
+                            </Title>
+                            <Paragraph style={{ marginBottom: 0, fontSize: '14px', color: '#666' }}>
+                              Agimos com transparência e ética em todas as nossas ações.
                             </Paragraph>
                           </div>
                         ),

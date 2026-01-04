@@ -7,13 +7,18 @@ import Galeria from './pages/Galeria'
 import Parceiros from './pages/Parceiros'
 import Empresas from './pages/Empresas'
 import Eventos from './pages/Eventos'
+import Beneficios from './pages/Beneficios'
+import Capacitacoes from './pages/Capacitacoes'
+import CadastroEmpresa from './pages/CadastroEmpresa'
 import Admin from './pages/Admin'
+import Associado from './pages/Associado'
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/admin/*" element={<Admin />} />
+        <Route path="/associado/*" element={<Associado />} />
         <Route
           path="/*"
           element={
@@ -25,6 +30,9 @@ function App() {
                 <Route path="/parceiros" element={<Parceiros />} />
                 <Route path="/empresas" element={<Empresas />} />
                 <Route path="/eventos" element={<Eventos />} />
+                <Route path="/beneficios" element={<Beneficios />} />
+                <Route path="/capacitacoes" element={<Capacitacoes />} />
+                <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
               </Routes>
             </Layout>
           }

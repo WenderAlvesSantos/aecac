@@ -11,9 +11,12 @@ import {
   SettingOutlined,
   IdcardOutlined,
   UsergroupAddOutlined,
+  GiftOutlined,
+  BookOutlined,
+  BarChartOutlined,
 } from '@ant-design/icons'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { getEventos, getParceiros, getEmpresas, getGaleria, getDiretoria } from '../../lib/api'
+import { getEventos, getParceiros, getEmpresas, getGaleria, getDiretoria, getBeneficios, getCapacitacoes } from '../../lib/api'
 import Logo from '../../components/Logo'
 
 const { Header: AntHeader, Content, Sider } = Layout
@@ -27,6 +30,8 @@ const Dashboard = () => {
     empresas: 0,
     galeria: 0,
     diretoria: 0,
+    beneficios: 0,
+    capacitacoes: 0,
   })
 
   useEffect(() => {
@@ -35,12 +40,14 @@ const Dashboard = () => {
 
   const loadStats = async () => {
     try {
-      const [eventos, parceiros, empresas, galeria, diretoria] = await Promise.all([
+      const [eventos, parceiros, empresas, galeria, diretoria, beneficios, capacitacoes] = await Promise.all([
         getEventos(),
         getParceiros(),
         getEmpresas(),
         getGaleria(),
         getDiretoria(),
+        getBeneficios().catch(() => ({ data: [] })),
+        getCapacitacoes().catch(() => ({ data: [] })),
       ])
 
       setStats({
@@ -49,6 +56,8 @@ const Dashboard = () => {
         empresas: empresas.data.length,
         galeria: galeria.data.length,
         diretoria: diretoria.data.length,
+        beneficios: beneficios.data.length,
+        capacitacoes: capacitacoes.data.length,
       })
     } catch (error) {
       console.error('Erro ao carregar estatísticas:', error)
@@ -105,6 +114,21 @@ const Dashboard = () => {
       key: '/admin/usuarios',
       icon: <UsergroupAddOutlined />,
       label: 'Usuários',
+    },
+    {
+      key: '/admin/beneficios',
+      icon: <GiftOutlined />,
+      label: 'Benefícios',
+    },
+    {
+      key: '/admin/capacitacoes',
+      icon: <BookOutlined />,
+      label: 'Capacitações',
+    },
+    {
+      key: '/admin/relatorios',
+      icon: <BarChartOutlined />,
+      label: 'Relatórios',
     },
   ]
 
@@ -224,6 +248,26 @@ const Dashboard = () => {
                       value={stats.diretoria}
                       prefix={<UserOutlined />}
                       valueStyle={{ color: '#eb2f96' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={8}>
+                  <Card>
+                    <Statistic
+                      title="Benefícios Ativos"
+                      value={stats.beneficios}
+                      prefix={<GiftOutlined />}
+                      valueStyle={{ color: '#52c41a' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={8}>
+                  <Card>
+                    <Statistic
+                      title="Capacitações"
+                      value={stats.capacitacoes}
+                      prefix={<BookOutlined />}
+                      valueStyle={{ color: '#faad14' }}
                     />
                   </Card>
                 </Col>

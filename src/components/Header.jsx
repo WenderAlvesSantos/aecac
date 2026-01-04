@@ -1,6 +1,8 @@
-import { Layout, Menu, Button, Drawer } from 'antd'
-import { MenuOutlined } from '@ant-design/icons'
+import { Layout, Menu, Button, Drawer, Space } from 'antd'
+import { MenuOutlined, UserOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
 import Logo from './Logo'
+import Notificacoes from './Notificacoes'
 
 const { Header: AntHeader } = Layout
 
@@ -11,6 +13,9 @@ const Header = ({
   mobileMenuVisible,
   onMobileMenuToggle,
 }) => {
+  const navigate = useNavigate()
+  const associadoToken = localStorage.getItem('associadoToken')
+  const associado = associadoToken ? JSON.parse(localStorage.getItem('associado') || '{}') : null
   return (
     <AntHeader
       style={{
@@ -46,19 +51,42 @@ const Header = ({
         </div>
 
         {/* Menu Desktop */}
-        <Menu
-          mode="horizontal"
-          selectedKeys={[currentPath]}
-          items={menuItems}
-          onClick={onMenuClick}
-          style={{
-            flex: 1,
-            justifyContent: 'flex-end',
-            borderBottom: 'none',
-            minWidth: 0,
-          }}
-          className="desktop-menu"
-        />
+        <div style={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'flex-end' }}>
+          <Menu
+            mode="horizontal"
+            selectedKeys={[currentPath]}
+            items={menuItems}
+            onClick={onMenuClick}
+            style={{
+              flex: 1,
+              justifyContent: 'flex-end',
+              borderBottom: 'none',
+              minWidth: 0,
+            }}
+            className="desktop-menu"
+          />
+          {associado ? (
+            <Space style={{ marginLeft: '16px' }}>
+              <Notificacoes />
+              <Button
+                type="link"
+                icon={<UserOutlined />}
+                onClick={() => navigate('/associado')}
+              >
+                Área do Associado
+              </Button>
+            </Space>
+          ) : (
+            <Button
+              type="primary"
+              icon={<UserOutlined />}
+              onClick={() => navigate('/associado/login')}
+              style={{ marginLeft: '16px' }}
+            >
+              Entrar
+            </Button>
+          )}
+        </div>
 
         {/* Botão Mobile */}
         <Button
@@ -79,7 +107,7 @@ const Header = ({
         placement="right"
         onClose={onMobileMenuToggle}
         open={mobileMenuVisible}
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 } }}
       >
         <Menu
           mode="vertical"

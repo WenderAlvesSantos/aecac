@@ -7,13 +7,12 @@ import {
   ArrowRightOutlined,
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
-import { getSobre, getEmpresas, getParceiros } from '../lib/api'
+import { getEmpresas, getParceiros } from '../lib/api'
 
 const { Title, Paragraph } = Typography
 
 const Home = () => {
   const navigate = useNavigate()
-  const [sobre, setSobre] = useState(null)
   const [stats, setStats] = useState({
     empresas: 0,
     parceiros: 0,
@@ -25,12 +24,10 @@ const Home = () => {
 
   const loadData = async () => {
     try {
-      const [sobreRes, empresasRes, parceirosRes] = await Promise.all([
-        getSobre(),
+      const [empresasRes, parceirosRes] = await Promise.all([
         getEmpresas(),
         getParceiros(),
       ])
-      setSobre(sobreRes.data)
       setStats({
         empresas: empresasRes.data.length,
         parceiros: parceirosRes.data.length,
@@ -141,39 +138,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Missão e Visão */}
-      <div style={{ padding: '64px 24px', background: '#f0f2f5' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <Title level={2} style={{ textAlign: 'center', marginBottom: '48px' }}>
-            Nossa Missão
-          </Title>
-          <Row gutter={[32, 32]}>
-            <Col xs={24} md={12}>
-              <Card
-                hoverable
-                style={{ height: '100%', textAlign: 'center' }}
-              >
-                <Title level={3}>Missão</Title>
-                <Paragraph style={{ fontSize: '16px', whiteSpace: 'pre-line' }}>
-                  {sobre?.missao || 'Promover o desenvolvimento econômico e social de Águas Claras, fortalecendo os laços entre empresários e criando um ambiente propício para o crescimento dos negócios locais.'}
-                </Paragraph>
-              </Card>
-            </Col>
-            <Col xs={24} md={12}>
-              <Card
-                hoverable
-                style={{ height: '100%', textAlign: 'center' }}
-              >
-                <Title level={3}>Visão</Title>
-                <Paragraph style={{ fontSize: '16px', whiteSpace: 'pre-line' }}>
-                  {sobre?.visao || 'Ser a principal referência em associação empresarial na região de Águas Claras, reconhecida pela excelência em representar e fortalecer o setor comercial local.'}
-                </Paragraph>
-              </Card>
-            </Col>
-          </Row>
-        </div>
-      </div>
-
       {/* Benefícios */}
       <div style={{ padding: '64px 24px', background: '#fff' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -260,15 +224,24 @@ const Home = () => {
             Junte-se a nós e fortaleça seu negócio junto com outros empresários
             de Águas Claras.
           </Paragraph>
-          <Button
-            type="default"
-            size="large"
-            icon={<ArrowRightOutlined />}
-            onClick={() => navigate('/sobre')}
-            style={{ background: '#fff', color: '#1890ff' }}
-          >
-            Saiba Como Associar-se
-          </Button>
+          <Space size="large">
+            <Button
+              type="default"
+              size="large"
+              icon={<ArrowRightOutlined />}
+              onClick={() => navigate('/sobre')}
+              style={{ background: '#fff', color: '#1890ff' }}
+            >
+              Saiba Mais
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => navigate('/cadastro-empresa')}
+            >
+              Associar Minha Empresa
+            </Button>
+          </Space>
         </div>
       </div>
     </div>

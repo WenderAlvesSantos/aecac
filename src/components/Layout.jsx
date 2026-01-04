@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Layout as AntLayout } from 'antd'
+import { Layout as AntLayout, Button } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   HomeOutlined,
@@ -8,6 +8,9 @@ import {
   TeamOutlined,
   ShopOutlined,
   CalendarOutlined,
+  UserOutlined,
+  GiftOutlined,
+  BookOutlined,
 } from '@ant-design/icons'
 import Header from './Header'
 import Footer from './Footer'
@@ -49,6 +52,16 @@ const Layout = ({ children }) => {
       key: '/eventos',
       icon: <CalendarOutlined />,
       label: 'Eventos',
+    },
+    {
+      key: '/beneficios',
+      icon: <GiftOutlined />,
+      label: 'Benefícios',
+    },
+    {
+      key: '/capacitacoes',
+      icon: <BookOutlined />,
+      label: 'Capacitações',
     },
   ]
 

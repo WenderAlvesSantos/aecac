@@ -11,13 +11,16 @@ import {
   Popconfirm,
   Upload,
   Image,
+  Tag,
+  Tooltip,
 } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons'
+import { PlusOutlined, DeleteOutlined, UploadOutlined, CheckOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons'
 import {
-  getEmpresas,
+  getEmpresasPendentes,
   createEmpresa,
   updateEmpresa,
   deleteEmpresa,
+  aprovarEmpresa,
 } from '../../lib/api'
 
 const { TextArea } = Input
@@ -36,30 +39,59 @@ const formatPhone = (value) => {
   }
 }
 
-// Função para remover máscara do telefone
-const removePhoneMask = (value) => {
+// Função para formatar CNPJ
+const formatCNPJ = (value) => {
   if (!value) return ''
-  return value.replace(/\D/g, '')
+  const numbers = value.replace(/\D/g, '')
+  if (numbers.length <= 14) {
+    return numbers.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5')
+      .replace(/^(\d{2})(\d{3})(\d{3})(\d{4})$/, '$1.$2.$3/$4')
+      .replace(/^(\d{2})(\d{3})(\d{3})$/, '$1.$2.$3')
+      .replace(/^(\d{2})(\d{3})$/, '$1.$2')
+      .replace(/^(\d{2})$/, '$1')
+  }
+  return value
 }
+
+// Função para formatar CEP
+const formatCEP = (value) => {
+  if (!value) return ''
+  const numbers = value.replace(/\D/g, '')
+  if (numbers.length <= 8) {
+    return numbers.replace(/^(\d{5})(\d{3})$/, '$1-$2')
+  }
+  return value
+}
+
 
 const EmpresasAdmin = () => {
   const [empresas, setEmpresas] = useState([])
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
+  const [viewModalVisible, setViewModalVisible] = useState(false)
+  const [viewingEmpresa, setViewingEmpresa] = useState(null)
   const [editingEmpresa, setEditingEmpresa] = useState(null)
   const [form] = Form.useForm()
   const editingEmpresaRef = useRef(null)
+  const [filtroStatus, setFiltroStatus] = useState('all')
 
   useEffect(() => {
     loadEmpresas()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtroStatus])
 
   const loadEmpresas = async () => {
     setLoading(true)
     try {
-      const response = await getEmpresas()
-      setEmpresas(response.data)
+      const response = await getEmpresasPendentes(filtroStatus === 'all' ? null : filtroStatus)
+      // Garantir que todas as empresas tenham status definido
+      const empresasComStatus = response.data.map(empresa => ({
+        ...empresa,
+        status: empresa.status || 'pendente' // Default para pendente se não tiver status
+      }))
+      setEmpresas(empresasComStatus)
     } catch (error) {
+      console.error('Erro ao carregar empresas:', error)
       message.error('Erro ao carregar empresas')
     } finally {
       setLoading(false)
@@ -73,10 +105,9 @@ const EmpresasAdmin = () => {
     setModalVisible(true)
   }
 
-  const handleEdit = (empresa) => {
-    setEditingEmpresa(empresa)
-    editingEmpresaRef.current = empresa
-    setModalVisible(true)
+  const handleView = (empresa) => {
+    setViewingEmpresa(empresa)
+    setViewModalVisible(true)
   }
 
   // Efeito para carregar dados quando o modal de edição abrir
@@ -105,10 +136,19 @@ const EmpresasAdmin = () => {
       requestAnimationFrame(() => {
         setTimeout(() => {
           if (form && modalVisible) {
-            // Formatar telefone ao carregar para edição
+            // Formatar campos ao carregar para edição
             const empresaData = { ...empresa }
             if (empresaData.telefone) {
               empresaData.telefone = formatPhone(empresaData.telefone)
+            }
+            if (empresaData.whatsapp) {
+              empresaData.whatsapp = formatPhone(empresaData.whatsapp)
+            }
+            if (empresaData.cnpj) {
+              empresaData.cnpj = formatCNPJ(empresaData.cnpj)
+            }
+            if (empresaData.cep) {
+              empresaData.cep = formatCEP(empresaData.cep)
             }
             form.setFieldsValue({
               ...empresaData,
@@ -131,6 +171,16 @@ const EmpresasAdmin = () => {
       loadEmpresas()
     } catch (error) {
       message.error('Erro ao deletar empresa')
+    }
+  }
+
+  const handleAprovar = async (empresaId, acao) => {
+    try {
+      await aprovarEmpresa(empresaId, acao)
+      message.success(`Empresa ${acao === 'aprovar' ? 'aprovada' : 'rejeitada'} com sucesso`)
+      loadEmpresas()
+    } catch (error) {
+      message.error('Erro ao processar solicitação')
     }
   }
 
@@ -273,9 +323,18 @@ const EmpresasAdmin = () => {
       
       delete formData.imagemFile
       
+      // Limpar CNPJ e CEP (remover formatação)
+      if (formData.cnpj) {
+        formData.cnpj = formData.cnpj.replace(/\D/g, '')
+      }
+      if (formData.cep) {
+        formData.cep = formData.cep.replace(/\D/g, '')
+      }
+      
       console.log('Dados finais a serem enviados:', {
         nome: formData.nome,
         categoria: formData.categoria,
+        cnpj: formData.cnpj,
         hasImagem: !!formData.imagem,
         imagemLength: formData.imagem ? formData.imagem.length : 0,
         imagemPreview: formData.imagem ? formData.imagem.substring(0, 50) + '...' : null
@@ -346,41 +405,132 @@ const EmpresasAdmin = () => {
       key: 'email',
     },
     {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => {
+        const colors = {
+          pendente: 'orange',
+          aprovado: 'green',
+          rejeitado: 'red',
+        }
+        const labels = {
+          pendente: 'Pendente',
+          aprovado: 'Aprovado',
+          rejeitado: 'Rejeitado',
+        }
+        return <Tag color={colors[status] || 'default'}>{labels[status] || status}</Tag>
+      },
+    },
+    {
       title: 'Ações',
       key: 'actions',
-      render: (_, record) => (
-        <Space>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            Editar
-          </Button>
-          <Popconfirm
-            title="Tem certeza que deseja deletar esta empresa?"
-            onConfirm={() => handleDelete(record._id)}
-          >
-            <Button type="link" danger icon={<DeleteOutlined />}>
-              Deletar
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+      width: 150,
+      render: (_, record) => {
+        const isPendente = record.status === 'pendente' || !record.status
+        return (
+          <Space size="middle">
+            {isPendente && (
+              <>
+                <Popconfirm
+                  title="Confirmar aprovação desta empresa?"
+                  description="A empresa será aprovada e um email será enviado automaticamente."
+                  onConfirm={() => handleAprovar(record._id, 'aprovar')}
+                  okText="Sim, aprovar"
+                  cancelText="Cancelar"
+                  okButtonProps={{ type: 'primary', danger: false }}
+                >
+                  <Tooltip title="Aprovar empresa">
+                    <Button
+                      type="primary"
+                      icon={<CheckOutlined />}
+                      style={{ background: '#52c41a', borderColor: '#52c41a' }}
+                      shape="circle"
+                    />
+                  </Tooltip>
+                </Popconfirm>
+                <Popconfirm
+                  title="Confirmar rejeição desta empresa?"
+                  description="A empresa será rejeitada e um email será enviado automaticamente."
+                  onConfirm={() => handleAprovar(record._id, 'rejeitar')}
+                  okText="Sim, rejeitar"
+                  cancelText="Cancelar"
+                  okButtonProps={{ type: 'primary', danger: true }}
+                >
+                  <Tooltip title="Rejeitar empresa">
+                    <Button
+                      danger
+                      icon={<CloseOutlined />}
+                      shape="circle"
+                    />
+                  </Tooltip>
+                </Popconfirm>
+              </>
+            )}
+            <Tooltip title="Visualizar empresa">
+              <Button
+                type="text"
+                icon={<EyeOutlined />}
+                onClick={() => handleView(record)}
+                shape="circle"
+              />
+            </Tooltip>
+            <Popconfirm
+              title="Tem certeza que deseja deletar esta empresa?"
+              onConfirm={() => handleDelete(record._id)}
+              okText="Sim"
+              cancelText="Não"
+            >
+              <Tooltip title="Deletar empresa">
+                <Button 
+                  type="text" 
+                  danger 
+                  icon={<DeleteOutlined />} 
+                  shape="circle"
+                />
+              </Tooltip>
+            </Popconfirm>
+          </Space>
+        )
+      },
     },
   ]
 
   return (
-    <div>
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Gerenciar Empresas</h2>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleCreate}
-        >
-          Nova Empresa
-        </Button>
+    <div style={{ padding: '24px' }}>
+      <div style={{ 
+        marginBottom: '24px', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '16px'
+      }}>
+        <h2 style={{ margin: 0 }}>Gerenciar Empresas</h2>
+        <Space size="large" wrap>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontWeight: 500 }}>Filtrar por status:</span>
+            <Select
+              value={filtroStatus}
+              onChange={setFiltroStatus}
+              style={{ width: 160, minWidth: 160 }}
+              placeholder="Selecione o status"
+            >
+              <Select.Option value="all">Todas</Select.Option>
+              <Select.Option value="pendente">Pendentes</Select.Option>
+              <Select.Option value="aprovado">Aprovadas</Select.Option>
+              <Select.Option value="rejeitado">Rejeitadas</Select.Option>
+            </Select>
+          </div>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleCreate}
+            size="large"
+          >
+            Nova Empresa
+          </Button>
+        </Space>
       </div>
 
       <Table
@@ -408,11 +558,44 @@ const EmpresasAdmin = () => {
           onFinish={handleSubmit}
         >
           <Form.Item
+            name="cnpj"
+            label="CNPJ"
+            rules={[
+              { required: true, message: 'CNPJ é obrigatório' },
+              {
+                validator: (_, value) => {
+                  if (!value) return Promise.resolve()
+                  const cnpjLimpo = value.replace(/\D/g, '')
+                  if (cnpjLimpo.length !== 14) {
+                    return Promise.reject(new Error('CNPJ deve ter 14 dígitos'))
+                  }
+                  return Promise.resolve()
+                },
+              },
+            ]}
+          >
+            <Input
+              placeholder="00.000.000/0000-00"
+              maxLength={18}
+              normalize={(value) => formatCNPJ(value)}
+              disabled={!!editingEmpresa}
+            />
+          </Form.Item>
+
+          <Form.Item
             name="nome"
             label="Nome"
             rules={[{ required: true, message: 'Campo obrigatório' }]}
           >
             <Input />
+          </Form.Item>
+
+          <Form.Item
+            name="responsavel"
+            label="Nome do Responsável"
+            rules={[{ required: true, message: 'Campo obrigatório' }]}
+          >
+            <Input placeholder="Nome completo do responsável" />
           </Form.Item>
 
           <Form.Item
@@ -442,6 +625,20 @@ const EmpresasAdmin = () => {
           <Form.Item
             name="telefone"
             label="Telefone"
+            normalize={(value) => {
+              if (!value) return ''
+              return formatPhone(value)
+            }}
+          >
+            <Input
+              placeholder="(61) 99999-9999"
+              maxLength={15}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="whatsapp"
+            label="WhatsApp"
             normalize={(value) => {
               if (!value) return ''
               return formatPhone(value)
@@ -513,8 +710,31 @@ const EmpresasAdmin = () => {
           </Form.Item>
 
           <Form.Item
+            name="cep"
+            label="CEP"
+            rules={[
+              {
+                validator: (_, value) => {
+                  if (!value) return Promise.resolve()
+                  const cepLimpo = value.replace(/\D/g, '')
+                  if (cepLimpo.length !== 8) {
+                    return Promise.reject(new Error('CEP deve ter 8 dígitos'))
+                  }
+                  return Promise.resolve()
+                },
+              },
+            ]}
+          >
+            <Input
+              placeholder="00000-000"
+              maxLength={9}
+              normalize={(value) => formatCEP(value)}
+            />
+          </Form.Item>
+
+          <Form.Item
             name="endereco"
-            label="Endereço"
+            label="Endereço Completo"
           >
             <TextArea rows={2} />
           </Form.Item>
@@ -602,6 +822,156 @@ const EmpresasAdmin = () => {
             </Space>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Modal de Visualização */}
+      <Modal
+        title="Visualizar Empresa"
+        open={viewModalVisible}
+        onCancel={() => {
+          setViewModalVisible(false)
+          setViewingEmpresa(null)
+        }}
+        footer={[
+          <Button key="close" onClick={() => {
+            setViewModalVisible(false)
+            setViewingEmpresa(null)
+          }}>
+            Fechar
+          </Button>
+        ]}
+        width={700}
+      >
+        {viewingEmpresa && (
+          <div style={{ padding: '16px 0' }}>
+            <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+              {viewingEmpresa.imagem && (
+                <Image
+                  src={viewingEmpresa.imagem}
+                  alt="Fachada"
+                  width={200}
+                  height={200}
+                  style={{ objectFit: 'cover', borderRadius: '8px' }}
+                />
+              )}
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div>
+                <strong>CNPJ:</strong>
+                <div>{viewingEmpresa.cnpj ? formatCNPJ(viewingEmpresa.cnpj) : '-'}</div>
+              </div>
+              <div>
+                <strong>Status:</strong>
+                <div>
+                  <Tag color={viewingEmpresa.status === 'aprovado' ? 'green' : viewingEmpresa.status === 'rejeitado' ? 'red' : 'orange'}>
+                    {viewingEmpresa.status === 'aprovado' ? 'Aprovado' : viewingEmpresa.status === 'rejeitado' ? 'Rejeitado' : 'Pendente'}
+                  </Tag>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <strong>Nome da Empresa:</strong>
+              <div>{viewingEmpresa.nome || '-'}</div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <strong>Responsável:</strong>
+              <div>{viewingEmpresa.responsavel || '-'}</div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <strong>Categoria:</strong>
+              <div>{viewingEmpresa.categoria || '-'}</div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <strong>Descrição:</strong>
+              <div style={{ whiteSpace: 'pre-wrap' }}>{viewingEmpresa.descricao || '-'}</div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div>
+                <strong>Telefone:</strong>
+                <div>{viewingEmpresa.telefone ? formatPhone(viewingEmpresa.telefone) : '-'}</div>
+              </div>
+              <div>
+                <strong>WhatsApp:</strong>
+                <div>{viewingEmpresa.whatsapp ? formatPhone(viewingEmpresa.whatsapp) : '-'}</div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <strong>Email:</strong>
+              <div>{viewingEmpresa.email || '-'}</div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div>
+                <strong>CEP:</strong>
+                <div>{viewingEmpresa.cep ? formatCEP(viewingEmpresa.cep) : '-'}</div>
+              </div>
+              <div>
+                <strong>Endereço:</strong>
+                <div>{viewingEmpresa.endereco || '-'}</div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <strong>Site:</strong>
+              <div>
+                {viewingEmpresa.site ? (
+                  <a href={viewingEmpresa.site} target="_blank" rel="noopener noreferrer">
+                    {viewingEmpresa.site}
+                  </a>
+                ) : '-'}
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div>
+                <strong>Facebook:</strong>
+                <div>
+                  {viewingEmpresa.facebook ? (
+                    <a href={viewingEmpresa.facebook} target="_blank" rel="noopener noreferrer">
+                      Ver perfil
+                    </a>
+                  ) : '-'}
+                </div>
+              </div>
+              <div>
+                <strong>Instagram:</strong>
+                <div>
+                  {viewingEmpresa.instagram ? (
+                    <a href={viewingEmpresa.instagram} target="_blank" rel="noopener noreferrer">
+                      Ver perfil
+                    </a>
+                  ) : '-'}
+                </div>
+              </div>
+              <div>
+                <strong>LinkedIn:</strong>
+                <div>
+                  {viewingEmpresa.linkedin ? (
+                    <a href={viewingEmpresa.linkedin} target="_blank" rel="noopener noreferrer">
+                      Ver perfil
+                    </a>
+                  ) : '-'}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #f0f0f0' }}>
+              <div style={{ fontSize: '12px', color: '#8c8c8c' }}>
+                <div><strong>Cadastrado em:</strong> {viewingEmpresa.createdAt ? new Date(viewingEmpresa.createdAt).toLocaleString('pt-BR') : '-'}</div>
+                {viewingEmpresa.updatedAt && (
+                  <div><strong>Atualizado em:</strong> {new Date(viewingEmpresa.updatedAt).toLocaleString('pt-BR')}</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   )

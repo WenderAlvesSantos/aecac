@@ -12,7 +12,7 @@ import {
   Spin,
   Tooltip,
 } from 'antd'
-import { SearchOutlined, ShopOutlined, PhoneOutlined, MailOutlined, GlobalOutlined, FacebookOutlined, InstagramOutlined, LinkedinOutlined } from '@ant-design/icons'
+import { SearchOutlined, ShopOutlined, PhoneOutlined, MailOutlined, GlobalOutlined, FacebookOutlined, InstagramOutlined, LinkedinOutlined, WhatsAppOutlined } from '@ant-design/icons'
 import { getEmpresas } from '../lib/api'
 
 const { Title, Paragraph } = Typography
@@ -31,6 +31,19 @@ const formatPhone = (value) => {
   } else {
     return numbers.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '')
   }
+}
+
+// Função para gerar link do WhatsApp
+const getWhatsAppLink = (whatsapp) => {
+  if (!whatsapp) return null
+  // Remove formatação e adiciona código do país (55 para Brasil)
+  const numbers = whatsapp.replace(/\D/g, '')
+  // Se não começar com 55, adiciona
+  if (numbers.length >= 10) {
+    const phoneNumber = numbers.startsWith('55') ? numbers : `55${numbers}`
+    return `https://wa.me/${phoneNumber}`
+  }
+  return null
 }
 
 const Empresas = () => {
@@ -88,9 +101,15 @@ const Empresas = () => {
   }
 
   const filteredEmpresas = empresas.filter((empresa) => {
+    const searchLower = searchTerm.toLowerCase()
     const matchesSearch =
-      empresa.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      empresa.descricao.toLowerCase().includes(searchTerm.toLowerCase())
+      !searchTerm ||
+      empresa.nome.toLowerCase().includes(searchLower) ||
+      empresa.descricao?.toLowerCase().includes(searchLower) ||
+      empresa.telefone?.includes(searchTerm) ||
+      empresa.email?.toLowerCase().includes(searchLower) ||
+      empresa.endereco?.toLowerCase().includes(searchLower) ||
+      empresa.categoria?.toLowerCase().includes(searchLower)
     const matchesCategory =
       selectedCategory === 'all' || empresa.categoria === selectedCategory
     return matchesSearch && matchesCategory
@@ -123,13 +142,13 @@ const Empresas = () => {
         </div>
       </div>
 
-      {/* Filtros e Busca */}
+      {/* Filtros e Busca Avançada */}
       <div style={{ padding: '32px 24px 0' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12} md={16}>
+            <Col xs={24} sm={12} md={14}>
               <Search
-                placeholder="Buscar empresas..."
+                placeholder="Buscar empresas por nome, descrição, telefone, email, endereço ou categoria..."
                 allowClear
                 enterButton={<SearchOutlined />}
                 size="large"
@@ -137,7 +156,7 @@ const Empresas = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </Col>
-            <Col xs={24} sm={12} md={8}>
+            <Col xs={24} sm={12} md={10}>
               <Select
                 placeholder="Filtrar por categoria"
                 size="large"
@@ -154,6 +173,13 @@ const Empresas = () => {
                     </Option>
                   ))}
               </Select>
+            </Col>
+          </Row>
+          <Row gutter={[16, 16]} style={{ marginTop: '16px' }}>
+            <Col xs={24}>
+              <div style={{ fontSize: '14px', color: '#8c8c8c' }}>
+                💡 Dica: Use a busca para encontrar empresas por qualquer informação cadastrada
+              </div>
             </Col>
           </Row>
         </div>
@@ -227,28 +253,28 @@ const Empresas = () => {
                           {empresa.categoria}
                         </Tag>
                       </div>
-                      {empresa.descricao && (
-                        <Tooltip 
-                          title={empresa.descricao.length > 250 ? (
-                            <div style={{ whiteSpace: 'pre-line', maxWidth: '400px' }}>
-                              {empresa.descricao}
-                            </div>
-                          ) : null}
-                          placement="top"
-                        >
-                          <Paragraph 
-                            style={{ 
-                              marginBottom: '16px',
-                              whiteSpace: 'pre-line',
-                              cursor: empresa.descricao.length > 250 ? 'help' : 'default'
-                            }}
-                          >
-                            {empresa.descricao.length > 250
-                              ? empresa.descricao.substring(0, 250) + '...'
-                              : empresa.descricao}
-                          </Paragraph>
-                        </Tooltip>
-                      )}
+                          {empresa.descricao && (
+                            <Tooltip 
+                              title={empresa.descricao.length > 250 ? (
+                                <div style={{ whiteSpace: 'pre-line', maxWidth: '400px' }}>
+                                  {empresa.descricao}
+                                </div>
+                              ) : null}
+                              placement="top"
+                            >
+                              <Paragraph 
+                                style={{ 
+                                  marginBottom: '16px',
+                                  whiteSpace: 'pre-line',
+                                  cursor: empresa.descricao.length > 250 ? 'help' : 'default'
+                                }}
+                              >
+                                {empresa.descricao.length > 250
+                                  ? empresa.descricao.substring(0, 250) + '...'
+                                  : empresa.descricao}
+                              </Paragraph>
+                            </Tooltip>
+                          )}
                       <div
                         style={{
                           borderTop: '1px solid #f0f0f0',
@@ -286,8 +312,20 @@ const Empresas = () => {
                               </a>
                             </div>
                           )}
-                          {(empresa.facebook || empresa.instagram || empresa.linkedin) && (
-                            <div style={{ fontSize: '12px', color: '#666', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          {(empresa.whatsapp || empresa.facebook || empresa.instagram || empresa.linkedin) && (
+                            <div style={{ fontSize: '12px', color: '#666', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                              {empresa.whatsapp && getWhatsAppLink(empresa.whatsapp) && (
+                                <Tooltip title="Abrir WhatsApp">
+                                  <a
+                                    href={getWhatsAppLink(empresa.whatsapp)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: '#25D366' }}
+                                  >
+                                    <WhatsAppOutlined style={{ fontSize: '18px' }} />
+                                  </a>
+                                </Tooltip>
+                              )}
                               {empresa.facebook && (
                                 <a
                                   href={empresa.facebook}

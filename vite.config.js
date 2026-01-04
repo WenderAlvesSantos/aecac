@@ -8,5 +8,8 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
   },
+  optimizeDeps: {
+    include: ['xlsx'],
+  },
 })
 
