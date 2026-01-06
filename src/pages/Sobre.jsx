@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Row, Col, Typography, Card, Timeline, Divider, Spin } from 'antd'
 import {
-  CheckCircleOutlined,
   TeamOutlined,
   TrophyOutlined,
   HeartOutlined,
   SafetyOutlined,
   GlobalOutlined,
   BulbOutlined,
-  BankOutlined,
-  ReconciliationOutlined,
-  RiseOutlined,
 } from '@ant-design/icons'
 import { getSobre, getDiretoria } from '../lib/api'
 
@@ -52,20 +48,48 @@ const Sobre = () => {
       {/* Header Section */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
           color: '#fff',
-          padding: '80px 24px',
+          padding: window.innerWidth < 768 ? '50px 16px' : '100px 24px',
           textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <Title level={1} style={{ color: '#fff', marginBottom: '16px' }}>
+        {/* Decorative elements */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '-30%',
+            right: '-10%',
+            width: '500px',
+            height: '500px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-20%',
+            left: '-10%',
+            width: '400px',
+            height: '400px',
+            background: 'rgba(0, 200, 83, 0.1)',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <Title level={1} style={{ color: '#fff', marginBottom: '16px', fontSize: window.innerWidth < 768 ? '32px' : '42px', fontWeight: 'bold', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
             Sobre a AECAC
           </Title>
           <Paragraph
             style={{
-              color: 'rgba(255,255,255,0.9)',
-              fontSize: '18px',
+              color: 'rgba(255,255,255,0.95)',
+              fontSize: window.innerWidth < 768 ? '16px' : '20px',
+              lineHeight: '1.8',
             }}
           >
             Conheça nossa história, valores e o trabalho que desenvolvemos para
@@ -75,20 +99,64 @@ const Sobre = () => {
       </div>
 
       {/* Conteúdo Principal */}
-      <div style={{ padding: '64px 24px' }}>
+      <div style={{ padding: window.innerWidth < 768 ? '32px 16px' : '64px 24px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           {/* História */}
           <Row gutter={[32, 32]} style={{ marginBottom: '64px' }}>
             <Col xs={24} md={12}>
-              <Card>
-                <Title level={2}>Nossa História</Title>
-                <Paragraph style={{ fontSize: '16px', lineHeight: '1.8', whiteSpace: 'pre-line' }}>
+              <Card
+                hoverable
+                style={{
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  border: '1px solid #e0e0e0',
+                  height: '100%',
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                  background: '#fff',
+                  opacity: 0,
+                  transform: 'translateY(30px)',
+                  animation: 'fadeInUp 0.6s ease-out 0.1s forwards',
+                }}
+                bodyStyle={{ padding: '32px' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 8px 20px rgba(26, 35, 126, 0.12)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+                }}
+              >
+                <Title level={2} style={{ color: '#1a237e', marginBottom: '20px', fontSize: '26px', fontWeight: 'bold' }}>Nossa História</Title>
+                <Paragraph style={{ fontSize: '16px', lineHeight: '1.8', whiteSpace: 'pre-line', color: '#666' }}>
                   {sobre?.historia || 'A Associação Empresarial e Comercial de Águas Claras (AECAC) foi fundada com o objetivo de unir empresários e comerciantes da região, criando uma rede sólida de apoio mútuo e desenvolvimento conjunto.'}
                 </Paragraph>
               </Card>
             </Col>
             <Col xs={24} md={12}>
-              <Card>
+              <Card
+                hoverable
+                style={{
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  border: '1px solid #e0e0e0',
+                  height: '100%',
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                  background: '#fff',
+                  opacity: 0,
+                  transform: 'translateY(30px)',
+                  animation: 'fadeInUp 0.6s ease-out 0.2s forwards',
+                }}
+                bodyStyle={{ padding: '32px' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 8px 20px rgba(21, 101, 192, 0.12)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+                }}
+              >
                 <Title level={2} style={{ marginBottom: '32px' }}>Nossos Valores</Title>
                 {sobre?.valores && sobre.valores.length > 0 ? (
                   <Timeline
@@ -217,65 +285,72 @@ const Sobre = () => {
 
           {/* Objetivos */}
           <div style={{ marginBottom: '64px' }}>
-            <Title level={2} style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <Title level={2} style={{ textAlign: 'center', marginBottom: '48px', color: '#1a237e', fontSize: '32px', fontWeight: 'bold' }}>
               Nossos Objetivos
             </Title>
             <Row gutter={[24, 24]}>
-              <Col xs={24} sm={12} md={8}>
-                <Card hoverable style={{ height: '100%', textAlign: 'center' }}>
-                  <Title level={4}>Fortalecer o Comércio Local</Title>
-                  <Paragraph>
-                    Promover o crescimento e desenvolvimento das empresas
-                    associadas através de ações estratégicas e parcerias.
-                  </Paragraph>
-                </Card>
-              </Col>
-              <Col xs={24} sm={12} md={8}>
-                <Card hoverable style={{ height: '100%', textAlign: 'center' }}>
-                  <Title level={4}>Facilitar Networking</Title>
-                  <Paragraph>
-                    Criar oportunidades para que empresários se conectem e
-                    desenvolvam relacionamentos comerciais duradouros.
-                  </Paragraph>
-                </Card>
-              </Col>
-              <Col xs={24} sm={12} md={8}>
-                <Card hoverable style={{ height: '100%', textAlign: 'center' }}>
-                  <Title level={4}>Representar Interesses</Title>
-                  <Paragraph>
-                    Representar os interesses dos associados junto a órgãos
-                    públicos e privados, defendendo políticas favoráveis ao
-                    comércio.
-                  </Paragraph>
-                </Card>
-              </Col>
-              <Col xs={24} sm={12} md={8}>
-                <Card hoverable style={{ height: '100%', textAlign: 'center' }}>
-                  <Title level={4}>Promover Eventos</Title>
-                  <Paragraph>
-                    Organizar eventos, palestras e workshops para capacitação e
-                    desenvolvimento dos associados.
-                  </Paragraph>
-                </Card>
-              </Col>
-              <Col xs={24} sm={12} md={8}>
-                <Card hoverable style={{ height: '100%', textAlign: 'center' }}>
-                  <Title level={4}>Desenvolver Parcerias</Title>
-                  <Paragraph>
-                    Estabelecer parcerias estratégicas que beneficiem os
-                    associados e a comunidade local.
-                  </Paragraph>
-                </Card>
-              </Col>
-              <Col xs={24} sm={12} md={8}>
-                <Card hoverable style={{ height: '100%', textAlign: 'center' }}>
-                  <Title level={4}>Incentivar Inovação</Title>
-                  <Paragraph>
-                    Fomentar a inovação e modernização dos negócios locais
-                    através de conhecimento e recursos compartilhados.
-                  </Paragraph>
-                </Card>
-              </Col>
+              {[
+                { title: 'Fortalecer o Comércio Local', color: '#1a237e', text: 'Promover o crescimento e desenvolvimento das empresas associadas através de ações estratégicas e parcerias.' },
+                { title: 'Facilitar Networking', color: '#1565c0', text: 'Criar oportunidades para que empresários se conectem e desenvolvam relacionamentos comerciais duradouros.' },
+                { title: 'Representar Interesses', color: '#00c853', text: 'Representar os interesses dos associados junto a órgãos públicos e privados, defendendo políticas favoráveis ao comércio.' },
+                { title: 'Promover Eventos', color: '#42a5f5', text: 'Organizar eventos, palestras e workshops para capacitação e desenvolvimento dos associados.' },
+                { title: 'Desenvolver Parcerias', color: '#1a237e', text: 'Estabelecer parcerias estratégicas que beneficiem os associados e a comunidade local.' },
+                { title: 'Incentivar Inovação', color: '#1565c0', text: 'Fomentar a inovação e modernização dos negócios locais através de conhecimento e recursos compartilhados.' },
+              ].map((item, index) => (
+                <Col xs={24} sm={12} md={8} key={index}>
+                  <Card 
+                    hoverable 
+                    style={{ 
+                      height: '100%', 
+                      textAlign: 'center',
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                      border: '1px solid #e0e0e0',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      background: '#fff',
+                      overflow: 'hidden',
+                      position: 'relative',
+                      opacity: 0,
+                      transform: 'translateY(30px)',
+                      animation: `fadeInUp 0.6s ease-out ${0.5 + index * 0.1}s forwards`,
+                    }}
+                    bodyStyle={{ padding: '28px', position: 'relative', zIndex: 1 }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-8px)'
+                      e.currentTarget.style.boxShadow = `0 12px 24px ${item.color}33`
+                      const overlay = e.currentTarget.querySelector('.card-overlay')
+                      if (overlay) overlay.style.opacity = '1'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+                      const overlay = e.currentTarget.querySelector('.card-overlay')
+                      if (overlay) overlay.style.opacity = '0'
+                    }}
+                  >
+                    <div
+                      className="card-overlay"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: `linear-gradient(135deg, ${item.color}08 0%, ${item.color}15 100%)`,
+                        opacity: 0,
+                        transition: 'opacity 0.4s ease',
+                        zIndex: 0,
+                      }}
+                    />
+                    <Title level={4} style={{ color: item.color, marginBottom: '16px', fontSize: '18px', fontWeight: '600', position: 'relative', zIndex: 1 }}>
+                      {item.title}
+                    </Title>
+                    <Paragraph style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: 0, position: 'relative', zIndex: 1 }}>
+                      {item.text}
+                    </Paragraph>
+                  </Card>
+                </Col>
+              ))}
             </Row>
           </div>
 

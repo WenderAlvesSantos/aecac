@@ -22,7 +22,6 @@ import {
   createBeneficio,
   updateBeneficio,
   deleteBeneficio,
-  getEmpresas,
   createNotificacao,
 } from '../../lib/api'
 import dayjs from 'dayjs'
@@ -31,15 +30,14 @@ const { TextArea } = Input
 
 const BeneficiosAdmin = () => {
   const [beneficios, setBeneficios] = useState([])
-  const [empresas, setEmpresas] = useState([])
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [editingBeneficio, setEditingBeneficio] = useState(null)
+  const [imagemRemovida, setImagemRemovida] = useState(false)
   const [form] = Form.useForm()
 
   useEffect(() => {
     loadBeneficios()
-    loadEmpresas()
   }, [])
 
   const loadBeneficios = async () => {
@@ -54,28 +52,26 @@ const BeneficiosAdmin = () => {
     }
   }
 
-  const loadEmpresas = async () => {
-    try {
-      const response = await getEmpresas()
-      setEmpresas(response.data)
-    } catch (error) {
-      console.error('Erro ao carregar empresas:', error)
-    }
-  }
-
   const handleCreate = () => {
     setEditingBeneficio(null)
+    setImagemRemovida(false)
     form.resetFields()
     setModalVisible(true)
   }
 
   const handleEdit = (beneficio) => {
     setEditingBeneficio(beneficio)
+    setImagemRemovida(false)
     form.setFieldsValue({
       ...beneficio,
       validade: beneficio.validade ? dayjs(beneficio.validade) : null,
     })
     setModalVisible(true)
+  }
+
+  const handleRemoverImagem = () => {
+    setImagemRemovida(true)
+    form.setFieldValue('imagemFile', [])
   }
 
   const handleDelete = async (id) => {
@@ -104,7 +100,7 @@ const BeneficiosAdmin = () => {
         } else if (file.url || file.thumbUrl) {
           formData.imagem = file.url || file.thumbUrl
         }
-      } else if (editingBeneficio && editingBeneficio.imagem) {
+      } else if (editingBeneficio && editingBeneficio.imagem && !imagemRemovida) {
         formData.imagem = editingBeneficio.imagem
       }
 
@@ -133,6 +129,7 @@ const BeneficiosAdmin = () => {
 
       setModalVisible(false)
       form.resetFields()
+      setImagemRemovida(false)
       loadBeneficios()
     } catch (error) {
       message.error('Erro ao salvar benefício: ' + (error.response?.data?.error || error.message))
@@ -170,15 +167,6 @@ const BeneficiosAdmin = () => {
       title: 'Título',
       dataIndex: 'titulo',
       key: 'titulo',
-    },
-    {
-      title: 'Empresa',
-      dataIndex: 'empresaId',
-      key: 'empresaId',
-      render: (empresaId) => {
-        const empresa = empresas.find(e => e._id === empresaId)
-        return empresa ? empresa.nome : 'N/A'
-      },
     },
     {
       title: 'Desconto',
@@ -247,6 +235,7 @@ const BeneficiosAdmin = () => {
         dataSource={beneficios}
         loading={loading}
         rowKey="_id"
+        scroll={{ x: 'max-content' }}
       />
 
       <Modal
@@ -258,7 +247,7 @@ const BeneficiosAdmin = () => {
           setEditingBeneficio(null)
         }}
         footer={null}
-        width={600}
+        width={window.innerWidth < 768 ? '95%' : 600}
         destroyOnHidden={true}
       >
         <Form
@@ -280,20 +269,6 @@ const BeneficiosAdmin = () => {
             rules={[{ required: true, message: 'Campo obrigatório' }]}
           >
             <TextArea rows={4} />
-          </Form.Item>
-
-          <Form.Item
-            name="empresaId"
-            label="Empresa"
-            rules={[{ required: true, message: 'Campo obrigatório' }]}
-          >
-            <Select placeholder="Selecione uma empresa">
-              {empresas.map(empresa => (
-                <Select.Option key={empresa._id} value={empresa._id}>
-                  {empresa.nome}
-                </Select.Option>
-              ))}
-            </Select>
           </Form.Item>
 
           <Form.Item
@@ -347,6 +322,19 @@ const BeneficiosAdmin = () => {
           <Form.Item
             name="imagemFile"
             label="Imagem"
+            rules={[
+              {
+                required: true,
+                validator: (_, value) => {
+                  const temImagemExistente = editingBeneficio && editingBeneficio.imagem && !imagemRemovida
+                  const temArquivo = value && value.length > 0
+                  if (temImagemExistente || temArquivo) {
+                    return Promise.resolve()
+                  }
+                  return Promise.reject(new Error('Imagem é obrigatória'))
+                }
+              }
+            ]}
             valuePropName="fileList"
             getValueFromEvent={(e) => {
               if (Array.isArray(e)) {
@@ -358,22 +346,35 @@ const BeneficiosAdmin = () => {
               return []
             }}
           >
-            <Upload
-              listType="picture-card"
-              maxCount={1}
-              beforeUpload={() => false}
-            >
-              <div>
-                <UploadOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-              </div>
-            </Upload>
+            {(!editingBeneficio || !editingBeneficio.imagem || imagemRemovida) ? (
+              <Upload
+                listType="picture-card"
+                maxCount={1}
+                beforeUpload={() => false}
+              >
+                <div>
+                  <UploadOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              </Upload>
+            ) : null}
           </Form.Item>
 
-          {editingBeneficio && editingBeneficio.imagem && (
+          {editingBeneficio && editingBeneficio.imagem && !imagemRemovida && (
             <div style={{ marginBottom: '16px' }}>
-              <p>Imagem atual:</p>
-              <Image src={editingBeneficio.imagem} width={200} />
+              <div style={{ marginBottom: '8px' }}>Imagem atual:</div>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <Image src={editingBeneficio.imagem} width={200} />
+                <Button
+                  danger
+                  size="small"
+                  icon={<DeleteOutlined />}
+                  onClick={handleRemoverImagem}
+                  style={{ position: 'absolute', top: '8px', right: '8px' }}
+                >
+                  Remover
+                </Button>
+              </div>
             </div>
           )}
 
@@ -386,6 +387,7 @@ const BeneficiosAdmin = () => {
                 setModalVisible(false)
                 form.resetFields()
                 setEditingBeneficio(null)
+                setImagemRemovida(false)
               }}>
                 Cancelar
               </Button>

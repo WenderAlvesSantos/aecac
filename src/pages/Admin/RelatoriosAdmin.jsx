@@ -250,6 +250,7 @@ const RelatoriosAdmin = () => {
                 dataSource={relatorio.inscricoes.detalhes}
                 rowKey="id"
                 pagination={{ pageSize: 10 }}
+                scroll={{ x: 'max-content' }}
               />
             </Card>
           )}
@@ -281,6 +282,7 @@ const RelatoriosAdmin = () => {
                 dataSource={relatorio.beneficios.detalhes}
                 rowKey="id"
                 pagination={{ pageSize: 10 }}
+                scroll={{ x: 'max-content' }}
               />
             </Card>
           )}

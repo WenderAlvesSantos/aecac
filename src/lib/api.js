@@ -67,7 +67,11 @@ export const updateUsuario = (id, data) => api.put(`/usuarios/${id}`, data)
 export const deleteUsuario = (id) => api.delete(`/usuarios/${id}`)
 
 // Eventos
-export const getEventos = () => api.get('/eventos')
+export const getEventos = () => {
+  const associadoToken = localStorage.getItem('associadoToken')
+  const url = associadoToken ? '/eventos?area=logged' : '/eventos'
+  return api.get(url)
+}
 export const createEvento = (data) => api.post('/eventos', data)
 export const updateEvento = (id, data) => api.put(`/eventos/${id}`, data)
 export const deleteEvento = (id) => api.delete(`/eventos/${id}`)
@@ -108,7 +112,11 @@ export const getConfiguracoes = () => api.get('/configuracoes')
 export const updateConfiguracoes = (data) => api.put('/configuracoes', data)
 
 // Benefícios
-export const getBeneficios = () => api.get('/beneficios')
+export const getBeneficios = () => {
+  const associadoToken = localStorage.getItem('associadoToken')
+  const url = associadoToken ? '/beneficios?area=logged' : '/beneficios'
+  return api.get(url)
+}
 export const createBeneficio = (data) => api.post('/beneficios', data)
 export const updateBeneficio = (id, data) => api.put(`/beneficios/${id}`, data)
 export const deleteBeneficio = (id) => api.delete(`/beneficios/${id}`)
@@ -118,7 +126,11 @@ export const resgatarBeneficioPublico = (codigo, nome, cpf, telefone) =>
 export const getResgates = () => api.get('/beneficios/resgates')
 
 // Capacitações
-export const getCapacitacoes = () => api.get('/capacitacoes')
+export const getCapacitacoes = () => {
+  const associadoToken = localStorage.getItem('associadoToken')
+  const url = associadoToken ? '/capacitacoes?area=logged' : '/capacitacoes'
+  return api.get(url)
+}
 export const createCapacitacao = (data) => api.post('/capacitacoes', data)
 export const updateCapacitacao = (id, data) => api.put(`/capacitacoes/${id}`, data)
 export const deleteCapacitacao = (id) => api.delete(`/capacitacoes/${id}`)

@@ -57,11 +57,16 @@ const EditarEmpresa = () => {
   const [empresa, setEmpresa] = useState(null)
   const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
   const [buscandoCEP, setBuscandoCEP] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   const associado = JSON.parse(localStorage.getItem('associado') || '{}')
 
   useEffect(() => {
     loadEmpresa()
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   const loadEmpresa = async () => {
@@ -278,14 +283,14 @@ const EditarEmpresa = () => {
 
   return (
     <Layout style={{ minHeight: '100vh', background: '#f0f2f5' }}>
-      <Content style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+      <Content style={{ padding: isMobile ? '16px' : '24px', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
         <Card>
-          <Space style={{ marginBottom: '24px' }}>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/associado')}>
-              Voltar
+          <Space style={{ marginBottom: '24px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
+            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/associado')} size={isMobile ? 'middle' : 'large'}>
+              {isMobile ? '' : 'Voltar'}
             </Button>
-            <Title level={2} style={{ margin: 0 }}>
-              <ShopOutlined /> Alteração Cadastral
+            <Title level={2} style={{ margin: 0, fontSize: isMobile ? '18px' : '24px' }}>
+              <ShopOutlined /> {isMobile ? 'Cadastral' : 'Alteração Cadastral'}
             </Title>
           </Space>
 

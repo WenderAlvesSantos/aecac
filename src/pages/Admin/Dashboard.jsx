@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Layout, Menu, Card, Statistic, Row, Col } from 'antd'
+import { Layout, Menu, Card, Statistic, Row, Col, Drawer, Button } from 'antd'
 import {
   DashboardOutlined,
   CalendarOutlined,
@@ -14,6 +14,7 @@ import {
   GiftOutlined,
   BookOutlined,
   BarChartOutlined,
+  MenuOutlined,
 } from '@ant-design/icons'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { getEventos, getParceiros, getEmpresas, getGaleria, getDiretoria, getBeneficios, getCapacitacoes } from '../../lib/api'
@@ -33,9 +34,21 @@ const Dashboard = () => {
     beneficios: 0,
     capacitacoes: 0,
   })
+  const [mobileMenuVisible, setMobileMenuVisible] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     loadStats()
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+      if (window.innerWidth >= 768) {
+        setMobileMenuVisible(false)
+      }
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   const loadStats = async () => {
@@ -134,6 +147,9 @@ const Dashboard = () => {
 
   const handleMenuClick = ({ key }) => {
     navigate(key)
+    if (isMobile) {
+      setMobileMenuVisible(false)
+    }
   }
 
   const handleLogout = () => {
@@ -144,59 +160,92 @@ const Dashboard = () => {
 
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
-  return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        breakpoint="lg"
-        collapsedWidth="0"
+  const menuContent = (
+    <>
+      <div
         style={{
-          background: '#001529',
+          height: '64px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '12px',
+          borderBottom: '1px solid #1f1f1f',
         }}
       >
-        <div
+        <span style={{ color: isMobile ? '#000' : '#fff', marginLeft: '12px', fontSize: '18px', fontWeight: 'bold' }}>
+          Admin
+        </span>
+      </div>
+      <Menu
+        theme={isMobile ? 'light' : 'dark'}
+        mode="inline"
+        selectedKeys={[location.pathname]}
+        items={menuItems}
+        onClick={handleMenuClick}
+      />
+    </>
+  )
+
+  return (
+    <Layout style={{ minHeight: '100vh' }}>
+      {!isMobile && (
+        <Sider
+          breakpoint="lg"
+          collapsedWidth={80}
           style={{
-            height: '64px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '12px',
-            borderBottom: '1px solid #1f1f1f',
+            background: '#001529',
           }}
         >
-          <span style={{ color: '#fff', marginLeft: '12px', fontSize: '18px', fontWeight: 'bold' }}>
-            Admin
-          </span>
-        </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          onClick={handleMenuClick}
-        />
-      </Sider>
+          {menuContent}
+        </Sider>
+      )}
+
+      <Drawer
+        title="Menu"
+        placement="left"
+        onClose={() => setMobileMenuVisible(false)}
+        open={mobileMenuVisible}
+        bodyStyle={{ padding: 0 }}
+        width={250}
+      >
+        {menuContent}
+      </Drawer>
+
       <Layout>
         <AntHeader
           style={{
             background: '#fff',
-            padding: '0 24px',
+            padding: isMobile ? '0 16px' : '0 24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            position: 'sticky',
+            top: 0,
+            zIndex: 100,
           }}
         >
-          <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
-            Painel Administrativo
-          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <span>Olá, {user.name || 'Admin'}</span>
-            <a onClick={handleLogout} style={{ cursor: 'pointer', color: '#1890ff' }}>
+            {isMobile && (
+              <Button
+                type="text"
+                icon={<MenuOutlined />}
+                onClick={() => setMobileMenuVisible(true)}
+                style={{ fontSize: '18px' }}
+              />
+            )}
+            <div style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 'bold' }}>
+              Painel Administrativo
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: isMobile ? '14px' : '16px' }}>Olá, {user.name || 'Admin'}</span>
+            <a onClick={handleLogout} style={{ cursor: 'pointer', color: '#1890ff', fontSize: isMobile ? '14px' : '16px' }}>
               Sair
             </a>
           </div>
         </AntHeader>
-        <Content style={{ margin: '24px', background: '#f0f2f5' }}>
+        <Content style={{ margin: isMobile ? '16px' : '24px', background: '#f0f2f5' }}>
           {location.pathname === '/admin' ? (
             <div>
               <h2 style={{ marginBottom: '24px' }}>Dashboard</h2>

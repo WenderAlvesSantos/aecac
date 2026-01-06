@@ -116,24 +116,65 @@ const Empresas = () => {
   })
 
   return (
-    <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
+    <>
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+      <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
       {/* Header Section */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
           color: '#fff',
-          padding: '80px 24px',
+          padding: window.innerWidth < 768 ? '50px 16px' : '100px 24px',
           textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <Title level={1} style={{ color: '#fff', marginBottom: '16px' }}>
+        {/* Decorative elements */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '-30%',
+            right: '-10%',
+            width: '500px',
+            height: '500px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-20%',
+            left: '-10%',
+            width: '400px',
+            height: '400px',
+            background: 'rgba(0, 200, 83, 0.1)',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <Title level={1} style={{ color: '#fff', marginBottom: '16px', fontSize: window.innerWidth < 768 ? '32px' : '42px', fontWeight: 'bold', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
             Empresas Associadas
           </Title>
           <Paragraph
             style={{
-              color: 'rgba(255,255,255,0.9)',
-              fontSize: '18px',
+              color: 'rgba(255,255,255,0.95)',
+              fontSize: window.innerWidth < 768 ? '16px' : '20px',
+              lineHeight: '1.8',
             }}
           >
             Conheça as empresas que fazem parte da AECAC e fortalecem o
@@ -143,7 +184,7 @@ const Empresas = () => {
       </div>
 
       {/* Filtros e Busca Avançada */}
-      <div style={{ padding: '32px 24px 0' }}>
+      <div style={{ padding: window.innerWidth < 768 ? '16px 16px 0' : '32px 24px 0' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <Row gutter={[16, 16]}>
             <Col xs={24} sm={12} md={14}>
@@ -186,7 +227,7 @@ const Empresas = () => {
       </div>
 
       {/* Lista de Empresas */}
-      <div style={{ padding: '32px 24px 64px' }}>
+      <div style={{ padding: window.innerWidth < 768 ? '16px 16px 32px' : '32px 24px 64px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           {filteredEmpresas.length === 0 ? (
             <Card style={{ textAlign: 'center', padding: '48px' }}>
@@ -206,13 +247,39 @@ const Empresas = () => {
                 </Paragraph>
               </div>
               <Row gutter={[24, 24]}>
-                {filteredEmpresas.map((empresa) => (
+                {filteredEmpresas.map((empresa, index) => (
                   <Col xs={24} sm={12} md={8} key={empresa._id}>
                     <Card
                       hoverable
                       style={{
                         height: '100%',
-                        borderRadius: '8px',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                        border: '1px solid #e0e0e0',
+                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                        overflow: 'hidden',
+                        background: '#fff',
+                        opacity: 0,
+                        transform: 'translateY(30px)',
+                        animation: `fadeInUp 0.6s ease-out ${index * 0.1}s forwards`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-8px)'
+                        e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)'
+                        const cover = e.currentTarget.querySelector('.ant-card-cover')
+                        if (cover) {
+                          const img = cover.querySelector('img')
+                          if (img) img.style.transform = 'scale(1.05)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+                        const cover = e.currentTarget.querySelector('.ant-card-cover')
+                        if (cover) {
+                          const img = cover.querySelector('img')
+                          if (img) img.style.transform = 'scale(1)'
+                        }
                       }}
                       cover={
                         empresa.imagem ? (
@@ -402,6 +469,7 @@ const Empresas = () => {
         </div>
       </div>
     </div>
+    </>
   )
 }
 

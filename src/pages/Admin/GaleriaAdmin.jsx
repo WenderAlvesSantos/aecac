@@ -337,6 +337,7 @@ const GaleriaAdmin = () => {
         loading={loading}
         rowKey="_id"
         pagination={false}
+        scroll={{ x: 'max-content' }}
       />
 
       <Modal
@@ -349,7 +350,7 @@ const GaleriaAdmin = () => {
           editingImagemRef.current = null
         }}
         footer={null}
-        width={600}
+        width={window.innerWidth < 768 ? '95%' : 600}
         destroyOnHidden={true}
       >
         <Form

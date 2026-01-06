@@ -4,6 +4,7 @@ import {
   UserOutlined,
   ShopOutlined,
   EditOutlined,
+  LockOutlined,
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { getPerfil, updatePerfil } from '../../lib/api'
@@ -17,6 +18,8 @@ const PerfilAssociado = () => {
   const [perfil, setPerfil] = useState(null)
   const [empresa, setEmpresa] = useState(null)
   const [form] = Form.useForm()
+  const [senhaForm] = Form.useForm()
+  const [alterandoSenha, setAlterandoSenha] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -59,6 +62,22 @@ const PerfilAssociado = () => {
     }
   }
 
+  const handleAlterarSenha = async (values) => {
+    try {
+      setAlterandoSenha(true)
+      await updatePerfil({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      })
+      message.success('Senha alterada com sucesso!')
+      senhaForm.resetFields()
+    } catch (error) {
+      message.error(error.response?.data?.error || 'Erro ao alterar senha')
+    } finally {
+      setAlterandoSenha(false)
+    }
+  }
+
   return (
     <div>
       <Row gutter={[24, 24]}>
@@ -98,6 +117,55 @@ const PerfilAssociado = () => {
               <Form.Item>
                 <Button type="primary" htmlType="submit">
                   Atualizar Perfil
+                </Button>
+              </Form.Item>
+            </Form>
+
+            <Divider>Alterar Senha</Divider>
+
+            <Form
+              form={senhaForm}
+              layout="vertical"
+              onFinish={handleAlterarSenha}
+            >
+              <Form.Item
+                name="currentPassword"
+                label="Senha Atual"
+                rules={[{ required: true, message: 'Senha atual é obrigatória' }]}
+              >
+                <Input.Password prefix={<LockOutlined />} placeholder="Digite sua senha atual" />
+              </Form.Item>
+              <Form.Item
+                name="newPassword"
+                label="Nova Senha"
+                rules={[
+                  { required: true, message: 'Nova senha é obrigatória' },
+                  { min: 6, message: 'A senha deve ter no mínimo 6 caracteres' }
+                ]}
+              >
+                <Input.Password prefix={<LockOutlined />} placeholder="Digite a nova senha" />
+              </Form.Item>
+              <Form.Item
+                name="confirmPassword"
+                label="Confirmar Nova Senha"
+                dependencies={['newPassword']}
+                rules={[
+                  { required: true, message: 'Confirmação de senha é obrigatória' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue('newPassword') === value) {
+                        return Promise.resolve()
+                      }
+                      return Promise.reject(new Error('As senhas não coincidem'))
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password prefix={<LockOutlined />} placeholder="Confirme a nova senha" />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" loading={alterandoSenha}>
+                  Alterar Senha
                 </Button>
               </Form.Item>
             </Form>

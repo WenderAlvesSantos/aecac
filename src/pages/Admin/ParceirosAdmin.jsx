@@ -143,6 +143,7 @@ const ParceirosAdmin = () => {
         dataSource={parceiros}
         loading={loading}
         rowKey="_id"
+        scroll={{ x: 'max-content' }}
       />
 
       <Modal
@@ -153,7 +154,7 @@ const ParceirosAdmin = () => {
           form.resetFields()
         }}
         footer={null}
-        width={600}
+        width={window.innerWidth < 768 ? '95%' : 600}
       >
         <Form
           form={form}

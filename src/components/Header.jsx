@@ -51,7 +51,7 @@ const Header = ({
         </div>
 
         {/* Menu Desktop */}
-        <div style={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'flex-end', minWidth: 0 }}>
           <Menu
             mode="horizontal"
             selectedKeys={[currentPath]}
@@ -66,14 +66,17 @@ const Header = ({
             className="desktop-menu"
           />
           {associado ? (
-            <Space style={{ marginLeft: '16px' }}>
+            <Space style={{ marginLeft: '16px', flexShrink: 0 }}>
               <Notificacoes />
               <Button
                 type="link"
                 icon={<UserOutlined />}
                 onClick={() => navigate('/associado')}
+                style={{ whiteSpace: 'nowrap', padding: '0 8px' }}
+                className="associado-button"
               >
-                Área do Associado
+                <span className="associado-text-full">Área do Associado</span>
+                <span className="associado-text-short">Associado</span>
               </Button>
             </Space>
           ) : (
@@ -81,7 +84,7 @@ const Header = ({
               type="primary"
               icon={<UserOutlined />}
               onClick={() => navigate('/associado/login')}
-              style={{ marginLeft: '16px' }}
+              style={{ marginLeft: '16px', flexShrink: 0 }}
             >
               Entrar
             </Button>
@@ -134,6 +137,39 @@ const Header = ({
           .mobile-menu-button {
             display: none !important;
           }
+          /* Reduzir padding dos itens do menu para caber mais itens */
+          .desktop-menu .ant-menu-item {
+            padding: 0 10px !important;
+            font-size: 14px !important;
+            margin: 0 2px !important;
+          }
+          /* Garantir que o último item (Capacitações) sempre fique visível */
+          .desktop-menu .ant-menu-item:last-child {
+            margin-right: 0 !important;
+          }
+        }
+        /* Texto completo do botão Associado */
+        .associado-text-short {
+          display: none;
+        }
+        .associado-text-full {
+          display: inline;
+        }
+        /* Em telas menores, usar texto curto */
+        @media (min-width: 769px) and (max-width: 1200px) {
+          .associado-text-full {
+            display: none;
+          }
+          .associado-text-short {
+            display: inline;
+          }
+        }
+        /* Ajustar o overflow do menu para não esconder itens importantes */
+        .desktop-menu .ant-menu-overflow-item-rest {
+          display: none !important;
+        }
+        .desktop-menu .ant-menu-overflow {
+          display: none !important;
         }
       `}</style>
     </AntHeader>

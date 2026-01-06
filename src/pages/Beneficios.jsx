@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Row, Col, Card, Typography, Tag, Spin, Empty, Image, Button, Input, Space, Modal, message, Statistic, Form, Select, Pagination } from 'antd'
-import { GiftOutlined, ShopOutlined, QrcodeOutlined } from '@ant-design/icons'
+import { Row, Col, Card, Typography, Tag, Spin, Empty, Image, Button, Input, Space, Modal, message, Statistic, Form, Select, Pagination, Tooltip } from 'antd'
+import { GiftOutlined, QrcodeOutlined, BankOutlined, ShopOutlined, FilterOutlined } from '@ant-design/icons'
 import { getBeneficios, getEmpresas, resgatarBeneficio, resgatarBeneficioPublico } from '../lib/api'
 
 const { Title, Paragraph } = Typography
@@ -32,7 +32,6 @@ const formatPhone = (value) => {
 const Beneficios = () => {
   const [beneficios, setBeneficios] = useState([])
   const [empresas, setEmpresas] = useState([])
-  const [empresasMap, setEmpresasMap] = useState({})
   const [loading, setLoading] = useState(true)
   const [modalResgate, setModalResgate] = useState(false)
   const [modalResgatePublico, setModalResgatePublico] = useState(false)
@@ -41,6 +40,7 @@ const Beneficios = () => {
   const [resgatando, setResgatando] = useState(false)
   const [formResgatePublico] = Form.useForm()
   const [filtroEmpresa, setFiltroEmpresa] = useState(null)
+  const [filtroCategoria, setFiltroCategoria] = useState('all')
   const [paginaAtual, setPaginaAtual] = useState(1)
   const [itensPorPagina] = useState(9)
   const associadoToken = localStorage.getItem('associadoToken')
@@ -61,13 +61,6 @@ const Beneficios = () => {
       // Filtrar apenas empresas aprovadas
       const empresasAprovadas = empresasRes.data.filter(emp => emp.status === 'aprovado')
       setEmpresas(empresasAprovadas)
-      
-      // Criar mapa de empresas para buscar nomes
-      const empresasMapObj = {}
-      empresasAprovadas.forEach(emp => {
-        empresasMapObj[emp._id] = emp
-      })
-      setEmpresasMap(empresasMapObj)
     } catch (error) {
       console.error('Erro ao carregar benefícios:', error)
     } finally {
@@ -75,9 +68,22 @@ const Beneficios = () => {
     }
   }
 
-  const getEmpresaNome = (empresaId) => {
-    return empresasMap[empresaId]?.nome || 'Empresa Associada'
-  }
+  const categorias = [
+    'all',
+    'Varejo',
+    'Alimentação',
+    'Tecnologia',
+    'Saúde',
+    'Serviços',
+    'Beleza',
+    'Construção',
+  ]
+
+  // Criar mapa de empresas para acesso rápido à categoria
+  const empresasMap = empresas.reduce((acc, empresa) => {
+    acc[empresa._id] = empresa
+    return acc
+  }, {})
 
   const handleResgatar = async () => {
     if (!codigoResgate.trim()) {
@@ -139,27 +145,68 @@ const Beneficios = () => {
   }
 
   return (
-    <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
+    <>
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+      <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
       {/* Header Section */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
           color: '#fff',
-          padding: '80px 24px',
+          padding: window.innerWidth < 768 ? '50px 16px' : '100px 24px',
           textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <Title level={1} style={{ color: '#fff', marginBottom: '16px' }}>
-            Benefícios Exclusivos
+        {/* Decorative elements */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '-30%',
+            right: '-10%',
+            width: '500px',
+            height: '500px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-20%',
+            left: '-10%',
+            width: '400px',
+            height: '400px',
+            background: 'rgba(0, 200, 83, 0.1)',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <Title level={1} style={{ color: '#fff', marginBottom: '16px', fontSize: window.innerWidth < 768 ? '32px' : '42px', fontWeight: 'bold', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
+            Benefícios
           </Title>
           <Paragraph
             style={{
-              color: 'rgba(255,255,255,0.9)',
-              fontSize: '18px',
+              color: 'rgba(255,255,255,0.95)',
+              fontSize: window.innerWidth < 768 ? '16px' : '20px',
+              lineHeight: '1.8',
             }}
           >
-            Descontos e condições especiais para associados da AECAC
+            Descontos e vantagens exclusivas para associados
           </Paragraph>
           {associadoToken && (
             <Button
@@ -179,41 +226,125 @@ const Beneficios = () => {
         </div>
       </div>
 
-      <div style={{ padding: '0 24px 64px' }}>
+      <div style={{ padding: window.innerWidth < 768 ? '0 16px 32px' : '0 24px 64px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           {/* Filtros */}
-          <div style={{ marginBottom: '24px', paddingTop: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-            <Select
-              showSearch
-              placeholder="Filtrar por Empresa"
-              optionFilterProp="children"
-              style={{ minWidth: '250px' }}
-              allowClear
-              value={filtroEmpresa}
-              onChange={(value) => {
-                setFiltroEmpresa(value)
-                setPaginaAtual(1)
-              }}
-              filterOption={(input, option) =>
-                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-              }
-              options={empresas.map(empresa => ({
-                value: empresa._id,
-                label: empresa.nome
-              }))}
-            />
+          <div 
+            style={{ 
+              marginBottom: '32px', 
+              marginTop: '24px',
+              background: '#fff',
+              borderRadius: '12px',
+              padding: '24px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              border: '1px solid #e8e8e8'
+            }}
+          >
+            <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FilterOutlined style={{ fontSize: '18px', color: '#1a237e' }} />
+              <Title level={5} style={{ margin: 0, color: '#1a237e', fontWeight: 600 }}>
+                Filtros
+              </Title>
+            </div>
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666', fontWeight: 500 }}>
+                  <ShopOutlined style={{ marginRight: '6px' }} />
+                  Empresa
+                </div>
+                <Select
+                  showSearch
+                  placeholder="Selecione uma empresa"
+                  optionFilterProp="children"
+                  style={{ width: '100%' }}
+                  allowClear
+                  size="large"
+                  value={filtroEmpresa}
+                  onChange={(value) => {
+                    setFiltroEmpresa(value)
+                    setPaginaAtual(1)
+                  }}
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={[
+                    {
+                      value: 'aecac',
+                      label: (
+                        <Space>
+                          <BankOutlined />
+                          AECAC - Associação Empresarial e Comercial de Águas Claras
+                        </Space>
+                      )
+                    },
+                    ...empresas.map(empresa => ({
+                      value: empresa._id,
+                      label: (
+                        <Space>
+                          <ShopOutlined />
+                          {empresa.nome}
+                        </Space>
+                      )
+                    }))
+                  ]}
+                />
+              </div>
+              <div style={{ flex: 1, minWidth: '200px' }}>
+                <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666', fontWeight: 500 }}>
+                  Categoria
+                </div>
+                <Select
+                  placeholder="Selecione uma categoria"
+                  style={{ width: '100%' }}
+                  size="large"
+                  value={filtroCategoria}
+                  onChange={(value) => {
+                    setFiltroCategoria(value)
+                    setPaginaAtual(1)
+                  }}
+                >
+                  <Select.Option value="all">Todas as categorias</Select.Option>
+                  {categorias
+                    .filter((cat) => cat !== 'all')
+                    .map((categoria) => (
+                      <Select.Option key={categoria} value={categoria}>
+                        {categoria}
+                      </Select.Option>
+                    ))}
+                </Select>
+              </div>
+            </div>
           </div>
 
           {/* Benefícios filtrados e paginados */}
           {(() => {
-            // Filtrar por empresa
-            const beneficiosFiltrados = filtroEmpresa
-              ? beneficios.filter(b => {
+            // Filtrar por empresa e categoria
+            const beneficiosFiltrados = beneficios.filter(b => {
+              // Filtro por empresa
+              if (filtroEmpresa) {
+                if (filtroEmpresa === 'aecac') {
+                  // Filtrar itens sem empresaId (AECAC)
+                  if (b.empresaId) return false
+                } else {
+                  // Filtrar por empresa específica
                   const empresaId = b.empresaId?.toString()
                   const filtroId = filtroEmpresa.toString()
-                  return empresaId === filtroId
-                })
-              : beneficios
+                  if (empresaId !== filtroId) return false
+                }
+              }
+              
+              // Filtro por categoria
+              if (filtroCategoria !== 'all') {
+                if (filtroEmpresa === 'aecac') {
+                  // Itens AECAC não têm categoria de empresa
+                  return false
+                }
+                const empresa = empresasMap[b.empresaId]
+                if (!empresa || empresa.categoria !== filtroCategoria) return false
+              }
+              
+              return true
+            })
 
             // Calcular paginação
             const totalItens = beneficiosFiltrados.length
@@ -230,12 +361,33 @@ const Beneficios = () => {
                   />
                 ) : (
                   <Row gutter={[24, 24]}>
-                    {beneficiosPaginados.map((beneficio) => (
+                    {beneficiosPaginados.map((beneficio, index) => (
                       <Col xs={24} sm={12} lg={8} key={beneficio._id}>
                 <Card
                   hoverable
-                  style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                  bodyStyle={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '24px' }}
+                  style={{ 
+                    height: '100%', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                    border: '1px solid #e0e0e0',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    background: '#fff',
+                    overflow: 'hidden',
+                    opacity: 0,
+                    transform: 'translateY(30px)',
+                    animation: `fadeInUp 0.6s ease-out ${index * 0.1}s forwards`,
+                  }}
+                  bodyStyle={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '24px', position: 'relative', zIndex: 1 }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-8px)'
+                    e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+                  }}
                   cover={
                     beneficio.imagem ? (
                       <div style={{ height: '200px', overflow: 'hidden', background: '#f0f0f0' }}>
@@ -250,7 +402,7 @@ const Beneficios = () => {
                       <div
                         style={{
                           height: '200px',
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -273,17 +425,32 @@ const Beneficios = () => {
                       )}
                     </div>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <Paragraph ellipsis={{ rows: 3 }}>
-                        {beneficio.descricao}
-                      </Paragraph>
+                      <Tooltip 
+                        title={beneficio.descricao && beneficio.descricao.length > 150 ? (
+                          <div style={{ whiteSpace: 'pre-line', maxWidth: '400px' }}>
+                            {beneficio.descricao}
+                          </div>
+                        ) : null}
+                        placement="top"
+                      >
+                        <Paragraph 
+                          ellipsis={{ rows: 3 }}
+                          style={{ 
+                            cursor: beneficio.descricao && beneficio.descricao.length > 150 ? 'help' : 'default'
+                          }}
+                        >
+                          {beneficio.descricao}
+                        </Paragraph>
+                      </Tooltip>
                       {beneficio.condicoes && (
                         <Paragraph type="secondary" style={{ fontSize: '12px', marginTop: '8px' }}>
                           <strong>Condições:</strong> {beneficio.condicoes}
                         </Paragraph>
                       )}
                       <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #f0f0f0' }}>
-                        <div style={{ marginBottom: '8px' }}>
-                          <ShopOutlined /> {getEmpresaNome(beneficio.empresaId)}
+                        <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <BankOutlined />
+                          {beneficio.empresa?.nome || 'AECAC - Associação Empresarial e Comercial de Águas Claras'}
                         </div>
                         {beneficio.codigo && (
                           <div style={{ marginBottom: '8px' }}>
@@ -365,6 +532,7 @@ const Beneficios = () => {
               Resgatar
             </Button>,
           ]}
+          width={window.innerWidth < 768 ? '95%' : 500}
         >
           <Space direction="vertical" style={{ width: '100%' }} size="large">
             <div>
@@ -404,6 +572,7 @@ const Beneficios = () => {
           setBeneficioSelecionado(null)
         }}
         footer={null}
+        width={window.innerWidth < 768 ? '95%' : 600}
       >
         {beneficioSelecionado && (
           <div style={{ marginBottom: '16px' }}>
@@ -474,6 +643,7 @@ const Beneficios = () => {
         </Form>
       </Modal>
     </div>
+    </>
   )
 }
 

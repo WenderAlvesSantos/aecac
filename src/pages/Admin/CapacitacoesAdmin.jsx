@@ -32,6 +32,7 @@ const CapacitacoesAdmin = () => {
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [editingCapacitacao, setEditingCapacitacao] = useState(null)
+  const [imagemRemovida, setImagemRemovida] = useState(false)
   const [form] = Form.useForm()
 
   useEffect(() => {
@@ -52,17 +53,24 @@ const CapacitacoesAdmin = () => {
 
   const handleCreate = () => {
     setEditingCapacitacao(null)
+    setImagemRemovida(false)
     form.resetFields()
     setModalVisible(true)
   }
 
   const handleEdit = (capacitacao) => {
     setEditingCapacitacao(capacitacao)
+    setImagemRemovida(false)
     form.setFieldsValue({
       ...capacitacao,
       data: capacitacao.data ? dayjs(capacitacao.data) : null,
     })
     setModalVisible(true)
+  }
+
+  const handleRemoverImagem = () => {
+    setImagemRemovida(true)
+    form.setFieldValue('imagemFile', [])
   }
 
   const handleDelete = async (id) => {
@@ -90,7 +98,7 @@ const CapacitacoesAdmin = () => {
         } else if (file.url || file.thumbUrl) {
           formData.imagem = file.url || file.thumbUrl
         }
-      } else if (editingCapacitacao && editingCapacitacao.imagem) {
+      } else if (editingCapacitacao && editingCapacitacao.imagem && !imagemRemovida) {
         formData.imagem = editingCapacitacao.imagem
       }
 
@@ -119,6 +127,7 @@ const CapacitacoesAdmin = () => {
 
       setModalVisible(false)
       form.resetFields()
+      setImagemRemovida(false)
       loadCapacitacoes()
     } catch (error) {
       message.error('Erro ao salvar capacitação: ' + (error.response?.data?.error || error.message))
@@ -240,6 +249,7 @@ const CapacitacoesAdmin = () => {
         dataSource={capacitacoes}
         loading={loading}
         rowKey="_id"
+        scroll={{ x: 'max-content' }}
       />
 
       <Modal
@@ -251,7 +261,7 @@ const CapacitacoesAdmin = () => {
           setEditingCapacitacao(null)
         }}
         footer={null}
-        width={700}
+        width={window.innerWidth < 768 ? '95%' : 700}
         destroyOnHidden={true}
       >
         <Form
@@ -331,6 +341,19 @@ const CapacitacoesAdmin = () => {
           <Form.Item
             name="imagemFile"
             label="Imagem"
+            rules={[
+              {
+                required: true,
+                validator: (_, value) => {
+                  const temImagemExistente = editingCapacitacao && editingCapacitacao.imagem && !imagemRemovida
+                  const temArquivo = value && value.length > 0
+                  if (temImagemExistente || temArquivo) {
+                    return Promise.resolve()
+                  }
+                  return Promise.reject(new Error('Imagem é obrigatória'))
+                }
+              }
+            ]}
             valuePropName="fileList"
             getValueFromEvent={(e) => {
               if (Array.isArray(e)) {
@@ -342,22 +365,35 @@ const CapacitacoesAdmin = () => {
               return []
             }}
           >
-            <Upload
-              listType="picture-card"
-              maxCount={1}
-              beforeUpload={() => false}
-            >
-              <div>
-                <UploadOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-              </div>
-            </Upload>
+            {(!editingCapacitacao || !editingCapacitacao.imagem || imagemRemovida) ? (
+              <Upload
+                listType="picture-card"
+                maxCount={1}
+                beforeUpload={() => false}
+              >
+                <div>
+                  <UploadOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              </Upload>
+            ) : null}
           </Form.Item>
 
-          {editingCapacitacao && editingCapacitacao.imagem && (
+          {editingCapacitacao && editingCapacitacao.imagem && !imagemRemovida && (
             <div style={{ marginBottom: '16px' }}>
-              <p>Imagem atual:</p>
-              <Image src={editingCapacitacao.imagem} width={200} />
+              <div style={{ marginBottom: '8px' }}>Imagem atual:</div>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <Image src={editingCapacitacao.imagem} width={200} />
+                <Button
+                  danger
+                  size="small"
+                  icon={<DeleteOutlined />}
+                  onClick={handleRemoverImagem}
+                  style={{ position: 'absolute', top: '8px', right: '8px' }}
+                >
+                  Remover
+                </Button>
+              </div>
             </div>
           )}
 
@@ -370,6 +406,7 @@ const CapacitacoesAdmin = () => {
                 setModalVisible(false)
                 form.resetFields()
                 setEditingCapacitacao(null)
+                setImagemRemovida(false)
               }}>
                 Cancelar
               </Button>

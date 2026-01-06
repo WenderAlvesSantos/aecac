@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Row, Col, Typography, Card, Tag, Space, Button, Calendar, Badge, Spin, Empty, Modal, Form, Input, message, Statistic, Select, Pagination } from 'antd'
-import { CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined, UserOutlined } from '@ant-design/icons'
+import { CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined, UserOutlined, BankOutlined, ShopOutlined, FilterOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { getEventos, inscreverEventoPublico, getEmpresas } from '../lib/api'
 
@@ -40,6 +40,7 @@ const Eventos = () => {
   const [inscricaoLoading, setInscricaoLoading] = useState(false)
   const [formInscricaoPublica] = Form.useForm()
   const [filtroEmpresa, setFiltroEmpresa] = useState(null)
+  const [filtroCategoria, setFiltroCategoria] = useState('all')
   const [paginaAtual, setPaginaAtual] = useState(1)
   const [itensPorPagina] = useState(6)
 
@@ -68,6 +69,23 @@ const Eventos = () => {
       console.error('Erro ao carregar empresas:', error)
     }
   }
+
+  const categorias = [
+    'all',
+    'Varejo',
+    'Alimentação',
+    'Tecnologia',
+    'Saúde',
+    'Serviços',
+    'Beleza',
+    'Construção',
+  ]
+
+  // Criar mapa de empresas para acesso rápido à categoria
+  const empresasMap = empresas.reduce((acc, empresa) => {
+    acc[empresa._id] = empresa
+    return acc
+  }, {})
 
   const handleInscricaoPublica = async (values) => {
     if (!eventoSelecionado) return
@@ -150,24 +168,65 @@ const Eventos = () => {
   }
 
   return (
-    <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
+    <>
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+      <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
       {/* Header Section */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
           color: '#fff',
-          padding: '80px 24px',
+          padding: window.innerWidth < 768 ? '50px 16px' : '100px 24px',
           textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <Title level={1} style={{ color: '#fff', marginBottom: '16px' }}>
+        {/* Decorative elements */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '-30%',
+            right: '-10%',
+            width: '500px',
+            height: '500px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-20%',
+            left: '-10%',
+            width: '400px',
+            height: '400px',
+            background: 'rgba(0, 200, 83, 0.1)',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <Title level={1} style={{ color: '#fff', marginBottom: '16px', fontSize: window.innerWidth < 768 ? '32px' : '42px', fontWeight: 'bold', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
             Eventos
           </Title>
           <Paragraph
             style={{
-              color: 'rgba(255,255,255,0.9)',
-              fontSize: '18px',
+              color: 'rgba(255,255,255,0.95)',
+              fontSize: window.innerWidth < 768 ? '16px' : '20px',
+              lineHeight: '1.8',
             }}
           >
             Confira nossos eventos, workshops, palestras e encontros
@@ -177,7 +236,7 @@ const Eventos = () => {
       </div>
 
       {/* Toggle View Mode */}
-      <div style={{ padding: '24px', textAlign: 'center' }}>
+      <div style={{ padding: window.innerWidth < 768 ? '16px' : '24px', textAlign: 'center' }}>
         <Space>
           <Button
             type={viewMode === 'list' ? 'primary' : 'default'}
@@ -194,43 +253,127 @@ const Eventos = () => {
         </Space>
       </div>
 
-      <div style={{ padding: '0 24px 64px' }}>
+      <div style={{ padding: window.innerWidth < 768 ? '0 16px 32px' : '0 24px 64px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           {viewMode === 'list' ? (
             <>
               {/* Filtros */}
-              <div style={{ marginBottom: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                <Select
-                  showSearch
-                  placeholder="Filtrar por Empresa"
-                  optionFilterProp="children"
-                  style={{ minWidth: '250px' }}
-                  allowClear
-                  value={filtroEmpresa}
-                  onChange={(value) => {
-                    setFiltroEmpresa(value)
-                    setPaginaAtual(1)
-                  }}
-                  filterOption={(input, option) =>
-                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                  }
-                  options={empresas.map(empresa => ({
-                    value: empresa._id,
-                    label: empresa.nome
-                  }))}
-                />
+              <div 
+                style={{ 
+                  marginBottom: '32px', 
+                  paddingTop: '24px',
+                  background: '#fff',
+                  borderRadius: '12px',
+                  padding: '24px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                  border: '1px solid #e8e8e8'
+                }}
+              >
+                <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <FilterOutlined style={{ fontSize: '18px', color: '#1a237e' }} />
+                  <Title level={5} style={{ margin: 0, color: '#1a237e', fontWeight: 600 }}>
+                    Filtros
+                  </Title>
+                </div>
+                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                  <div style={{ flex: 1, minWidth: '250px' }}>
+                    <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666', fontWeight: 500 }}>
+                      <ShopOutlined style={{ marginRight: '6px' }} />
+                      Empresa
+                    </div>
+                    <Select
+                      showSearch
+                      placeholder="Selecione uma empresa"
+                      optionFilterProp="children"
+                      style={{ width: '100%' }}
+                      allowClear
+                      size="large"
+                      value={filtroEmpresa}
+                      onChange={(value) => {
+                        setFiltroEmpresa(value)
+                        setPaginaAtual(1)
+                      }}
+                      filterOption={(input, option) =>
+                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      }
+                      options={[
+                        {
+                          value: 'aecac',
+                          label: (
+                            <Space>
+                              <BankOutlined />
+                              AECAC - Associação Empresarial e Comercial de Águas Claras
+                            </Space>
+                          )
+                        },
+                        ...empresas.map(empresa => ({
+                          value: empresa._id,
+                          label: (
+                            <Space>
+                              <ShopOutlined />
+                              {empresa.nome}
+                            </Space>
+                          )
+                        }))
+                      ]}
+                    />
+                  </div>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666', fontWeight: 500 }}>
+                      Categoria
+                    </div>
+                    <Select
+                      placeholder="Selecione uma categoria"
+                      style={{ width: '100%' }}
+                      size="large"
+                      value={filtroCategoria}
+                      onChange={(value) => {
+                        setFiltroCategoria(value)
+                        setPaginaAtual(1)
+                      }}
+                    >
+                      <Select.Option value="all">Todas as categorias</Select.Option>
+                      {categorias
+                        .filter((cat) => cat !== 'all')
+                        .map((categoria) => (
+                          <Select.Option key={categoria} value={categoria}>
+                            {categoria}
+                          </Select.Option>
+                        ))}
+                    </Select>
+                  </div>
+                </div>
               </div>
 
               {/* Eventos filtrados e paginados */}
               {(() => {
-                // Filtrar por empresa
-                const eventosFiltrados = filtroEmpresa
-                  ? eventos.filter(e => {
+                // Filtrar por empresa e categoria
+                const eventosFiltrados = eventos.filter(e => {
+                  // Filtro por empresa
+                  if (filtroEmpresa) {
+                    if (filtroEmpresa === 'aecac') {
+                      // Filtrar itens sem empresaId (AECAC)
+                      if (e.empresaId) return false
+                    } else {
+                      // Filtrar por empresa específica
                       const empresaId = e.empresaId?.toString()
                       const filtroId = filtroEmpresa.toString()
-                      return empresaId === filtroId
-                    })
-                  : eventos
+                      if (empresaId !== filtroId) return false
+                    }
+                  }
+                  
+                  // Filtro por categoria
+                  if (filtroCategoria !== 'all') {
+                    if (filtroEmpresa === 'aecac') {
+                      // Itens AECAC não têm categoria de empresa
+                      return false
+                    }
+                    const empresa = empresasMap[e.empresaId]
+                    if (!empresa || empresa.categoria !== filtroCategoria) return false
+                  }
+                  
+                  return true
+                })
 
                 const eventosFuturosFiltrados = eventosFiltrados.filter((evento) => 
                   dayjs(evento.data).isAfter(dayjs(), 'day') || dayjs(evento.data).isSame(dayjs(), 'day')
@@ -256,24 +399,52 @@ const Eventos = () => {
                           Próximos Eventos
                         </Title>
                         <Row gutter={[24, 24]}>
-                          {eventosFuturosPaginados.map((evento) => (
-                      <Col xs={24} md={12} key={evento._id}>
+                          {eventosFuturosPaginados.map((evento, index) => (
+                            <Col xs={24} md={12} key={evento._id}>
                         <Card
                           hoverable
                           style={{
                             height: '100%',
-                            borderRadius: '8px',
+                            borderRadius: '12px',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                            border: '1px solid #e0e0e0',
+                            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                            overflow: 'hidden',
+                            background: '#fff',
+                            opacity: 0,
+                            transform: 'translateY(30px)',
+                            animation: `fadeInUp 0.6s ease-out ${index * 0.1}s forwards`,
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-8px)'
+                            e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)'
+                            const cover = e.currentTarget.querySelector('.ant-card-cover')
+                            if (cover) {
+                              cover.style.transform = 'scale(1.05)'
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)'
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+                            const cover = e.currentTarget.querySelector('.ant-card-cover')
+                            if (cover) {
+                              cover.style.transform = 'scale(1)'
+                            }
                           }}
                           cover={
-                            evento.empresa?.imagem ? (
-                              <img
-                                alt={evento.empresa.nome}
-                                src={evento.empresa.imagem}
-                                style={{
-                                  height: '200px',
-                                  objectFit: 'cover',
-                                }}
-                              />
+                            evento.imagem ? (
+                              <div style={{ overflow: 'hidden', height: '200px' }}>
+                                <img
+                                  alt={evento.titulo}
+                                  src={evento.imagem}
+                                  style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                  }}
+                                />
+                              </div>
                             ) : null
                           }
                         >
@@ -294,11 +465,10 @@ const Eventos = () => {
                           <Title level={4} style={{ marginBottom: '12px' }}>
                             {evento.titulo}
                           </Title>
-                          {evento.empresa?.nome && (
-                            <div style={{ marginBottom: '12px', color: '#666', fontSize: '14px' }}>
-                              <strong>{evento.empresa.nome}</strong>
-                            </div>
-                          )}
+                          <div style={{ marginBottom: '12px', color: '#666', fontSize: '14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <BankOutlined />
+                            <strong>{evento.empresa?.nome || 'AECAC - Associação Empresarial e Comercial de Águas Claras'}</strong>
+                          </div>
                           <Paragraph style={{ marginBottom: '16px' }}>
                             {evento.descricao}
                           </Paragraph>
@@ -365,14 +535,17 @@ const Eventos = () => {
                               <Card
                                 style={{
                                   height: '100%',
-                                  borderRadius: '8px',
+                                  borderRadius: '12px',
+                                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                                  border: '1px solid #e0e0e0',
                                   opacity: 0.7,
+                                  transition: 'all 0.3s ease',
                                 }}
                                 cover={
-                                  evento.empresa?.imagem ? (
+                                  evento.imagem ? (
                                     <img
-                                      alt={evento.empresa.nome}
-                                      src={evento.empresa.imagem}
+                                      alt={evento.titulo}
+                                      src={evento.imagem}
                                       style={{
                                         height: '200px',
                                         objectFit: 'cover',
@@ -447,6 +620,7 @@ const Eventos = () => {
           setEventoSelecionado(null)
         }}
         footer={null}
+        width={window.innerWidth < 768 ? '95%' : 600}
       >
         {eventoSelecionado && (
           <div style={{ marginBottom: '16px' }}>
@@ -517,6 +691,7 @@ const Eventos = () => {
         </Form>
       </Modal>
     </div>
+    </>
   )
 }
 

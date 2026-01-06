@@ -56,6 +56,7 @@ const EventosAssociado = () => {
   }, [])
 
   const loadData = async () => {
+    setLoading(true)
     try {
       const response = await getEventos()
       setEventos(response.data || [])
@@ -672,34 +673,32 @@ const EventosAssociado = () => {
           )}
         </Space>
 
-        <Spin spinning={loading} tip="Carregando eventos...">
-          {eventosFiltrados.length > 0 ? (
-            <>
-              <Table
-                dataSource={eventosPaginados}
-                columns={columns}
-                rowKey="_id"
-                loading={loading}
-                pagination={false}
-              />
-              <div style={{ marginTop: '16px', textAlign: 'right' }}>
-                <Pagination
-                  current={currentPage}
-                  pageSize={pageSize}
-                  total={eventosFiltrados.length}
-                  onChange={(page, size) => {
-                    setCurrentPage(page)
-                    setPageSize(size)
-                  }}
-                  showSizeChanger
-                  showTotal={(total) => `Total: ${total} eventos`}
-                />
-              </div>
-            </>
-          ) : !loading ? (
-            <Empty description="Nenhum evento encontrado" />
-          ) : null}
-        </Spin>
+        <Table
+          dataSource={eventosPaginados}
+          columns={columns}
+          rowKey="_id"
+          loading={loading}
+          pagination={false}
+          scroll={{ x: 'max-content' }}
+          locale={{
+            emptyText: !loading ? <Empty description="Nenhum evento encontrado" /> : undefined
+          }}
+        />
+        {!loading && eventosFiltrados.length > 0 && (
+          <div style={{ marginTop: '16px', textAlign: 'right' }}>
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={eventosFiltrados.length}
+              onChange={(page, size) => {
+                setCurrentPage(page)
+                setPageSize(size)
+              }}
+              showSizeChanger
+              showTotal={(total) => `Total: ${total} eventos`}
+            />
+          </div>
+        )}
       </Card>
 
       {/* Modal de Criar/Editar Evento */}
@@ -712,7 +711,7 @@ const EventosAssociado = () => {
           eventoForm.resetFields()
         }}
         footer={null}
-        width={600}
+        width={window.innerWidth < 768 ? '95%' : 600}
       >
         <Form
           form={eventoForm}
@@ -833,7 +832,7 @@ const EventosAssociado = () => {
           setFiltroInscritosData(null)
         }}
         footer={null}
-        width={1000}
+        width={window.innerWidth < 768 ? '95%' : 1000}
       >
         <Spin spinning={loadingInscritos}>
           {/* Filtros e Exportação */}
@@ -954,6 +953,7 @@ const EventosAssociado = () => {
             <Table
               dataSource={inscritosFiltrados}
               rowKey={(record, index) => `${record.tipo}-${index}`}
+              scroll={{ x: 'max-content' }}
               columns={[
                 {
                   title: 'Tipo',

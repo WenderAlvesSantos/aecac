@@ -11,8 +11,10 @@ import {
   message,
   Space,
   Popconfirm,
+  Upload,
+  Image,
 } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import {
   getEventos,
@@ -28,6 +30,7 @@ const EventosAdmin = () => {
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [editingEvento, setEditingEvento] = useState(null)
+  const [imagemRemovida, setImagemRemovida] = useState(false)
   const [form] = Form.useForm()
 
   useEffect(() => {
@@ -48,17 +51,36 @@ const EventosAdmin = () => {
 
   const handleCreate = () => {
     setEditingEvento(null)
+    setImagemRemovida(false)
     form.resetFields()
     setModalVisible(true)
   }
 
   const handleEdit = (evento) => {
     setEditingEvento(evento)
+    setImagemRemovida(false)
     form.setFieldsValue({
       ...evento,
       data: evento.data ? dayjs(evento.data) : null,
     })
     setModalVisible(true)
+  }
+
+  const handleRemoverImagem = () => {
+    setImagemRemovida(true)
+    form.setFieldValue('imagemFile', [])
+  }
+
+  const convertImageToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const base64 = reader.result
+        resolve(base64)
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
   }
 
   const handleDelete = async (id) => {
@@ -78,6 +100,20 @@ const EventosAdmin = () => {
         data: values.data.format('YYYY-MM-DD'),
       }
 
+      // Processar imagem se houver
+      if (values.imagemFile && values.imagemFile.length > 0) {
+        const file = values.imagemFile[0]
+        if (file.originFileObj) {
+          data.imagem = await convertImageToBase64(file.originFileObj)
+        } else if (file.url || file.thumbUrl) {
+          data.imagem = file.url || file.thumbUrl
+        }
+      } else if (editingEvento && editingEvento.imagem && !imagemRemovida) {
+        data.imagem = editingEvento.imagem
+      }
+
+      delete data.imagemFile
+
       if (editingEvento) {
         await updateEvento(editingEvento._id, data)
         message.success('Evento atualizado com sucesso')
@@ -88,6 +124,7 @@ const EventosAdmin = () => {
 
       setModalVisible(false)
       form.resetFields()
+      setImagemRemovida(false)
       loadEventos()
     } catch (error) {
       message.error('Erro ao salvar evento')
@@ -169,6 +206,7 @@ const EventosAdmin = () => {
         dataSource={eventos}
         loading={loading}
         rowKey="_id"
+        scroll={{ x: 'max-content' }}
       />
 
       <Modal
@@ -179,7 +217,7 @@ const EventosAdmin = () => {
           form.resetFields()
         }}
         footer={null}
-        width={600}
+        width={window.innerWidth < 768 ? '95%' : 600}
       >
         <Form
           form={form}
@@ -255,12 +293,75 @@ const EventosAdmin = () => {
             <InputNumber min={1} style={{ width: '100%' }} />
           </Form.Item>
 
+          <Form.Item
+            name="imagemFile"
+            label="Imagem"
+            rules={[
+              {
+                required: true,
+                validator: (_, value) => {
+                  const temImagemExistente = editingEvento && editingEvento.imagem && !imagemRemovida
+                  const temArquivo = value && value.length > 0
+                  if (temImagemExistente || temArquivo) {
+                    return Promise.resolve()
+                  }
+                  return Promise.reject(new Error('Imagem é obrigatória'))
+                }
+              }
+            ]}
+            valuePropName="fileList"
+            getValueFromEvent={(e) => {
+              if (Array.isArray(e)) {
+                return e.slice(0, 1)
+              }
+              if (e?.fileList) {
+                return e.fileList.slice(0, 1)
+              }
+              return []
+            }}
+          >
+            {(!editingEvento || !editingEvento.imagem || imagemRemovida) ? (
+              <Upload
+                listType="picture-card"
+                maxCount={1}
+                beforeUpload={() => false}
+              >
+                <div>
+                  <UploadOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              </Upload>
+            ) : null}
+          </Form.Item>
+
+          {editingEvento && editingEvento.imagem && !imagemRemovida && (
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ marginBottom: '8px' }}>Imagem atual:</div>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <Image src={editingEvento.imagem} width={200} />
+                <Button
+                  danger
+                  size="small"
+                  icon={<DeleteOutlined />}
+                  onClick={handleRemoverImagem}
+                  style={{ position: 'absolute', top: '8px', right: '8px' }}
+                >
+                  Remover
+                </Button>
+              </div>
+            </div>
+          )}
+
           <Form.Item>
             <Space>
               <Button type="primary" htmlType="submit">
                 Salvar
               </Button>
-              <Button onClick={() => setModalVisible(false)}>
+              <Button onClick={() => {
+                setModalVisible(false)
+                form.resetFields()
+                setImagemRemovida(false)
+              }}>
                 Cancelar
               </Button>
             </Space>

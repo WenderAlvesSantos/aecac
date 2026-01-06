@@ -538,6 +538,7 @@ const EmpresasAdmin = () => {
         dataSource={empresas}
         loading={loading}
         rowKey="_id"
+        scroll={{ x: 'max-content' }}
       />
 
       <Modal
@@ -549,7 +550,7 @@ const EmpresasAdmin = () => {
           setEditingEmpresa(null)
         }}
         footer={null}
-        width={600}
+        width={window.innerWidth < 768 ? '95%' : 600}
         destroyOnHidden={true}
       >
         <Form
@@ -840,7 +841,7 @@ const EmpresasAdmin = () => {
             Fechar
           </Button>
         ]}
-        width={700}
+        width={window.innerWidth < 768 ? '95%' : 700}
       >
         {viewingEmpresa && (
           <div style={{ padding: '16px 0' }}>

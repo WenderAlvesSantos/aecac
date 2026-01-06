@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Card, Row, Col, Typography, Button, Space, Tag, Empty, Modal, Form, Input, InputNumber, DatePicker, Select, message, Upload, Popconfirm, Table, Pagination, Spin, Progress } from 'antd'
+import { Card, Row, Col, Typography, Button, Space, Tag, Empty, Modal, Form, Input, InputNumber, DatePicker, Select, message, Upload, Popconfirm, Table, Pagination, Spin, Progress, Image } from 'antd'
 import {
   BookOutlined,
   PlusOutlined,
@@ -29,6 +29,7 @@ const CapacitacoesAssociado = () => {
   const [capacitacaoModalVisible, setCapacitacaoModalVisible] = useState(false)
   const [editingCapacitacao, setEditingCapacitacao] = useState(null)
   const [capacitacaoForm] = Form.useForm()
+  const [imagemRemovida, setImagemRemovida] = useState(false)
   const [inscritosModalVisible, setInscritosModalVisible] = useState(false)
   const [inscritos, setInscritos] = useState([])
   const [inscritosFiltrados, setInscritosFiltrados] = useState([])
@@ -58,6 +59,7 @@ const CapacitacoesAssociado = () => {
   }, [])
 
   const loadData = async () => {
+    setLoading(true)
     try {
       const response = await getCapacitacoes()
       setCapacitacoes(response.data || [])
@@ -88,6 +90,9 @@ const CapacitacoesAssociado = () => {
         } else if (file.url) {
           imagemBase64 = file.url
         }
+      } else if (editingCapacitacao && editingCapacitacao.imagem && !imagemRemovida) {
+        // Manter imagem existente se não foi removida e não há novo arquivo
+        imagemBase64 = editingCapacitacao.imagem
       }
 
       const data = {
@@ -106,6 +111,7 @@ const CapacitacoesAssociado = () => {
       
       setCapacitacaoModalVisible(false)
       setEditingCapacitacao(null)
+      setImagemRemovida(false)
       capacitacaoForm.resetFields()
       loadData()
     } catch (error) {
@@ -115,24 +121,19 @@ const CapacitacoesAssociado = () => {
 
   const handleEditCapacitacao = (capacitacao) => {
     setEditingCapacitacao(capacitacao)
-    
-    let imagemFileList = []
-    if (capacitacao.imagem) {
-      imagemFileList = [{
-        uid: '-1',
-        name: 'imagem.jpg',
-        status: 'done',
-        url: capacitacao.imagem,
-        thumbUrl: capacitacao.imagem,
-      }]
-    }
+    setImagemRemovida(false)
 
     capacitacaoForm.setFieldsValue({
       ...capacitacao,
       data: capacitacao.data ? dayjs(capacitacao.data) : null,
-      imagemFile: imagemFileList,
+      imagemFile: [],
     })
     setCapacitacaoModalVisible(true)
+  }
+
+  const handleRemoverImagem = () => {
+    setImagemRemovida(true)
+    capacitacaoForm.setFieldValue('imagemFile', [])
   }
 
   const handleDeleteCapacitacao = async (id) => {
@@ -779,31 +780,31 @@ const CapacitacoesAssociado = () => {
           )}
         </Space>
 
-        {capacitacoesFiltradas.length > 0 ? (
-          <>
-            <Table
-              dataSource={capacitacoesPaginadas}
-              columns={columns}
-              rowKey="_id"
-              loading={loading}
-              pagination={false}
+        <Table
+          dataSource={capacitacoesPaginadas}
+          columns={columns}
+          rowKey="_id"
+          loading={loading}
+          pagination={false}
+          scroll={{ x: 'max-content' }}
+          locale={{
+            emptyText: !loading ? <Empty description="Nenhuma capacitação encontrada" /> : undefined
+          }}
+        />
+        {!loading && capacitacoesFiltradas.length > 0 && (
+          <div style={{ marginTop: '16px', textAlign: 'right' }}>
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={capacitacoesFiltradas.length}
+              onChange={(page, size) => {
+                setCurrentPage(page)
+                setPageSize(size)
+              }}
+              showSizeChanger
+              showTotal={(total) => `Total: ${total} capacitações`}
             />
-            <div style={{ marginTop: '16px', textAlign: 'right' }}>
-              <Pagination
-                current={currentPage}
-                pageSize={pageSize}
-                total={capacitacoesFiltradas.length}
-                onChange={(page, size) => {
-                  setCurrentPage(page)
-                  setPageSize(size)
-                }}
-                showSizeChanger
-                showTotal={(total) => `Total: ${total} capacitações`}
-              />
-            </div>
-          </>
-        ) : (
-          <Empty description="Nenhuma capacitação encontrada" />
+          </div>
         )}
       </Card>
 
@@ -814,10 +815,11 @@ const CapacitacoesAssociado = () => {
         onCancel={() => {
           setCapacitacaoModalVisible(false)
           setEditingCapacitacao(null)
+          setImagemRemovida(false)
           capacitacaoForm.resetFields()
         }}
         footer={null}
-        width={600}
+        width={window.innerWidth < 768 ? '95%' : 600}
       >
         <Form
           form={capacitacaoForm}
@@ -902,23 +904,67 @@ const CapacitacoesAssociado = () => {
           <Form.Item
             name="imagemFile"
             label="Imagem"
+            rules={[
+              {
+                required: true,
+                validator: (_, value) => {
+                  const temImagemExistente = editingCapacitacao && editingCapacitacao.imagem && !imagemRemovida
+                  const temArquivo = value && value.length > 0
+                  if (temImagemExistente || temArquivo) {
+                    return Promise.resolve()
+                  }
+                  return Promise.reject(new Error('Imagem é obrigatória'))
+                }
+              }
+            ]}
+            valuePropName="fileList"
+            getValueFromEvent={(e) => {
+              if (Array.isArray(e)) {
+                return e.slice(0, 1)
+              }
+              if (e?.fileList) {
+                return e.fileList.slice(0, 1)
+              }
+              return []
+            }}
           >
-            <Upload
-              listType="picture-card"
-              maxCount={1}
-              beforeUpload={() => false}
-            >
-              <div>
-                <UploadOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-              </div>
-            </Upload>
+            {(!editingCapacitacao || !editingCapacitacao.imagem || imagemRemovida) ? (
+              <Upload
+                listType="picture-card"
+                maxCount={1}
+                beforeUpload={() => false}
+              >
+                <div>
+                  <UploadOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              </Upload>
+            ) : null}
           </Form.Item>
+
+          {editingCapacitacao && editingCapacitacao.imagem && !imagemRemovida && (
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ marginBottom: '8px' }}>Imagem atual:</div>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <Image src={editingCapacitacao.imagem} width={200} />
+                <Button
+                  danger
+                  size="small"
+                  icon={<DeleteOutlined />}
+                  onClick={handleRemoverImagem}
+                  style={{ position: 'absolute', top: '8px', right: '8px' }}
+                >
+                  Remover
+                </Button>
+              </div>
+            </div>
+          )}
           <Form.Item>
             <Space>
               <Button onClick={() => {
                 setCapacitacaoModalVisible(false)
                 setEditingCapacitacao(null)
+                setImagemRemovida(false)
                 capacitacaoForm.resetFields()
               }}>
                 Cancelar
@@ -951,7 +997,7 @@ const CapacitacoesAssociado = () => {
             setFiltroInscritosData(null)
           }}
           footer={null}
-          width={1000}
+          width={window.innerWidth < 768 ? '95%' : 1000}
         >
           <Spin spinning={loadingInscritos}>
             {/* Filtros e Exportação */}
@@ -1069,10 +1115,11 @@ const CapacitacoesAssociado = () => {
 
             {/* Tabela de Inscritos */}
             {inscritosFiltrados.length > 0 ? (
-              <Table
-                dataSource={inscritosFiltrados}
-                rowKey={(record, index) => `${record.tipo}-${index}`}
-                columns={[
+            <Table
+              dataSource={inscritosFiltrados}
+              rowKey={(record, index) => `${record.tipo}-${index}`}
+              scroll={{ x: 'max-content' }}
+              columns={[
                   {
                     title: 'Tipo',
                     dataIndex: 'tipo',

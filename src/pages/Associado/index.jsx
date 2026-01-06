@@ -3,10 +3,10 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import Login from './Login'
 import EditarEmpresa from './EditarEmpresa'
 import LayoutAssociado from './LayoutAssociado'
+import Dashboard from './Dashboard'
 import BeneficiosAssociado from './BeneficiosAssociado'
 import CapacitacoesAssociado from './CapacitacoesAssociado'
 import EventosAssociado from './EventosAssociado'
-import ResgatesAssociado from './ResgatesAssociado'
 import PerfilAssociado from './PerfilAssociado'
 
 const PrivateRoute = ({ children }) => {
@@ -20,7 +20,7 @@ const Associado = () => {
 
   useEffect(() => {
     if (token && window.location.pathname === '/associado') {
-      navigate('/associado/beneficios', { replace: true })
+      navigate('/associado/dashboard', { replace: true })
     }
   }, [token, navigate])
 
@@ -43,13 +43,13 @@ const Associado = () => {
           </PrivateRoute>
         }
       >
+        <Route path="dashboard" element={<Dashboard />} />
         <Route path="beneficios" element={<BeneficiosAssociado />} />
         <Route path="capacitacoes" element={<CapacitacoesAssociado />} />
         <Route path="eventos" element={<EventosAssociado />} />
-        <Route path="resgates" element={<ResgatesAssociado />} />
         <Route path="perfil" element={<PerfilAssociado />} />
-        <Route path="" element={<Navigate to="/associado/beneficios" replace />} />
-        <Route path="*" element={<Navigate to="/associado/beneficios" replace />} />
+        <Route path="" element={<Navigate to="/associado/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/associado/dashboard" replace />} />
       </Route>
     </Routes>
   )

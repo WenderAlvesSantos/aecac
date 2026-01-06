@@ -299,6 +299,7 @@ const DiretoriaAdmin = () => {
         dataSource={diretoria}
         loading={loading}
         rowKey="_id"
+        scroll={{ x: 'max-content' }}
       />
 
       <Modal
@@ -311,7 +312,7 @@ const DiretoriaAdmin = () => {
           editingMembroRef.current = null
         }}
         footer={null}
-        width={600}
+        width={window.innerWidth < 768 ? '95%' : 600}
         destroyOnHidden={true}
       >
         <Form

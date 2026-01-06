@@ -166,6 +166,7 @@ const UsuariosAdmin = () => {
         dataSource={usuarios}
         loading={loading}
         rowKey="_id"
+        scroll={{ x: 'max-content' }}
       />
 
       <Modal
@@ -177,7 +178,7 @@ const UsuariosAdmin = () => {
           setEditingUsuario(null)
         }}
         footer={null}
-        width={600}
+        width={window.innerWidth < 768 ? '95%' : 600}
         destroyOnHidden={true}
       >
         <Form
