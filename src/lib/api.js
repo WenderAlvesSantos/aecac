@@ -124,9 +124,8 @@ export const getBeneficiosPublicos = () => api.get('/beneficios')
 export const createBeneficio = (data) => api.post('/beneficios', data)
 export const updateBeneficio = (id, data) => api.put(`/beneficios/${id}`, data)
 export const deleteBeneficio = (id) => api.delete(`/beneficios/${id}`)
-export const resgatarBeneficio = (codigo) => api.post('/beneficios/resgatar', { codigo })
-export const resgatarBeneficioPublico = (codigo, nome, cpf, telefone) => 
-  api.post('/beneficios/resgatar-publico', { codigo, nome, cpf, telefone })
+export const resgatarBeneficio = (codigo, nome, cpf, telefone) => 
+  api.post('/beneficios/resgatar', { codigo, nome, cpf, telefone })
 export const getResgates = () => api.get('/beneficios/resgates')
 
 // Capacitações
@@ -140,13 +139,12 @@ export const getCapacitacoesPublicas = () => api.get('/capacitacoes')
 export const createCapacitacao = (data) => api.post('/capacitacoes', data)
 export const updateCapacitacao = (id, data) => api.put(`/capacitacoes/${id}`, data)
 export const deleteCapacitacao = (id) => api.delete(`/capacitacoes/${id}`)
-export const inscreverCapacitacao = (capacitacaoId) => api.post('/capacitacoes/inscrever', { capacitacaoId })
-export const inscreverCapacitacaoPublico = (capacitacaoId, nome, cpf, telefone) =>
-  api.post('/capacitacoes/inscrever-publico', { capacitacaoId, nome, cpf, telefone })
-export const cancelarInscricao = (capacitacaoId) => {
+export const inscreverCapacitacao = (capacitacaoId, nome, cpf, telefone) => 
+  api.post('/capacitacoes/inscrever', { capacitacaoId, nome, cpf, telefone })
+export const cancelarInscricao = (capacitacaoId, cpf) => {
   // Usar POST com método DELETE no body ou criar endpoint específico
   return api.delete('/capacitacoes/inscrever', { 
-    data: { capacitacaoId },
+    data: { capacitacaoId, cpf },
     headers: { 'Content-Type': 'application/json' }
   })
 }

@@ -51,11 +51,6 @@ const AssociadoDashboard = () => {
     const totalEventos = eventos.length
     const totalResgates = resgates.length
 
-    // Resgates por tipo
-    const resgatesPublicos = resgates.filter(r => r.tipo === 'publico').length
-    const resgatesPrivados = resgates.filter(r => r.tipo === 'privado').length
-    const percentualPublicos = totalResgates > 0 ? (resgatesPublicos / totalResgates) * 100 : 0
-    const percentualPrivados = totalResgates > 0 ? (resgatesPrivados / totalResgates) * 100 : 0
 
     // Top 5 benefícios mais resgatados
     const beneficioResgates = {}
@@ -109,10 +104,6 @@ const AssociadoDashboard = () => {
       totalCapacitacoes,
       totalEventos,
       totalResgates,
-      resgatesPublicos,
-      resgatesPrivados,
-      percentualPublicos,
-      percentualPrivados,
       topBeneficios,
       proximosEventos,
       proximasCapacitacoes,
@@ -177,24 +168,22 @@ const AssociadoDashboard = () => {
       </Row>
 
       <Row gutter={[16, 16]}>
-        {/* Distribuição de Resgates */}
+        {/* Resumo de Resgates */}
         <Col xs={24} lg={12}>
-          <Card title="Distribuição de Resgates" style={{ height: '100%' }}>
+          <Card title="Resumo de Resgates" style={{ height: '100%' }}>
             {stats.totalResgates > 0 ? (
               <Space direction="vertical" style={{ width: '100%' }} size="large">
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <Text>Resgates Públicos</Text>
-                    <Text strong>{stats.resgatesPublicos} ({stats.percentualPublicos.toFixed(1)}%)</Text>
+                  <Text type="secondary" style={{ fontSize: '14px' }}>
+                    Total de resgates realizados por clientes
+                  </Text>
+                  <div style={{ marginTop: '16px' }}>
+                    <Statistic
+                      title="Total de Resgates"
+                      value={stats.totalResgates}
+                      valueStyle={{ fontSize: '32px', color: '#1890ff' }}
+                    />
                   </div>
-                  <Progress percent={stats.percentualPublicos} strokeColor="#1890ff" />
-                </div>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <Text>Resgates de Associados</Text>
-                    <Text strong>{stats.resgatesPrivados} ({stats.percentualPrivados.toFixed(1)}%)</Text>
-                  </div>
-                  <Progress percent={stats.percentualPrivados} strokeColor="#52c41a" />
                 </div>
               </Space>
             ) : (

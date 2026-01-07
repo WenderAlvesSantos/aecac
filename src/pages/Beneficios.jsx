@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Row, Col, Card, Typography, Tag, Spin, Empty, Image, Button, Input, Space, Modal, message, Statistic, Form, Select, Pagination, Tooltip } from 'antd'
-import { GiftOutlined, QrcodeOutlined, BankOutlined, ShopOutlined, FilterOutlined } from '@ant-design/icons'
-import { getBeneficiosPublicos, getEmpresas, resgatarBeneficio, resgatarBeneficioPublico } from '../lib/api'
+import { GiftOutlined, BankOutlined, ShopOutlined, FilterOutlined } from '@ant-design/icons'
+import { getBeneficiosPublicos, getEmpresas, resgatarBeneficio } from '../lib/api'
 
 const { Title, Paragraph } = Typography
 
@@ -34,16 +34,13 @@ const Beneficios = () => {
   const [empresas, setEmpresas] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalResgate, setModalResgate] = useState(false)
-  const [modalResgatePublico, setModalResgatePublico] = useState(false)
   const [beneficioSelecionado, setBeneficioSelecionado] = useState(null)
-  const [codigoResgate, setCodigoResgate] = useState('')
   const [resgatando, setResgatando] = useState(false)
-  const [formResgatePublico] = Form.useForm()
+  const [formResgate] = Form.useForm()
   const [filtroEmpresa, setFiltroEmpresa] = useState(null)
   const [filtroCategoria, setFiltroCategoria] = useState('all')
   const [paginaAtual, setPaginaAtual] = useState(1)
   const [itensPorPagina] = useState(9)
-  const associadoToken = localStorage.getItem('associadoToken')
 
   useEffect(() => {
     loadData()
@@ -85,27 +82,7 @@ const Beneficios = () => {
     return acc
   }, {})
 
-  const handleResgatar = async () => {
-    if (!codigoResgate.trim()) {
-      message.warning('Por favor, digite o código do benefício')
-      return
-    }
-
-    setResgatando(true)
-    try {
-      await resgatarBeneficio(codigoResgate.trim().toUpperCase())
-      message.success('Benefício resgatado com sucesso!')
-      setModalResgate(false)
-      setCodigoResgate('')
-      loadData()
-    } catch (error) {
-      message.error(error.response?.data?.error || 'Erro ao resgatar benefício')
-    } finally {
-      setResgatando(false)
-    }
-  }
-
-  const handleResgatarPublico = async (values) => {
+  const handleResgatar = async (values) => {
     if (!beneficioSelecionado) return
 
     setResgatando(true)
@@ -113,15 +90,15 @@ const Beneficios = () => {
       const cpfLimpo = values.cpf.replace(/\D/g, '')
       const telefoneLimpo = values.telefone.replace(/\D/g, '')
       
-      await resgatarBeneficioPublico(
+      await resgatarBeneficio(
         beneficioSelecionado.codigo,
         values.nome,
         cpfLimpo,
         telefoneLimpo
       )
       message.success('Benefício resgatado com sucesso!')
-      setModalResgatePublico(false)
-      formResgatePublico.resetFields()
+      setModalResgate(false)
+      formResgate.resetFields()
       setBeneficioSelecionado(null)
       loadData()
     } catch (error) {
@@ -131,9 +108,9 @@ const Beneficios = () => {
     }
   }
 
-  const abrirModalResgatePublico = (beneficio) => {
+  const abrirModalResgate = (beneficio) => {
     setBeneficioSelecionado(beneficio)
-    setModalResgatePublico(true)
+    setModalResgate(true)
   }
 
   if (loading) {
@@ -208,21 +185,6 @@ const Beneficios = () => {
           >
             Descontos e vantagens exclusivas para associados
           </Paragraph>
-          {associadoToken && (
-            <Button
-              type="default"
-              size="large"
-              icon={<QrcodeOutlined />}
-              onClick={() => setModalResgate(true)}
-              style={{ 
-                marginTop: '16px',
-                background: '#fff',
-                color: '#1890ff'
-              }}
-            >
-              Resgatar Benefício
-            </Button>
-          )}
         </div>
       </div>
 
@@ -481,7 +443,7 @@ const Beneficios = () => {
                           type="primary"
                           block
                           icon={<GiftOutlined />}
-                          onClick={() => abrirModalResgatePublico(beneficio)}
+                          onClick={() => abrirModalResgate(beneficio)}
                           disabled={beneficio.quantidadeDisponivel === 0}
                         >
                           Resgatar Benefício
@@ -512,47 +474,6 @@ const Beneficios = () => {
         </div>
       </div>
 
-      {/* Modal de Resgate (Associado logado) */}
-      {associadoToken && (
-        <Modal
-          title="Resgatar Benefício"
-          open={modalResgate}
-          onCancel={() => {
-            setModalResgate(false)
-            setCodigoResgate('')
-          }}
-          footer={[
-            <Button key="cancel" onClick={() => {
-              setModalResgate(false)
-              setCodigoResgate('')
-            }}>
-              Cancelar
-            </Button>,
-            <Button key="resgatar" type="primary" onClick={handleResgatar} loading={resgatando}>
-              Resgatar
-            </Button>,
-          ]}
-          width={window.innerWidth < 768 ? '95%' : 500}
-        >
-          <Space direction="vertical" style={{ width: '100%' }} size="large">
-            <div>
-              <Typography.Text strong>Digite o código do benefício:</Typography.Text>
-              <Input
-                placeholder="Ex: BENEFICIO2024"
-                value={codigoResgate}
-                onChange={(e) => setCodigoResgate(e.target.value.toUpperCase())}
-                size="large"
-                style={{ marginTop: '8px' }}
-                onPressEnter={handleResgatar}
-              />
-            </div>
-            <Typography.Text type="secondary">
-              O código pode ser encontrado na descrição de cada benefício.
-            </Typography.Text>
-          </Space>
-        </Modal>
-      )}
-
       {/* Modal de Resgate Público */}
       <Modal
         title={
@@ -565,10 +486,10 @@ const Beneficios = () => {
             )}
           </div>
         }
-        open={modalResgatePublico}
+        open={modalResgate}
         onCancel={() => {
-          setModalResgatePublico(false)
-          formResgatePublico.resetFields()
+          setModalResgate(false)
+          formResgate.resetFields()
           setBeneficioSelecionado(null)
         }}
         footer={null}
@@ -587,9 +508,9 @@ const Beneficios = () => {
           </div>
         )}
         <Form
-          form={formResgatePublico}
+          form={formResgate}
           layout="vertical"
-          onFinish={handleResgatarPublico}
+          onFinish={handleResgatar}
         >
           <Form.Item
             name="nome"
@@ -629,8 +550,8 @@ const Beneficios = () => {
           <Form.Item>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
               <Button onClick={() => {
-                setModalResgatePublico(false)
-                formResgatePublico.resetFields()
+                setModalResgate(false)
+                formResgate.resetFields()
                 setBeneficioSelecionado(null)
               }}>
                 Cancelar

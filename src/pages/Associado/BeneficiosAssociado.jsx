@@ -35,7 +35,6 @@ const BeneficiosAssociado = () => {
   const [loadingResgates, setLoadingResgates] = useState(false)
   const [beneficioSelecionado, setBeneficioSelecionado] = useState(null)
   // Filtros do modal de resgates
-  const [filtroResgatesTipo, setFiltroResgatesTipo] = useState('')
   const [filtroResgatesNome, setFiltroResgatesNome] = useState('')
   const [filtroResgatesCPF, setFiltroResgatesCPF] = useState('')
   const [filtroResgatesData, setFiltroResgatesData] = useState(null)
@@ -151,7 +150,6 @@ const BeneficiosAssociado = () => {
     setLoadingResgates(true)
     setResgatesModalVisible(true)
     // Limpar filtros ao abrir
-    setFiltroResgatesTipo('')
     setFiltroResgatesNome('')
     setFiltroResgatesCPF('')
     setFiltroResgatesData(null)
@@ -182,9 +180,6 @@ const BeneficiosAssociado = () => {
     }
 
     const filtrados = resgates.filter(resgate => {
-      // Filtro por tipo
-      const matchTipo = !filtroResgatesTipo || resgate.tipo === filtroResgatesTipo
-      
       // Filtro por nome
       const matchNome = !filtroResgatesNome || 
         (resgate.nome || '').toLowerCase().includes(filtroResgatesNome.toLowerCase())
@@ -212,11 +207,11 @@ const BeneficiosAssociado = () => {
         return true
       })()
 
-      return matchTipo && matchNome && matchCPF && matchData
+      return matchNome && matchCPF && matchData
     })
 
     setResgatesFiltrados(filtrados)
-  }, [resgates, filtroResgatesTipo, filtroResgatesNome, filtroResgatesCPF, filtroResgatesData])
+  }, [resgates, filtroResgatesNome, filtroResgatesCPF, filtroResgatesData])
 
   // Cache de dados preparados para exportação
   const dadosPreparadosCache = useMemo(() => {
@@ -225,7 +220,6 @@ const BeneficiosAssociado = () => {
     }
     
     return resgatesFiltrados.map(resgate => ({
-      'Tipo': resgate.tipo === 'publico' ? 'Público' : 'Associado',
       'Nome': resgate.nome || 'Usuário Associado',
       'CPF': resgate.cpf ? resgate.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : '',
       'Telefone': resgate.telefone || '',
@@ -976,7 +970,6 @@ const BeneficiosAssociado = () => {
           setResgates([])
           setResgatesFiltrados([])
           setBeneficioSelecionado(null)
-          setFiltroResgatesTipo('')
           setFiltroResgatesNome('')
           setFiltroResgatesCPF('')
           setFiltroResgatesData(null)
@@ -988,19 +981,7 @@ const BeneficiosAssociado = () => {
           {/* Filtros e Exportação */}
           <Space direction="vertical" style={{ width: '100%', marginBottom: '16px' }} size="middle">
             <Row gutter={[16, 16]}>
-              <Col xs={24} sm={6}>
-                <Select
-                  placeholder="Filtrar por Tipo"
-                  style={{ width: '100%' }}
-                  value={filtroResgatesTipo || undefined}
-                  onChange={(value) => setFiltroResgatesTipo(value)}
-                  allowClear
-                >
-                  <Select.Option value="publico">Público</Select.Option>
-                  <Select.Option value="privado">Associado</Select.Option>
-                </Select>
-              </Col>
-              <Col xs={24} sm={6}>
+              <Col xs={24} sm={8}>
                 <Input
                   placeholder="Buscar por Nome"
                   prefix={<SearchOutlined />}
@@ -1009,7 +990,7 @@ const BeneficiosAssociado = () => {
                   allowClear
                 />
               </Col>
-              <Col xs={24} sm={6}>
+              <Col xs={24} sm={8}>
                 <Input
                   placeholder="Buscar por CPF"
                   value={filtroResgatesCPF}
@@ -1018,7 +999,7 @@ const BeneficiosAssociado = () => {
                   allowClear
                 />
               </Col>
-              <Col xs={24} sm={6}>
+              <Col xs={24} sm={8}>
                 <RangePicker
                   placeholder={['Data inicial', 'Data final']}
                   style={{ width: '100%' }}
@@ -1041,7 +1022,6 @@ const BeneficiosAssociado = () => {
                     <Button
                       icon={<ClearOutlined />}
                       onClick={() => {
-                        setFiltroResgatesTipo('')
                         setFiltroResgatesNome('')
                         setFiltroResgatesCPF('')
                         setFiltroResgatesData(null)
@@ -1105,16 +1085,6 @@ const BeneficiosAssociado = () => {
               rowKey={(record, index) => `${record.tipo}-${index}`}
               scroll={{ x: 'max-content' }}
               columns={[
-                {
-                  title: 'Tipo',
-                  dataIndex: 'tipo',
-                  key: 'tipo',
-                  render: (tipo) => (
-                    <Tag color={tipo === 'publico' ? 'blue' : 'green'}>
-                      {tipo === 'publico' ? 'Público' : 'Associado'}
-                    </Tag>
-                  ),
-                },
                 {
                   title: 'Nome',
                   dataIndex: 'nome',

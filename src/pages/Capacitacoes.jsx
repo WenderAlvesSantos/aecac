@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Row, Col, Card, Typography, Tag, Button, Space, Spin, Empty, Modal, message, Form, Input, Statistic, Select, Pagination } from 'antd'
 import { CalendarOutlined, UserOutlined, CheckCircleOutlined, EnvironmentOutlined, BankOutlined, ShopOutlined, FilterOutlined } from '@ant-design/icons'
-import { getCapacitacoesPublicas, inscreverCapacitacao, cancelarInscricao, inscreverCapacitacaoPublico, getEmpresas } from '../lib/api'
+import { getCapacitacoesPublicas, inscreverCapacitacao, cancelarInscricao, getEmpresas } from '../lib/api'
 import dayjs from 'dayjs'
 
 const { Title, Paragraph } = Typography
@@ -93,26 +93,7 @@ const Capacitacoes = () => {
     setModalVisible(true)
   }
 
-  const handleInscricao = async () => {
-    if (!associadoToken) {
-      message.warning('Você precisa estar logado para se inscrever')
-      return
-    }
-
-    setInscricaoLoading(true)
-    try {
-      await inscreverCapacitacao(selectedCapacitacao._id)
-      message.success('Inscrição realizada com sucesso!')
-      setModalVisible(false)
-      loadData()
-    } catch (error) {
-      message.error(error.response?.data?.error || 'Erro ao realizar inscrição')
-    } finally {
-      setInscricaoLoading(false)
-    }
-  }
-
-  const handleInscricaoPublica = async (values) => {
+  const handleInscricao = async (values) => {
     if (!selectedCapacitacao) return
 
     setInscricaoLoading(true)
@@ -120,7 +101,7 @@ const Capacitacoes = () => {
       const cpfLimpo = values.cpf.replace(/\D/g, '')
       const telefoneLimpo = values.telefone.replace(/\D/g, '')
       
-      await inscreverCapacitacaoPublico(
+      await inscreverCapacitacao(
         selectedCapacitacao._id,
         values.nome,
         cpfLimpo,
@@ -138,7 +119,7 @@ const Capacitacoes = () => {
     }
   }
 
-  const abrirModalInscricaoPublica = (capacitacao) => {
+  const abrirModalInscricao = (capacitacao) => {
     setSelectedCapacitacao(capacitacao)
     setModalInscricaoPublica(true)
   }
@@ -524,7 +505,7 @@ const Capacitacoes = () => {
                                 {!associadoToken && (
                                   <Button
                                     type="primary"
-                                    onClick={() => abrirModalInscricaoPublica(capacitacao)}
+                                    onClick={() => abrirModalInscricao(capacitacao)}
                                     disabled={capacitacao.vagas && (capacitacao.vagasDisponiveis !== undefined ? capacitacao.vagasDisponiveis : capacitacao.vagas) <= 0}
                                     style={{
                                       background: capacitacao.vagas && (capacitacao.vagasDisponiveis !== undefined ? capacitacao.vagasDisponiveis : capacitacao.vagas) <= 0 ? '#ccc' : 'linear-gradient(135deg, #1565c0 0%, #00c853 100%)',
@@ -718,7 +699,7 @@ const Capacitacoes = () => {
         <Form
           form={formInscricaoPublica}
           layout="vertical"
-          onFinish={handleInscricaoPublica}
+          onFinish={handleInscricao}
         >
           <Form.Item
             name="nome"

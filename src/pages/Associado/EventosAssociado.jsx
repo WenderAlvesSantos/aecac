@@ -34,7 +34,6 @@ const EventosAssociado = () => {
   const [loadingInscritos, setLoadingInscritos] = useState(false)
   const [eventoSelecionado, setEventoSelecionado] = useState(null)
   // Filtros do modal de inscritos
-  const [filtroInscritosTipo, setFiltroInscritosTipo] = useState('')
   const [filtroInscritosNome, setFiltroInscritosNome] = useState('')
   const [filtroInscritosCPF, setFiltroInscritosCPF] = useState('')
   const [filtroInscritosData, setFiltroInscritosData] = useState(null)
@@ -160,7 +159,6 @@ const EventosAssociado = () => {
 
     const filtrados = inscritos.filter(inscrito => {
       // Filtro por tipo
-      const matchTipo = !filtroInscritosTipo || inscrito.tipo === filtroInscritosTipo
       
       // Filtro por nome
       const matchNome = !filtroInscritosNome || 
@@ -193,7 +191,7 @@ const EventosAssociado = () => {
     })
 
     setInscritosFiltrados(filtrados)
-  }, [inscritos, filtroInscritosTipo, filtroInscritosNome, filtroInscritosCPF, filtroInscritosData])
+  }, [inscritos, filtroInscritosNome, filtroInscritosCPF, filtroInscritosData])
 
   // Função para preparar dados para exportação (reutilizável)
   const prepararDadosExportacao = () => {
@@ -202,7 +200,6 @@ const EventosAssociado = () => {
     }
     
     return inscritosFiltrados.map(inscrito => ({
-      'Tipo': inscrito.tipo === 'publico' ? 'Público' : 'Associado',
       'Nome': inscrito.nome || '',
       'Email': inscrito.email || '',
       'CPF': inscrito.cpf ? inscrito.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : '',
@@ -838,19 +835,7 @@ const EventosAssociado = () => {
           {/* Filtros e Exportação */}
           <Space direction="vertical" style={{ width: '100%', marginBottom: '16px' }} size="middle">
             <Row gutter={[16, 16]}>
-              <Col xs={24} sm={6}>
-                <Select
-                  placeholder="Filtrar por Tipo"
-                  style={{ width: '100%' }}
-                  value={filtroInscritosTipo || undefined}
-                  onChange={(value) => setFiltroInscritosTipo(value)}
-                  allowClear
-                >
-                  <Select.Option value="publico">Público</Select.Option>
-                  <Select.Option value="privado">Associado</Select.Option>
-                </Select>
-              </Col>
-              <Col xs={24} sm={6}>
+              <Col xs={24} sm={8}>
                 <Input
                   placeholder="Buscar por Nome"
                   prefix={<SearchOutlined />}
@@ -859,7 +844,7 @@ const EventosAssociado = () => {
                   allowClear
                 />
               </Col>
-              <Col xs={24} sm={6}>
+              <Col xs={24} sm={8}>
                 <Input
                   placeholder="Buscar por CPF"
                   value={filtroInscritosCPF}
@@ -868,7 +853,7 @@ const EventosAssociado = () => {
                   allowClear
                 />
               </Col>
-              <Col xs={24} sm={6}>
+              <Col xs={24} sm={8}>
                 <RangePicker
                   placeholder={['Data inicial', 'Data final']}
                   style={{ width: '100%' }}
@@ -891,7 +876,6 @@ const EventosAssociado = () => {
                     <Button
                       icon={<ClearOutlined />}
                       onClick={() => {
-                        setFiltroInscritosTipo('')
                         setFiltroInscritosNome('')
                         setFiltroInscritosCPF('')
                         setFiltroInscritosData(null)
@@ -955,16 +939,6 @@ const EventosAssociado = () => {
               rowKey={(record, index) => `${record.tipo}-${index}`}
               scroll={{ x: 'max-content' }}
               columns={[
-                {
-                  title: 'Tipo',
-                  dataIndex: 'tipo',
-                  key: 'tipo',
-                  render: (tipo) => (
-                    <Tag color={tipo === 'publico' ? 'blue' : 'green'}>
-                      {tipo === 'publico' ? 'Público' : 'Associado'}
-                    </Tag>
-                  ),
-                },
                 {
                   title: 'Nome',
                   dataIndex: 'nome',
