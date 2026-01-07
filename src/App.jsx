@@ -10,6 +10,7 @@ import Eventos from './pages/Eventos'
 import Beneficios from './pages/Beneficios'
 import Capacitacoes from './pages/Capacitacoes'
 import CadastroEmpresa from './pages/CadastroEmpresa'
+import ComoAssociar from './pages/ComoAssociar'
 import Admin from './pages/Admin'
 import Associado from './pages/Associado'
 
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/beneficios" element={<Beneficios />} />
                 <Route path="/capacitacoes" element={<Capacitacoes />} />
                 <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
+                <Route path="/como-associar" element={<ComoAssociar />} />
               </Routes>
             </Layout>
           }

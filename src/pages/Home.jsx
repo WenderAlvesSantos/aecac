@@ -454,7 +454,7 @@ const Home = () => {
             <Button
               type="primary"
               size="large"
-              onClick={() => navigate('/cadastro-empresa')}
+              onClick={() => navigate('/como-associar')}
               block={window.innerWidth < 768}
               style={{
                 background: 'linear-gradient(135deg, #00c853 0%, #00e676 100%)',

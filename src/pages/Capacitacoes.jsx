@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Row, Col, Card, Typography, Tag, Button, Space, Spin, Empty, Modal, message, Form, Input, Statistic, Select, Pagination } from 'antd'
 import { CalendarOutlined, UserOutlined, CheckCircleOutlined, EnvironmentOutlined, BankOutlined, ShopOutlined, FilterOutlined } from '@ant-design/icons'
-import { getCapacitacoes, inscreverCapacitacao, cancelarInscricao, inscreverCapacitacaoPublico, getEmpresas } from '../lib/api'
+import { getCapacitacoesPublicas, inscreverCapacitacao, cancelarInscricao, inscreverCapacitacaoPublico, getEmpresas } from '../lib/api'
 import dayjs from 'dayjs'
 
 const { Title, Paragraph } = Typography
@@ -52,7 +52,7 @@ const Capacitacoes = () => {
 
   const loadData = async () => {
     try {
-      const response = await getCapacitacoes()
+      const response = await getCapacitacoesPublicas()
       setCapacitacoes(response.data)
     } catch (error) {
       console.error('Erro ao carregar capacitações:', error)

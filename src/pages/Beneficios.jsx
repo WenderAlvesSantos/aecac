@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Row, Col, Card, Typography, Tag, Spin, Empty, Image, Button, Input, Space, Modal, message, Statistic, Form, Select, Pagination, Tooltip } from 'antd'
 import { GiftOutlined, QrcodeOutlined, BankOutlined, ShopOutlined, FilterOutlined } from '@ant-design/icons'
-import { getBeneficios, getEmpresas, resgatarBeneficio, resgatarBeneficioPublico } from '../lib/api'
+import { getBeneficiosPublicos, getEmpresas, resgatarBeneficio, resgatarBeneficioPublico } from '../lib/api'
 
 const { Title, Paragraph } = Typography
 
@@ -52,7 +52,7 @@ const Beneficios = () => {
   const loadData = async () => {
     try {
       const [beneficiosRes, empresasRes] = await Promise.all([
-        getBeneficios(),
+        getBeneficiosPublicos(),
         getEmpresas(),
       ])
 

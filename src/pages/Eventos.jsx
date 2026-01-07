@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Row, Col, Typography, Card, Tag, Space, Button, Calendar, Badge, Spin, Empty, Modal, Form, Input, message, Statistic, Select, Pagination } from 'antd'
 import { CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined, UserOutlined, BankOutlined, ShopOutlined, FilterOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { getEventos, inscreverEventoPublico, getEmpresas } from '../lib/api'
+import { getEventosPublicos, inscreverEventoPublico, getEmpresas } from '../lib/api'
 
 const { Title, Paragraph } = Typography
 
@@ -51,7 +51,7 @@ const Eventos = () => {
 
   const loadEventos = async () => {
     try {
-      const response = await getEventos()
+      const response = await getEventosPublicos()
       setEventos(response.data)
     } catch (error) {
       console.error('Erro ao carregar eventos:', error)

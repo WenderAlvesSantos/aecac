@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Layout as AntLayout, Button } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
@@ -21,6 +21,11 @@ const Layout = ({ children }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false)
+
+  // Scroll para o topo quando a rota mudar
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
 
   const menuItems = [
     {

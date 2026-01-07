@@ -72,6 +72,8 @@ export const getEventos = () => {
   const url = associadoToken ? '/eventos?area=logged' : '/eventos'
   return api.get(url)
 }
+// Eventos (área pública - sempre retorna todos, mesmo com token)
+export const getEventosPublicos = () => api.get('/eventos')
 export const createEvento = (data) => api.post('/eventos', data)
 export const updateEvento = (id, data) => api.put(`/eventos/${id}`, data)
 export const deleteEvento = (id) => api.delete(`/eventos/${id}`)
@@ -117,6 +119,8 @@ export const getBeneficios = () => {
   const url = associadoToken ? '/beneficios?area=logged' : '/beneficios'
   return api.get(url)
 }
+// Benefícios (área pública - sempre retorna todos, mesmo com token)
+export const getBeneficiosPublicos = () => api.get('/beneficios')
 export const createBeneficio = (data) => api.post('/beneficios', data)
 export const updateBeneficio = (id, data) => api.put(`/beneficios/${id}`, data)
 export const deleteBeneficio = (id) => api.delete(`/beneficios/${id}`)
@@ -131,6 +135,8 @@ export const getCapacitacoes = () => {
   const url = associadoToken ? '/capacitacoes?area=logged' : '/capacitacoes'
   return api.get(url)
 }
+// Capacitações (área pública - sempre retorna todos, mesmo com token)
+export const getCapacitacoesPublicas = () => api.get('/capacitacoes')
 export const createCapacitacao = (data) => api.post('/capacitacoes', data)
 export const updateCapacitacao = (id, data) => api.put(`/capacitacoes/${id}`, data)
 export const deleteCapacitacao = (id) => api.delete(`/capacitacoes/${id}`)

@@ -13,6 +13,7 @@ import {
   Tooltip,
 } from 'antd'
 import { SearchOutlined, ShopOutlined, PhoneOutlined, MailOutlined, GlobalOutlined, FacebookOutlined, InstagramOutlined, LinkedinOutlined, WhatsAppOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
 import { getEmpresas } from '../lib/api'
 
 const { Title, Paragraph } = Typography
@@ -47,6 +48,7 @@ const getWhatsAppLink = (whatsapp) => {
 }
 
 const Empresas = () => {
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [empresas, setEmpresas] = useState([])
@@ -462,6 +464,7 @@ const Empresas = () => {
           <Button
             type="default"
             size="large"
+            onClick={() => navigate('/como-associar')}
             style={{ background: '#fff', color: '#1890ff' }}
           >
             Saiba Como Associar-se

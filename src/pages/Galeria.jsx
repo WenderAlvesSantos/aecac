@@ -47,7 +47,20 @@ const Galeria = () => {
   }
 
   return (
-    <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
+    <>
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+      <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
       {/* Header Section */}
       <div
         style={{
@@ -220,6 +233,7 @@ const Galeria = () => {
         )}
       </Modal>
     </div>
+    </>
   )
 }
 
