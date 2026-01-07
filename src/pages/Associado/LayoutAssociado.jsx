@@ -82,12 +82,17 @@ const LayoutAssociado = () => {
 
   const menuContent = (
     <>
-      <div style={{ padding: '16px', textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>
-        <Avatar size={64} icon={<UserOutlined />} style={{ marginBottom: '8px' }} />
-        <Title level={5} style={{ margin: '8px 0 4px 0', color: isMobile ? '#000' : '#fff' }}>
+      <div style={{ 
+        padding: '16px', 
+        textAlign: 'center', 
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        background: 'linear-gradient(135deg, rgba(26, 35, 126, 0.3) 0%, rgba(21, 101, 192, 0.3) 100%)',
+      }}>
+        <Avatar size={64} icon={<UserOutlined />} style={{ marginBottom: '8px', background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.3)' }} />
+        <Title level={5} style={{ margin: '8px 0 4px 0', color: '#fff', textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
           {associado.name || 'Associado'}
         </Title>
-        <Text type="secondary" style={{ color: isMobile ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.65)', fontSize: '12px' }}>
+        <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '12px' }}>
           {associado.email}
         </Text>
       </div>
@@ -119,6 +124,8 @@ const LayoutAssociado = () => {
             left: 0,
             top: 0,
             bottom: 0,
+            background: 'linear-gradient(180deg, #1a237e 0%, #1565c0 100%)',
+            boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
           }}
         >
           {menuContent}
@@ -139,12 +146,12 @@ const LayoutAssociado = () => {
       <Layout style={{ marginLeft: isMobile ? 0 : (collapsed ? 80 : 250), transition: 'margin-left 0.2s' }}>
         <Header
           style={{
-            background: '#fff',
+            background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
             padding: isMobile ? '0 16px' : '0 24px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
             position: 'sticky',
             top: 0,
             zIndex: 100,
@@ -159,7 +166,7 @@ const LayoutAssociado = () => {
                 style={{ fontSize: '18px' }}
               />
             )}
-            <Title level={4} style={{ margin: 0, fontSize: isMobile ? '16px' : '20px' }}>
+            <Title level={4} style={{ margin: 0, fontSize: isMobile ? '16px' : '20px', color: '#fff', textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
               Área do Associado
             </Title>
           </Space>
@@ -167,6 +174,11 @@ const LayoutAssociado = () => {
             icon={<LogoutOutlined />} 
             onClick={handleLogout}
             size={isMobile ? 'small' : 'middle'}
+            style={{ 
+              background: 'rgba(255,255,255,0.2)',
+              borderColor: 'rgba(255,255,255,0.3)',
+              color: '#fff',
+            }}
           >
             {isMobile ? '' : 'Sair'}
           </Button>

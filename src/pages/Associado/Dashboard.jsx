@@ -121,47 +121,79 @@ const AssociadoDashboard = () => {
 
   return (
     <div>
-      <Title level={2} style={{ marginBottom: '24px' }}>Dashboard</Title>
+      <Title level={2} style={{ marginBottom: '24px', color: '#1a237e', fontSize: '28px', fontWeight: 'bold' }}>Dashboard</Title>
 
       {/* Cards de Estatísticas */}
       <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card
+            style={{
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              border: '1px solid #e0e0e0',
+              transition: 'all 0.3s ease',
+            }}
+            hoverable
+          >
             <Statistic
               title="Total de Benefícios"
               value={stats.totalBeneficios}
               prefix={<GiftOutlined />}
-              valueStyle={{ color: '#3f8600' }}
+              valueStyle={{ color: '#00c853' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card
+            style={{
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              border: '1px solid #e0e0e0',
+              transition: 'all 0.3s ease',
+            }}
+            hoverable
+          >
             <Statistic
               title="Total de Capacitações"
               value={stats.totalCapacitacoes}
               prefix={<BookOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: '#1565c0' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card
+            style={{
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              border: '1px solid #e0e0e0',
+              transition: 'all 0.3s ease',
+            }}
+            hoverable
+          >
             <Statistic
               title="Total de Eventos"
               value={stats.totalEventos}
               prefix={<CalendarOutlined />}
-              valueStyle={{ color: '#722ed1' }}
+              valueStyle={{ color: '#1a237e' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card
+            style={{
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              border: '1px solid #e0e0e0',
+              transition: 'all 0.3s ease',
+            }}
+            hoverable
+          >
             <Statistic
               title="Total de Resgates"
               value={stats.totalResgates}
               prefix={<ShoppingOutlined />}
-              valueStyle={{ color: '#fa8c16' }}
+              valueStyle={{ color: '#00c853' }}
             />
           </Card>
         </Col>
@@ -201,7 +233,12 @@ const AssociadoDashboard = () => {
                 {stats.totalResgates} resgate{stats.totalResgates !== 1 ? 's' : ''} total
               </Text>
             }
-            style={{ height: '100%' }}
+            style={{ 
+              height: '100%',
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              border: '1px solid #e0e0e0',
+            }}
           >
             {stats.topBeneficios.length > 0 ? (
               <List
@@ -240,7 +277,12 @@ const AssociadoDashboard = () => {
                 Ver todos
               </Text>
             }
-            style={{ height: '100%' }}
+            style={{ 
+              height: '100%',
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              border: '1px solid #e0e0e0',
+            }}
           >
             {stats.proximosEventos.length > 0 ? (
               <List
@@ -281,7 +323,12 @@ const AssociadoDashboard = () => {
                 Ver todas
               </Text>
             }
-            style={{ height: '100%' }}
+            style={{ 
+              height: '100%',
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              border: '1px solid #e0e0e0',
+            }}
           >
             {stats.proximasCapacitacoes.length > 0 ? (
               <List
@@ -315,7 +362,14 @@ const AssociadoDashboard = () => {
 
         {/* Resgates por Mês */}
         <Col xs={24}>
-          <Card title="Resgates nos Últimos 6 Meses">
+          <Card 
+            title="Resgates nos Últimos 6 Meses"
+            style={{
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              border: '1px solid #e0e0e0',
+            }}
+          >
             {stats.resgatesPorMes.some(r => r.count > 0) ? (
               <Row gutter={[16, 16]}>
                 {stats.resgatesPorMes.map((item, index) => {

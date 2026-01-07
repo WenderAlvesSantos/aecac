@@ -1,0 +1,152 @@
+/* Estilos globais para área Admin e Associado - Identidade Visual AECAC */
+
+/* Botões primários com gradiente */
+.ant-btn-primary {
+  background: linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%);
+  border: none;
+  box-shadow: 0 2px 8px rgba(26, 35, 126, 0.3);
+  transition: all 0.3s ease;
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #1565c0 0%, #1a237e 50%, #00c853 100%);
+  box-shadow: 0 4px 12px rgba(26, 35, 126, 0.4);
+  transform: translateY(-2px);
+}
+
+.ant-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Cards com estilo moderno */
+.ant-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.ant-card:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+/* Títulos com cor da identidade */
+h1, h2, h3, h4, h5, h6 {
+  color: #1a237e;
+}
+
+/* Links com cor da identidade */
+a {
+  color: #1565c0;
+}
+
+a:hover {
+  color: #00c853;
+}
+
+/* Inputs com foco na cor da identidade */
+.ant-input:focus,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: #1565c0;
+  box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.2);
+}
+
+/* Select com foco na cor da identidade */
+.ant-select-focused .ant-select-selector {
+  border-color: #1565c0 !important;
+  box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.2) !important;
+}
+
+/* Tabelas com estilo moderno */
+.ant-table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ant-table-thead > tr > th {
+  background: linear-gradient(135deg, rgba(26, 35, 126, 0.05) 0%, rgba(21, 101, 192, 0.05) 100%);
+  color: #1a237e;
+  font-weight: 600;
+}
+
+/* Modais com estilo moderno */
+.ant-modal-content {
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.ant-modal-header {
+  background: linear-gradient(135deg, rgba(26, 35, 126, 0.05) 0%, rgba(21, 101, 192, 0.05) 100%);
+  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.ant-modal-title {
+  color: #1a237e;
+  font-weight: 600;
+}
+
+/* Tags com cores da identidade */
+.ant-tag {
+  border-radius: 6px;
+}
+
+/* Progress bars com cor da identidade */
+.ant-progress-bg {
+  background: linear-gradient(90deg, #1565c0 0%, #00c853 100%);
+}
+
+/* Estatísticas com cores da identidade */
+.ant-statistic-content {
+  color: #1a237e;
+}
+
+/* Menu lateral com gradiente */
+.ant-menu-dark {
+  background: linear-gradient(180deg, #1a237e 0%, #1565c0 100%);
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+  background: rgba(0, 200, 83, 0.2) !important;
+  color: #fff;
+}
+
+.ant-menu-dark .ant-menu-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Drawer com estilo moderno */
+.ant-drawer-content {
+  background: linear-gradient(180deg, #1a237e 0%, #1565c0 100%);
+}
+
+/* Badges com cores da identidade */
+.ant-badge-count {
+  background: linear-gradient(135deg, #1565c0 0%, #00c853 100%);
+  box-shadow: 0 2px 4px rgba(21, 101, 192, 0.3);
+}
+
+/* DatePicker com foco na cor da identidade */
+.ant-picker-focused {
+  border-color: #1565c0;
+  box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.2);
+}
+
+/* Upload com estilo moderno */
+.ant-upload {
+  border-radius: 8px;
+}
+
+.ant-upload-drag {
+  border-color: #e0e0e0;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.ant-upload-drag:hover {
+  border-color: #1565c0;
+  background: rgba(21, 101, 192, 0.05);
+}
+

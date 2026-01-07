@@ -1,4 +1,5 @@
-import { Row, Col, Typography, Card, Space, Button, Divider } from 'antd'
+import { useState, useEffect } from 'react'
+import { Row, Col, Typography, Card, Space, Button, Divider, Spin } from 'antd'
 import {
   GiftOutlined,
   TeamOutlined,
@@ -10,11 +11,31 @@ import {
   ArrowRightOutlined,
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
+import { getConfiguracoes } from '../lib/api'
 
 const { Title, Paragraph } = Typography
 
 const ComoAssociar = () => {
   const navigate = useNavigate()
+  const [valorMensalidade, setValorMensalidade] = useState(100.00)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadConfiguracoes()
+  }, [])
+
+  const loadConfiguracoes = async () => {
+    try {
+      const response = await getConfiguracoes()
+      const valor = response.data?.valorMensalidade || 100.00
+      setValorMensalidade(valor)
+    } catch (error) {
+      console.error('Erro ao carregar configurações:', error)
+      // Mantém o valor padrão em caso de erro
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const beneficios = [
     {
@@ -142,16 +163,20 @@ const ComoAssociar = () => {
               <Title level={2} style={{ color: '#1a237e', marginBottom: '16px' }}>
                 Investimento Mensal
               </Title>
-              <div
-                style={{
-                  fontSize: '48px',
-                  fontWeight: 'bold',
-                  color: '#00c853',
-                  marginBottom: '8px',
-                }}
-              >
-                R$ 100,00
-              </div>
+              {loading ? (
+                <Spin size="large" />
+              ) : (
+                <div
+                  style={{
+                    fontSize: '48px',
+                    fontWeight: 'bold',
+                    color: '#00c853',
+                    marginBottom: '8px',
+                  }}
+                >
+                  R$ {valorMensalidade.toFixed(2).replace('.', ',')}
+                </div>
+              )}
               <Paragraph style={{ fontSize: '18px', color: '#666', marginBottom: '24px' }}>
                 Assinatura mensal que dá acesso a todos os benefícios e serviços da AECAC
               </Paragraph>

@@ -13,12 +13,10 @@ import {
   UsergroupAddOutlined,
   GiftOutlined,
   BookOutlined,
-  BarChartOutlined,
   MenuOutlined,
 } from '@ant-design/icons'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { getEventos, getParceiros, getEmpresas, getGaleria, getDiretoria, getBeneficios, getCapacitacoes } from '../../lib/api'
-import Logo from '../../components/Logo'
 
 const { Header: AntHeader, Content, Sider } = Layout
 
@@ -84,11 +82,6 @@ const Dashboard = () => {
       label: 'Dashboard',
     },
     {
-      key: '/admin/eventos',
-      icon: <CalendarOutlined />,
-      label: 'Eventos',
-    },
-    {
       key: '/admin/parceiros',
       icon: <TeamOutlined />,
       label: 'Parceiros',
@@ -109,14 +102,29 @@ const Dashboard = () => {
       label: 'Diretoria',
     },
     {
+      key: '/admin/eventos',
+      icon: <CalendarOutlined />,
+      label: 'Eventos',
+    },
+    {
+      key: '/admin/beneficios',
+      icon: <GiftOutlined />,
+      label: 'Benefícios',
+    },
+    {
+      key: '/admin/capacitacoes',
+      icon: <BookOutlined />,
+      label: 'Capacitações',
+    },
+    // {
+    //   key: '/admin/relatorios',
+    //   icon: <BarChartOutlined />,
+    //   label: 'Relatórios',
+    // },
+    {
       key: '/admin/sobre',
       icon: <FileTextOutlined />,
       label: 'Sobre',
-    },
-    {
-      key: '/admin/configuracoes',
-      icon: <SettingOutlined />,
-      label: 'Configurações',
     },
     {
       key: '/admin/perfil',
@@ -129,19 +137,9 @@ const Dashboard = () => {
       label: 'Usuários',
     },
     {
-      key: '/admin/beneficios',
-      icon: <GiftOutlined />,
-      label: 'Benefícios',
-    },
-    {
-      key: '/admin/capacitacoes',
-      icon: <BookOutlined />,
-      label: 'Capacitações',
-    },
-    {
-      key: '/admin/relatorios',
-      icon: <BarChartOutlined />,
-      label: 'Relatórios',
+      key: '/admin/configuracoes',
+      icon: <SettingOutlined />,
+      label: 'Configurações',
     },
   ]
 
@@ -169,10 +167,11 @@ const Dashboard = () => {
           alignItems: 'center',
           justifyContent: 'center',
           padding: '12px',
-          borderBottom: '1px solid #1f1f1f',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
         }}
       >
-        <span style={{ color: isMobile ? '#000' : '#fff', marginLeft: '12px', fontSize: '18px', fontWeight: 'bold' }}>
+        <span style={{ color: '#fff', marginLeft: '12px', fontSize: '18px', fontWeight: 'bold', textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
           Admin
         </span>
       </div>
@@ -193,7 +192,8 @@ const Dashboard = () => {
           breakpoint="lg"
           collapsedWidth={80}
           style={{
-            background: '#001529',
+            background: 'linear-gradient(180deg, #1a237e 0%, #1565c0 100%)',
+            boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
           }}
         >
           {menuContent}
@@ -214,12 +214,12 @@ const Dashboard = () => {
       <Layout>
         <AntHeader
           style={{
-            background: '#fff',
+            background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
             padding: isMobile ? '0 16px' : '0 24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
             position: 'sticky',
             top: 0,
             zIndex: 100,
@@ -234,89 +234,153 @@ const Dashboard = () => {
                 style={{ fontSize: '18px' }}
               />
             )}
-            <div style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 'bold' }}>
+            <div style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
               Painel Administrativo
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: isMobile ? '14px' : '16px' }}>Olá, {user.name || 'Admin'}</span>
-            <a onClick={handleLogout} style={{ cursor: 'pointer', color: '#1890ff', fontSize: isMobile ? '14px' : '16px' }}>
+            <span style={{ fontSize: isMobile ? '14px' : '16px', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>Olá, {user.name || 'Admin'}</span>
+            <Button 
+              onClick={handleLogout} 
+              type="default"
+              style={{ 
+                background: 'rgba(255,255,255,0.2)',
+                borderColor: 'rgba(255,255,255,0.3)',
+                color: '#fff',
+              }}
+            >
               Sair
-            </a>
+            </Button>
           </div>
         </AntHeader>
         <Content style={{ margin: isMobile ? '16px' : '24px', background: '#f0f2f5' }}>
           {location.pathname === '/admin' ? (
             <div>
-              <h2 style={{ marginBottom: '24px' }}>Dashboard</h2>
+              <h2 style={{ marginBottom: '24px', color: '#1a237e', fontSize: '28px', fontWeight: 'bold' }}>Dashboard</h2>
               <Row gutter={[16, 16]}>
                 <Col xs={24} sm={12} md={8}>
-                  <Card>
+                  <Card
+                    style={{
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                      border: '1px solid #e0e0e0',
+                      transition: 'all 0.3s ease',
+                    }}
+                    hoverable
+                  >
                     <Statistic
                       title="Eventos"
                       value={stats.eventos}
                       prefix={<CalendarOutlined />}
-                      valueStyle={{ color: '#1890ff' }}
+                      valueStyle={{ color: '#1565c0' }}
                     />
                   </Card>
                 </Col>
                 <Col xs={24} sm={12} md={8}>
-                  <Card>
+                  <Card
+                    style={{
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                      border: '1px solid #e0e0e0',
+                      transition: 'all 0.3s ease',
+                    }}
+                    hoverable
+                  >
                     <Statistic
                       title="Parceiros"
                       value={stats.parceiros}
                       prefix={<TeamOutlined />}
-                      valueStyle={{ color: '#52c41a' }}
+                      valueStyle={{ color: '#00c853' }}
                     />
                   </Card>
                 </Col>
                 <Col xs={24} sm={12} md={8}>
-                  <Card>
+                  <Card
+                    style={{
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                      border: '1px solid #e0e0e0',
+                      transition: 'all 0.3s ease',
+                    }}
+                    hoverable
+                  >
                     <Statistic
                       title="Empresas"
                       value={stats.empresas}
                       prefix={<ShopOutlined />}
-                      valueStyle={{ color: '#722ed1' }}
+                      valueStyle={{ color: '#1a237e' }}
                     />
                   </Card>
                 </Col>
                 <Col xs={24} sm={12} md={8}>
-                  <Card>
+                  <Card
+                    style={{
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                      border: '1px solid #e0e0e0',
+                      transition: 'all 0.3s ease',
+                    }}
+                    hoverable
+                  >
                     <Statistic
                       title="Imagens na Galeria"
                       value={stats.galeria}
                       prefix={<PictureOutlined />}
-                      valueStyle={{ color: '#fa8c16' }}
+                      valueStyle={{ color: '#1565c0' }}
                     />
                   </Card>
                 </Col>
                 <Col xs={24} sm={12} md={8}>
-                  <Card>
+                  <Card
+                    style={{
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                      border: '1px solid #e0e0e0',
+                      transition: 'all 0.3s ease',
+                    }}
+                    hoverable
+                  >
                     <Statistic
                       title="Membros da Diretoria"
                       value={stats.diretoria}
                       prefix={<UserOutlined />}
-                      valueStyle={{ color: '#eb2f96' }}
+                      valueStyle={{ color: '#1a237e' }}
                     />
                   </Card>
                 </Col>
                 <Col xs={24} sm={12} md={8}>
-                  <Card>
+                  <Card
+                    style={{
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                      border: '1px solid #e0e0e0',
+                      transition: 'all 0.3s ease',
+                    }}
+                    hoverable
+                  >
                     <Statistic
                       title="Benefícios Ativos"
                       value={stats.beneficios}
                       prefix={<GiftOutlined />}
-                      valueStyle={{ color: '#52c41a' }}
+                      valueStyle={{ color: '#00c853' }}
                     />
                   </Card>
                 </Col>
                 <Col xs={24} sm={12} md={8}>
-                  <Card>
+                  <Card
+                    style={{
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                      border: '1px solid #e0e0e0',
+                      transition: 'all 0.3s ease',
+                    }}
+                    hoverable
+                  >
                     <Statistic
                       title="Capacitações"
                       value={stats.capacitacoes}
                       prefix={<BookOutlined />}
-                      valueStyle={{ color: '#faad14' }}
+                      valueStyle={{ color: '#1565c0' }}
                     />
                   </Card>
                 </Col>

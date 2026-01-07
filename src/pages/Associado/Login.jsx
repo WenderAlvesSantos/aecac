@@ -44,15 +44,47 @@ const AssociadoLogin = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
+        position: 'relative',
+        overflow: 'hidden',
         padding: '24px',
       }}
     >
+      {/* Decorative elements */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '-50%',
+          right: '-10%',
+          width: '600px',
+          height: '600px',
+          background: 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '50%',
+          filter: 'blur(80px)',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '-30%',
+          left: '-10%',
+          width: '500px',
+          height: '500px',
+          background: 'rgba(0, 200, 83, 0.1)',
+          borderRadius: '50%',
+          filter: 'blur(80px)',
+        }}
+      />
       <Card
         style={{
           width: '100%',
           maxWidth: '400px',
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          borderRadius: '12px',
+          border: '1px solid rgba(255,255,255,0.2)',
+          background: 'rgba(255,255,255,0.95)',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>

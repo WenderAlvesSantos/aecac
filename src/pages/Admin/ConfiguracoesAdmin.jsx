@@ -6,7 +6,7 @@ import {
   Button,
   message,
   Space,
-  Divider,
+  InputNumber,
 } from 'antd'
 import {
   PhoneOutlined,
@@ -15,6 +15,7 @@ import {
   FacebookOutlined,
   InstagramOutlined,
   LinkedinOutlined,
+  DollarOutlined,
 } from '@ant-design/icons'
 import { getConfiguracoes, updateConfiguracoes } from '../../lib/api'
 
@@ -64,6 +65,7 @@ const ConfiguracoesAdmin = () => {
         facebook: data.redesSociais?.facebook || '',
         instagram: data.redesSociais?.instagram || '',
         linkedin: data.redesSociais?.linkedin || '',
+        valorMensalidade: data.valorMensalidade || 100.00,
       })
     } catch (error) {
       message.error('Erro ao carregar configurações')
@@ -87,6 +89,7 @@ const ConfiguracoesAdmin = () => {
           instagram: values.instagram || '',
           linkedin: values.linkedin || '',
         },
+        valorMensalidade: values.valorMensalidade || 100.00,
       }
 
       await updateConfiguracoes(data)
@@ -163,6 +166,42 @@ const ConfiguracoesAdmin = () => {
               rows={2}
               prefix={<EnvironmentOutlined />}
               placeholder="Águas Claras - DF"
+            />
+          </Form.Item>
+        </Card>
+
+        <Card
+          title={
+            <Space>
+              <DollarOutlined />
+              <span>Configurações Financeiras</span>
+            </Space>
+          }
+          style={{ marginBottom: '24px' }}
+        >
+          <Form.Item
+            name="valorMensalidade"
+            label="Valor da Mensalidade (R$)"
+            rules={[
+              { required: true, message: 'Por favor, informe o valor da mensalidade' },
+              { type: 'number', min: 0, message: 'O valor deve ser maior ou igual a zero' },
+            ]}
+          >
+            <InputNumber
+              prefix="R$"
+              style={{ width: '100%' }}
+              placeholder="100.00"
+              min={0}
+              step={0.01}
+              precision={2}
+              formatter={(value) => {
+                if (!value) return ''
+                return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }}
+              parser={(value) => {
+                if (!value) return ''
+                return value.replace(/\$\s?|(,*)/g, '')
+              }}
             />
           </Form.Item>
         </Card>
