@@ -17,7 +17,7 @@ import {
 } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, UserOutlined } from '@ant-design/icons'
 import {
-  getCapacitacoes,
+  getCapacitacoesAdmin,
   createCapacitacao,
   updateCapacitacao,
   deleteCapacitacao,
@@ -42,7 +42,7 @@ const CapacitacoesAdmin = () => {
   const loadCapacitacoes = async () => {
     setLoading(true)
     try {
-      const response = await getCapacitacoes()
+      const response = await getCapacitacoesAdmin()
       setCapacitacoes(response.data)
     } catch (error) {
       message.error('Erro ao carregar capacitações')

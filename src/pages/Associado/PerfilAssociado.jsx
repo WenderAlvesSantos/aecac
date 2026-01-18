@@ -7,7 +7,7 @@ import {
   LockOutlined,
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
-import { getPerfil, updatePerfil } from '../../lib/api'
+import { getPerfilAssociado, updatePerfilAssociado } from '../../lib/api'
 import api from '../../lib/api'
 
 const { Title, Text } = Typography
@@ -27,7 +27,7 @@ const PerfilAssociado = () => {
 
   const loadData = async () => {
     try {
-      const perfilRes = await getPerfil().catch(() => ({ data: null }))
+      const perfilRes = await getPerfilAssociado().catch(() => ({ data: null }))
       const perfilData = perfilRes.data
       setPerfil(perfilData)
 
@@ -54,7 +54,7 @@ const PerfilAssociado = () => {
 
   const handleUpdatePerfil = async (values) => {
     try {
-      await updatePerfil(values)
+      await updatePerfilAssociado(values)
       message.success('Perfil atualizado com sucesso!')
       loadData()
     } catch (error) {
@@ -65,7 +65,7 @@ const PerfilAssociado = () => {
   const handleAlterarSenha = async (values) => {
     try {
       setAlterandoSenha(true)
-      await updatePerfil({
+      await updatePerfilAssociado({
         currentPassword: values.currentPassword,
         newPassword: values.newPassword,
       })

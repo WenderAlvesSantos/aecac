@@ -12,13 +12,159 @@ const api = axios.create({
 
 // Interceptor para adicionar token de autenticação
 api.interceptors.request.use((config) => {
-  // Priorizar token de admin, depois associado
   const adminToken = localStorage.getItem('authToken')
   const associadoToken = localStorage.getItem('associadoToken')
-  const token = adminToken || associadoToken
+  
+  const url = config.url || ''
+  
+  // ============================================
+  // ROTAS EXCLUSIVAS DO ADMIN (sempre usar authToken)
+  // ============================================
+  const adminRoutes = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/perfil-admin',
+    '/usuarios',
+    '/parceiros',
+    '/empresas',
+    '/empresas/pendentes',
+    '/empresas/aprovar',
+    '/galeria',
+    '/galeria/ordem',
+    '/diretoria',
+    '/sobre',
+    '/configuracoes',
+    '/relatorios',
+    '/exportar',
+    '/notificacoes',
+    // CRUD de Eventos, Benefícios e Capacitações (sem area=logged)
+    // Essas rotas são detectadas pela ausência de area=logged
+  ]
+  
+  // ============================================
+  // ROTAS EXCLUSIVAS DO ASSOCIADO (sempre usar associadoToken)
+  // ============================================
+  const associadoRoutes = [
+    '/auth/login-associado',
+    '/auth/register-associado',
+    '/auth/perfil-associado',
+    '/beneficios/resgates',
+    '/eventos/inscritos',
+    '/capacitacoes/inscritos',
+    '/capacitacoes/inscrever',
+    // CRUD de Eventos, Benefícios e Capacitações (com area=logged)
+    // Essas rotas são detectadas pela presença de area=logged
+  ]
+  
+  // ============================================
+  // ROTAS PÚBLICAS (não usar token)
+  // ============================================
+  const publicRoutes = [
+    '/beneficios/resgatar',
+    '/eventos/inscrever-publico',
+    '/capacitacoes/inscrever-publico',
+    '/consultas/buscar-cnpj',
+    '/consultas/buscar-cep',
+  ]
+  
+  // Verificar se é rota de área logada (com ?area=logged)
+  const isLoggedArea = url.includes('area=logged')
+  
+  // Verificar se é rota exclusiva de admin
+  const isAdminRoute = adminRoutes.some(route => url.startsWith(route))
+  
+  // Verificar se é rota exclusiva de associado
+  const isAssociadoRoute = associadoRoutes.some(route => url.startsWith(route))
+  
+  // Verificar se é rota pública
+  const isPublicRoute = publicRoutes.some(route => url.startsWith(route))
+  
+  // Rotas GET de Eventos, Benefícios e Capacitações (podem ser Admin, Associado ou Público)
+  const isEventosBeneficiosCapacitacoesGet = 
+    config.method === 'get' && (
+      (url === '/eventos' || url.startsWith('/eventos?')) ||
+      (url === '/beneficios' || url.startsWith('/beneficios?')) ||
+      (url === '/capacitacoes' || url.startsWith('/capacitacoes?'))
+    )
+  
+  // Rotas GET públicas (listagem sem autenticação - exceto Eventos, Benefícios e Capacitações)
+  const isPublicGetRoute = 
+    (config.method === 'get' && (
+      (url === '/empresas' || url.startsWith('/empresas?')) ||
+      (url === '/parceiros' || url.startsWith('/parceiros?')) ||
+      (url === '/galeria' || url.startsWith('/galeria?')) ||
+      (url === '/diretoria' || url.startsWith('/diretoria?')) ||
+      (url === '/sobre' || url.startsWith('/sobre?')) ||
+      (url === '/configuracoes' || url.startsWith('/configuracoes?'))
+    ))
+  
+  // Rotas CRUD de Eventos, Benefícios e Capacitações (POST, PUT, DELETE)
+  const isCRUDRoute = 
+    (config.method === 'post' && url.match(/^\/(eventos|beneficios|capacitacoes)$/)) ||
+    (config.method === 'put' && url.match(/^\/(eventos|beneficios|capacitacoes)\/[^/]+$/)) ||
+    (config.method === 'delete' && url.match(/^\/(eventos|beneficios|capacitacoes)\/[^/]+$/))
+  
+  let token = null
+  
+  // ============================================
+  // LÓGICA DE SELEÇÃO DE TOKEN (SEM ROTAS COMPARTILHADAS)
+  // ============================================
+  if (isAdminRoute) {
+    // Rotas exclusivas de admin: SEMPRE usar authToken
+    token = adminToken || null
+  } else if (isAssociadoRoute || (isLoggedArea && associadoToken)) {
+    // Rotas exclusivas de associado ou área logada: SEMPRE usar associadoToken
+    token = associadoToken || null
+  } else if (isEventosBeneficiosCapacitacoesGet) {
+    // GET de Eventos, Benefícios ou Capacitações:
+    // - Se tem area=logged → usar associadoToken
+    // - Se não tem area=logged mas tem adminToken → usar adminToken (Admin)
+    // - Se não tem nenhum token → não usar token (Público)
+    if (isLoggedArea) {
+      token = associadoToken || null
+    } else if (adminToken) {
+      token = adminToken
+    } else {
+      token = null
+    }
+  } else if (isCRUDRoute) {
+    // Rotas CRUD: 
+    // - Se tem area=logged → usar associadoToken
+    // - Se não tem area=logged → usar adminToken (admin gerencia CRUD)
+    if (isLoggedArea) {
+      token = associadoToken || null
+    } else {
+      token = adminToken || null
+    }
+  } else if (isPublicRoute || isPublicGetRoute) {
+    // Rotas públicas: não usar token
+    token = null
+  } else {
+    // Fallback: não usar token (evitar conflitos)
+    token = null
+  }
   
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+    // Debug: log apenas para rotas de Eventos, Benefícios e Capacitações
+    if (isEventosBeneficiosCapacitacoesGet || isCRUDRoute) {
+      console.log('🔑 [API] Token enviado:', {
+        url: config.url,
+        method: config.method,
+        tokenType: token === adminToken ? 'adminToken' : 'associadoToken',
+        isLoggedArea,
+        hasAdminToken: !!adminToken,
+        hasAssociadoToken: !!associadoToken
+      })
+    }
+  } else if (isEventosBeneficiosCapacitacoesGet || isCRUDRoute) {
+    console.log('⚠️ [API] Nenhum token enviado:', {
+      url: config.url,
+      method: config.method,
+      isLoggedArea,
+      hasAdminToken: !!adminToken,
+      hasAssociadoToken: !!associadoToken
+    })
   }
   return config
 })
@@ -56,9 +202,13 @@ export const loginAssociado = (email, password) =>
 export const registerAssociado = (email, password, name) =>
   api.post('/auth/register-associado', { email, password, name })
 
-// Perfil
-export const getPerfil = () => api.get('/auth/perfil')
-export const updatePerfil = (data) => api.put('/auth/perfil', data)
+// Perfil (Admin)
+export const getPerfilAdmin = () => api.get('/auth/perfil-admin')
+export const updatePerfilAdmin = (data) => api.put('/auth/perfil-admin', data)
+
+// Perfil (Associado)
+export const getPerfilAssociado = () => api.get('/auth/perfil-associado')
+export const updatePerfilAssociado = (data) => api.put('/auth/perfil-associado', data)
 
 // Usuários
 export const getUsuarios = () => api.get('/usuarios')
@@ -66,17 +216,22 @@ export const createUsuario = (data) => api.post('/usuarios', data)
 export const updateUsuario = (id, data) => api.put(`/usuarios/${id}`, data)
 export const deleteUsuario = (id) => api.delete(`/usuarios/${id}`)
 
-// Eventos
-export const getEventos = () => {
-  const associadoToken = localStorage.getItem('associadoToken')
-  const url = associadoToken ? '/eventos?area=logged' : '/eventos'
-  return api.get(url)
-}
-// Eventos (área pública - sempre retorna todos, mesmo com token)
-export const getEventosPublicos = () => api.get('/eventos')
+// Eventos (Admin)
+export const getEventosAdmin = () => api.get('/eventos')
 export const createEvento = (data) => api.post('/eventos', data)
 export const updateEvento = (id, data) => api.put(`/eventos/${id}`, data)
 export const deleteEvento = (id) => api.delete(`/eventos/${id}`)
+
+// Eventos (Associado)
+export const getEventosAssociado = () => api.get('/eventos?area=logged')
+
+// Eventos (Público - sempre retorna todos, mesmo com token)
+export const getEventosPublicos = () => api.get('/eventos')
+export const getEventos = () => {
+  // Função legada - usar getEventosAdmin ou getEventosAssociado conforme contexto
+  const associadoToken = localStorage.getItem('associadoToken')
+  return associadoToken ? getEventosAssociado() : getEventosAdmin()
+}
 
 // Parceiros
 export const getParceiros = () => api.get('/parceiros')
@@ -113,32 +268,48 @@ export const updateSobre = (data) => api.put('/sobre', data)
 export const getConfiguracoes = () => api.get('/configuracoes')
 export const updateConfiguracoes = (data) => api.put('/configuracoes', data)
 
-// Benefícios
-export const getBeneficios = () => {
-  const associadoToken = localStorage.getItem('associadoToken')
-  const url = associadoToken ? '/beneficios?area=logged' : '/beneficios'
-  return api.get(url)
-}
-// Benefícios (área pública - sempre retorna todos, mesmo com token)
-export const getBeneficiosPublicos = () => api.get('/beneficios')
+// Benefícios (Admin)
+export const getBeneficiosAdmin = () => api.get('/beneficios')
 export const createBeneficio = (data) => api.post('/beneficios', data)
 export const updateBeneficio = (id, data) => api.put(`/beneficios/${id}`, data)
 export const deleteBeneficio = (id) => api.delete(`/beneficios/${id}`)
-export const resgatarBeneficio = (codigo, nome, cpf, telefone) => 
-  api.post('/beneficios/resgatar', { codigo, nome, cpf, telefone })
+
+// Benefícios (Associado)
+export const getBeneficiosAssociado = () => api.get('/beneficios?area=logged')
 export const getResgates = () => api.get('/beneficios/resgates')
 
-// Capacitações
-export const getCapacitacoes = () => {
+// Benefícios (Público - sempre retorna todos, mesmo com token)
+export const getBeneficiosPublicos = () => api.get('/beneficios')
+export const getBeneficios = () => {
+  // Função legada - usar getBeneficiosAdmin ou getBeneficiosAssociado conforme contexto
   const associadoToken = localStorage.getItem('associadoToken')
-  const url = associadoToken ? '/capacitacoes?area=logged' : '/capacitacoes'
-  return api.get(url)
+  return associadoToken ? getBeneficiosAssociado() : getBeneficiosAdmin()
 }
-// Capacitações (área pública - sempre retorna todos, mesmo com token)
-export const getCapacitacoesPublicas = () => api.get('/capacitacoes')
+
+// Benefícios (Público - resgate)
+export const resgatarBeneficio = (codigo, nome, cpf, telefone) => 
+  api.post('/beneficios/resgatar', { codigo, nome, cpf, telefone })
+
+// Capacitações (Admin)
+export const getCapacitacoesAdmin = () => api.get('/capacitacoes')
 export const createCapacitacao = (data) => api.post('/capacitacoes', data)
 export const updateCapacitacao = (id, data) => api.put(`/capacitacoes/${id}`, data)
 export const deleteCapacitacao = (id) => api.delete(`/capacitacoes/${id}`)
+
+// Capacitações (Associado)
+export const getCapacitacoesAssociado = () => api.get('/capacitacoes?area=logged')
+export const getInscritosCapacitacao = (capacitacaoId) => 
+  api.get(`/capacitacoes/inscritos?capacitacaoId=${capacitacaoId}`)
+
+// Capacitações (Público - sempre retorna todos, mesmo com token)
+export const getCapacitacoesPublicas = () => api.get('/capacitacoes')
+export const getCapacitacoes = () => {
+  // Função legada - usar getCapacitacoesAdmin ou getCapacitacoesAssociado conforme contexto
+  const associadoToken = localStorage.getItem('associadoToken')
+  return associadoToken ? getCapacitacoesAssociado() : getCapacitacoesAdmin()
+}
+
+// Capacitações (Público - inscrição)
 export const inscreverCapacitacao = (capacitacaoId, nome, cpf, telefone) => 
   api.post('/capacitacoes/inscrever', { capacitacaoId, nome, cpf, telefone })
 export const cancelarInscricao = (capacitacaoId, cpf) => {
@@ -148,8 +319,6 @@ export const cancelarInscricao = (capacitacaoId, cpf) => {
     headers: { 'Content-Type': 'application/json' }
   })
 }
-export const getInscritosCapacitacao = (capacitacaoId) => 
-  api.get(`/capacitacoes/inscritos?capacitacaoId=${capacitacaoId}`)
 
 // Eventos - Inscrições públicas
 export const inscreverEventoPublico = (eventoId, nome, cpf, telefone) =>

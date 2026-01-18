@@ -18,7 +18,7 @@ import {
 } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons'
 import {
-  getBeneficios,
+  getBeneficiosAdmin,
   createBeneficio,
   updateBeneficio,
   deleteBeneficio,
@@ -43,7 +43,7 @@ const BeneficiosAdmin = () => {
   const loadBeneficios = async () => {
     setLoading(true)
     try {
-      const response = await getBeneficios()
+      const response = await getBeneficiosAdmin()
       setBeneficios(response.data)
     } catch (error) {
       message.error('Erro ao carregar benefícios')

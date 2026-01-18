@@ -434,7 +434,7 @@ const EditarEmpresa = () => {
 
             <Form.Item
               name="imagemFile"
-              label="Imagem da Fachada"
+              label="Logomarca"
               valuePropName="fileList"
               getValueFromEvent={(e) => {
                 if (Array.isArray(e)) return e.slice(0, 1)

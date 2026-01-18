@@ -12,7 +12,7 @@ import {
   MailOutlined,
   LockOutlined,
 } from '@ant-design/icons'
-import { getPerfil, updatePerfil } from '../../lib/api'
+import { getPerfilAdmin, updatePerfilAdmin } from '../../lib/api'
 
 const PerfilAdmin = () => {
   const [loading, setLoading] = useState(false)
@@ -25,7 +25,7 @@ const PerfilAdmin = () => {
   const loadPerfil = async () => {
     setLoading(true)
     try {
-      const response = await getPerfil()
+      const response = await getPerfilAdmin()
       form.setFieldsValue({
         name: response.data.name,
         email: response.data.email,
@@ -56,7 +56,7 @@ const PerfilAdmin = () => {
         data.newPassword = values.newPassword
       }
 
-      await updatePerfil(data)
+      await updatePerfilAdmin(data)
       message.success('Perfil atualizado com sucesso')
       
       // Atualizar dados do usuário no localStorage

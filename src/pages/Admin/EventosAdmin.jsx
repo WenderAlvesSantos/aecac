@@ -17,7 +17,7 @@ import {
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import {
-  getEventos,
+  getEventosAdmin,
   createEvento,
   updateEvento,
   deleteEvento,
@@ -40,7 +40,7 @@ const EventosAdmin = () => {
   const loadEventos = async () => {
     setLoading(true)
     try {
-      const response = await getEventos()
+      const response = await getEventosAdmin()
       setEventos(response.data)
     } catch (error) {
       message.error('Erro ao carregar eventos')

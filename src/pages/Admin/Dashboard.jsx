@@ -16,7 +16,7 @@ import {
   MenuOutlined,
 } from '@ant-design/icons'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { getEventos, getParceiros, getEmpresas, getGaleria, getDiretoria, getBeneficios, getCapacitacoes } from '../../lib/api'
+import { getEventosAdmin, getParceiros, getEmpresas, getGaleria, getDiretoria, getBeneficiosAdmin, getCapacitacoesAdmin } from '../../lib/api'
 
 const { Header: AntHeader, Content, Sider } = Layout
 
@@ -52,13 +52,13 @@ const Dashboard = () => {
   const loadStats = async () => {
     try {
       const [eventos, parceiros, empresas, galeria, diretoria, beneficios, capacitacoes] = await Promise.all([
-        getEventos(),
+        getEventosAdmin(),
         getParceiros(),
         getEmpresas(),
         getGaleria(),
         getDiretoria(),
-        getBeneficios().catch(() => ({ data: [] })),
-        getCapacitacoes().catch(() => ({ data: [] })),
+        getBeneficiosAdmin().catch(() => ({ data: [] })),
+        getCapacitacoesAdmin().catch(() => ({ data: [] })),
       ])
 
       setStats({
