@@ -138,7 +138,7 @@ const ComoAssociar = () => {
                   gap: '8px'
                 }}>
                   <RocketOutlined style={{ fontSize: '18px' }} />
-                  <span style={{ fontSize: '14px', fontWeight: '600' }}>Pré-Lançamento</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600' }}>Em Breve</span>
                 </div>
               </div>
             )}
@@ -152,7 +152,7 @@ const ComoAssociar = () => {
                 textShadow: '0 2px 10px rgba(0,0,0,0.2)',
               }}
             >
-              {flags.preCadastroMode ? 'Manifeste seu Interesse na AECAC' : 'Como Associar-se à AECAC'}
+              {flags.preCadastroMode ? 'Fazer Pré-Cadastro na AECAC' : 'Como Associar-se à AECAC'}
             </Title>
             <Paragraph
               style={{
@@ -162,7 +162,7 @@ const ComoAssociar = () => {
               }}
             >
               {flags.preCadastroMode 
-                ? 'Estamos em fase de pré-lançamento! Registre seu interesse e seja um dos primeiros empresários a fazer parte da AECAC em Águas Claras.'
+                ? 'Em breve estaremos disponíveis! Registre seu interesse e seja um dos primeiros empresários a fazer parte da AECAC em Águas Claras.'
                 : 'Junte-se à Associação Empresarial e Comercial de Águas Claras e fortaleça seu negócio com uma rede de apoio e oportunidades exclusivas'
               }
             </Paragraph>
@@ -174,7 +174,7 @@ const ComoAssociar = () => {
           {/* Alert de Pré-Lançamento */}
           {flags.preCadastroMode && (
             <Alert
-              message="🚀 Estamos em fase de pré-lançamento!"
+              message="🚀 Em breve estaremos disponíveis!"
               description="Registre seu interesse agora e seja um dos primeiros a fazer parte da AECAC. Entraremos em contato assim que o lançamento oficial acontecer."
               type="info"
               showIcon
@@ -336,11 +336,11 @@ const ComoAssociar = () => {
                     1
                   </div>
                   <Title level={4} style={{ color: '#1a237e', marginBottom: '8px' }}>
-                    {flags.preCadastroMode ? 'Manifestar Interesse' : 'Cadastro'}
+                    {flags.preCadastroMode ? 'Pré-Cadastro' : 'Cadastro'}
                   </Title>
                   <Paragraph style={{ color: '#666', fontSize: '14px' }}>
                     {flags.preCadastroMode 
-                      ? 'Preencha o formulário manifestando seu interesse em fazer parte da AECAC'
+                      ? 'Preencha o formulário de pré-cadastro para participar da AECAC'
                       : 'Preencha o formulário de cadastro com os dados da sua empresa'
                     }
                   </Paragraph>
@@ -486,7 +486,7 @@ const ComoAssociar = () => {
             </Title>
             <Paragraph style={{ color: 'rgba(255,255,255,0.9)', fontSize: '18px', marginBottom: '32px' }}>
               {flags.preCadastroMode
-                ? 'Manifeste seu interesse agora e tenha prioridade no lançamento oficial da AECAC'
+                ? 'Faça seu pré-cadastro agora e tenha prioridade no lançamento oficial da AECAC'
                 : 'Faça parte da AECAC e fortaleça seu negócio com uma rede de apoio e oportunidades exclusivas'
               }
             </Paragraph>
@@ -504,7 +504,7 @@ const ComoAssociar = () => {
                 fontWeight: '600',
               }}
             >
-              {flags.preCadastroMode ? 'Manifestar Interesse Agora' : 'Cadastrar Minha Empresa'}
+              {flags.preCadastroMode ? 'Fazer Pré-Cadastro Agora' : 'Cadastrar Minha Empresa'}
             </Button>
           </Card>
         </div>

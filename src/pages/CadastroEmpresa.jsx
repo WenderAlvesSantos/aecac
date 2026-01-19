@@ -97,7 +97,7 @@ const CadastroEmpresa = () => {
   const preCadastro = flags.preCadastroMode
   const titulo = preCadastro ? 'Pré-Cadastro de Interesse' : 'Cadastro de Empresa'
   const subtitulo = preCadastro
-    ? 'Manifeste seu interesse em fazer parte da AECAC. Entraremos em contato em breve!'
+    ? 'Faça seu pré-cadastro para participar da AECAC. Entraremos em contato em breve!'
     : 'Preencha o formulário abaixo para se associar à AECAC'
 
   const convertImageToBase64 = (file) => {
@@ -394,7 +394,7 @@ const CadastroEmpresa = () => {
                 gap: '8px'
               }}>
                 <ShopOutlined style={{ fontSize: '18px' }} />
-                <span style={{ fontSize: '14px', fontWeight: '600' }}>Pré-Lançamento</span>
+                <span style={{ fontSize: '14px', fontWeight: '600' }}>Em Breve</span>
               </div>
             </div>
           )}
@@ -428,7 +428,7 @@ const CadastroEmpresa = () => {
       <div style={{ padding: window.innerWidth < 768 ? '32px 16px' : '48px 24px', maxWidth: '800px', margin: '0 auto' }}>
         {preCadastro && (
           <Alert
-            message="🚀 Estamos em fase de pré-lançamento"
+            message="🚀 Em breve estaremos disponíveis"
             description="Registre seu interesse e seja um dos primeiros a fazer parte da AECAC!"
             type="info"
             showIcon

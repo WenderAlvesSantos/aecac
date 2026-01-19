@@ -111,7 +111,7 @@ const Sobre = () => {
                 gap: '8px'
               }}>
                 <RocketOutlined style={{ fontSize: '18px' }} />
-                <span style={{ fontSize: '14px', fontWeight: '600' }}>Pré-Lançamento</span>
+                <span style={{ fontSize: '14px', fontWeight: '600' }}>Em Breve</span>
               </div>
             </div>
           )}
