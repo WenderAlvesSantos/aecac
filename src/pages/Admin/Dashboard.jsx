@@ -194,6 +194,12 @@ const Dashboard = () => {
           style={{
             background: 'linear-gradient(180deg, #1a237e 0%, #1565c0 100%)',
             boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
+            overflow: 'auto',
+            height: '100vh',
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            bottom: 0,
           }}
         >
           {menuContent}
@@ -211,11 +217,11 @@ const Dashboard = () => {
         {menuContent}
       </Drawer>
 
-      <Layout>
+      <Layout style={{ marginLeft: isMobile ? 0 : 200 }}>
         <AntHeader
           style={{
             background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
-            padding: isMobile ? '0 16px' : '0 24px',
+            padding: isMobile ? '0 8px' : '0 24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -223,30 +229,45 @@ const Dashboard = () => {
             position: 'sticky',
             top: 0,
             zIndex: 100,
+            height: '64px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px', flex: 1, minWidth: 0 }}>
             {isMobile && (
               <Button
                 type="text"
                 icon={<MenuOutlined />}
                 onClick={() => setMobileMenuVisible(true)}
-                style={{ fontSize: '18px' }}
+                style={{ fontSize: '18px', color: '#fff', flexShrink: 0 }}
               />
             )}
-            <div style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
-              Painel Administrativo
+            <div style={{ 
+              fontSize: isMobile ? '14px' : '18px', 
+              fontWeight: 'bold', 
+              color: '#fff', 
+              textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}>
+              {isMobile ? 'Admin' : 'Painel Administrativo'}
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: isMobile ? '14px' : '16px', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>Olá, {user.name || 'Admin'}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '4px' : '16px', flexShrink: 0 }}>
+            {!isMobile && (
+              <span style={{ fontSize: '16px', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.2)', whiteSpace: 'nowrap' }}>
+                Olá, {user.name || 'Admin'}
+              </span>
+            )}
             <Button 
               onClick={handleLogout} 
               type="default"
+              size={isMobile ? 'small' : 'middle'}
               style={{ 
                 background: 'rgba(255,255,255,0.2)',
                 borderColor: 'rgba(255,255,255,0.3)',
                 color: '#fff',
+                flexShrink: 0,
               }}
             >
               Sair

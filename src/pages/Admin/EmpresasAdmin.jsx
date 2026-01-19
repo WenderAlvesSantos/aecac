@@ -430,7 +430,7 @@ const EmpresasAdmin = () => {
       key: 'actions',
       width: 150,
       render: (_, record) => {
-        const isPendente = record.status === 'pendente' || !record.status
+        const isPendente = record.status === 'pendente' || record.status === 'pre-cadastro' || !record.status
         return (
           <Space size="middle">
             {isPendente && (

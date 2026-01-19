@@ -51,6 +51,16 @@ const removePhoneMask = (value) => {
 const ConfiguracoesAdmin = () => {
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     loadConfiguracoes()
@@ -128,7 +138,7 @@ const ConfiguracoesAdmin = () => {
 
   return (
     <div>
-      <h2 style={{ marginBottom: '24px' }}>Configurações</h2>
+      <h2 style={{ marginBottom: '24px', fontSize: isMobile ? '20px' : '28px' }}>Configurações</h2>
       
       <Form
         form={form}
@@ -140,7 +150,7 @@ const ConfiguracoesAdmin = () => {
           title={
             <Space>
               <PhoneOutlined />
-              <span>Informações de Contato</span>
+              <span style={{ fontSize: isMobile ? '14px' : '16px' }}>Informações de Contato</span>
             </Space>
           }
           style={{ marginBottom: '24px' }}
@@ -198,7 +208,7 @@ const ConfiguracoesAdmin = () => {
           title={
             <Space>
               <DollarOutlined />
-              <span>Configurações Financeiras</span>
+              <span style={{ fontSize: isMobile ? '14px' : '16px' }}>Configurações Financeiras</span>
             </Space>
           }
           style={{ marginBottom: '24px' }}
@@ -234,7 +244,7 @@ const ConfiguracoesAdmin = () => {
           title={
             <Space>
               <FacebookOutlined />
-              <span>Redes Sociais</span>
+              <span style={{ fontSize: isMobile ? '14px' : '16px' }}>Redes Sociais</span>
             </Space>
           }
           style={{ marginBottom: '24px' }}
@@ -292,7 +302,9 @@ const ConfiguracoesAdmin = () => {
           title={
             <Space>
               <FlagOutlined />
-              <span>Feature Flags (Controle de Funcionalidades)</span>
+              <span style={{ fontSize: isMobile ? '14px' : '16px' }}>
+                {isMobile ? 'Feature Flags' : 'Feature Flags (Controle de Funcionalidades)'}
+              </span>
             </Space>
           }
           style={{ marginBottom: '24px' }}
@@ -329,7 +341,9 @@ const ConfiguracoesAdmin = () => {
             />
           </Form.Item>
 
-          <Divider>Visibilidade Individual (sobrescritas pelo Pré-Lançamento)</Divider>
+          <Divider style={{ fontSize: isMobile ? '12px' : '14px' }}>
+            {isMobile ? 'Visibilidade Individual' : 'Visibilidade Individual (sobrescritas pelo Pré-Lançamento)'}
+          </Divider>
           
           <Alert
             message="Nota"
