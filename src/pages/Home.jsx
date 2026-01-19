@@ -5,14 +5,17 @@ import {
   ShopOutlined,
   TrophyOutlined,
   ArrowRightOutlined,
+  RocketOutlined,
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { getEmpresas, getParceiros } from '../lib/api'
+import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 
 const { Title, Paragraph } = Typography
 
 const Home = () => {
   const navigate = useNavigate()
+  const { flags } = useFeatureFlags()
   const [stats, setStats] = useState({
     empresas: 0,
     parceiros: 0,
@@ -92,6 +95,23 @@ const Home = () => {
           }}
         />
         <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          {flags.preCadastroMode && (
+            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                padding: '8px 20px',
+                borderRadius: '20px',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <RocketOutlined style={{ fontSize: '18px' }} />
+                <span style={{ fontSize: '14px', fontWeight: '600' }}>Pré-Lançamento</span>
+              </div>
+            </div>
+          )}
           <Title
             level={1}
             style={{ 
@@ -123,12 +143,11 @@ const Home = () => {
               fontSize: window.innerWidth < 768 ? '15px' : '20px',
               marginBottom: '40px',
               lineHeight: '1.8',
-              maxWidth: '600px',
+              maxWidth: '800px',
               margin: '0 auto 40px',
             }}
           >
-            Conectando empresários e fortalecendo o comércio em Águas Claras -
-            DF. Juntos construímos um futuro próspero para nossa região.
+            A voz organizada, respeitada e influente dos empresários de Águas Claras.
           </Paragraph>
           <Space size="large" direction={window.innerWidth < 768 ? 'vertical' : 'horizontal'} style={{ width: window.innerWidth < 768 ? '100%' : 'auto' }}>
             <Button
@@ -148,109 +167,113 @@ const Home = () => {
             >
               Conheça Mais
             </Button>
-            <Button
-              size="large"
-              style={{ 
-                background: 'rgba(255,255,255,0.15)', 
-                color: '#fff',
-                border: '2px solid rgba(255,255,255,0.5)',
-                height: '50px',
-                fontSize: '16px',
-                fontWeight: '600',
-                backdropFilter: 'blur(10px)',
-              }}
-              onClick={() => navigate('/empresas')}
-              block={window.innerWidth < 768}
-            >
-              Ver Empresas
-            </Button>
+            {!flags.preLancamento && flags.mostrarEmpresas && (
+              <Button
+                size="large"
+                style={{ 
+                  background: 'rgba(255,255,255,0.15)', 
+                  color: '#fff',
+                  border: '2px solid rgba(255,255,255,0.5)',
+                  height: '50px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  backdropFilter: 'blur(10px)',
+                }}
+                onClick={() => navigate('/empresas')}
+                block={window.innerWidth < 768}
+              >
+                Ver Empresas
+              </Button>
+            )}
           </Space>
         </div>
       </div>
 
       {/* Estatísticas */}
-      <div style={{ padding: window.innerWidth < 768 ? '48px 16px' : '80px 24px', background: '#f8f9fa' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <Row gutter={[24, 24]}>
-            <Col xs={24} sm={12} md={6}>
-              <Card
-                hoverable
-                style={{
-                  borderRadius: '12px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                  border: 'none',
-                  transition: 'all 0.3s ease',
-                }}
-                bodyStyle={{ padding: '24px' }}
-              >
-                <Statistic
-                  title="Empresas Associadas"
-                  value={stats.empresas}
-                  prefix={<ShopOutlined style={{ color: '#1565c0' }} />}
-                  valueStyle={{ color: '#1565c0', fontSize: '32px', fontWeight: 'bold' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card
-                hoverable
-                style={{
-                  borderRadius: '12px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                  border: 'none',
-                  transition: 'all 0.3s ease',
-                }}
-                bodyStyle={{ padding: '24px' }}
-              >
-                <Statistic
-                  title="Parceiros Estratégicos"
-                  value={stats.parceiros}
-                  prefix={<TeamOutlined style={{ color: '#00c853' }} />}
-                  valueStyle={{ color: '#00c853', fontSize: '32px', fontWeight: 'bold' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card
-                hoverable
-                style={{
-                  borderRadius: '12px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                  border: 'none',
-                  transition: 'all 0.3s ease',
-                }}
-                bodyStyle={{ padding: '24px' }}
-              >
-                <Statistic
-                  title="Anos de Atuação"
-                  value={10}
-                  prefix={<TrophyOutlined style={{ color: '#1a237e' }} />}
-                  valueStyle={{ color: '#1a237e', fontSize: '32px', fontWeight: 'bold' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card
-                hoverable
-                style={{
-                  borderRadius: '12px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                  border: 'none',
-                  transition: 'all 0.3s ease',
-                }}
-                bodyStyle={{ padding: '24px' }}
-              >
-                <Statistic
-                  title="Eventos Realizados"
-                  value={50}
-                  prefix={<TrophyOutlined style={{ color: '#42a5f5' }} />}
-                  valueStyle={{ color: '#42a5f5', fontSize: '32px', fontWeight: 'bold' }}
-                />
-              </Card>
-            </Col>
-          </Row>
+      {!flags.preLancamento && (
+        <div style={{ padding: window.innerWidth < 768 ? '48px 16px' : '80px 24px', background: '#f8f9fa' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <Row gutter={[24, 24]}>
+              <Col xs={24} sm={12} md={6}>
+                <Card
+                  hoverable
+                  style={{
+                    borderRadius: '12px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                    border: 'none',
+                    transition: 'all 0.3s ease',
+                  }}
+                  bodyStyle={{ padding: '24px' }}
+                >
+                  <Statistic
+                    title="Empresas Associadas"
+                    value={stats.empresas}
+                    prefix={<ShopOutlined style={{ color: '#1565c0' }} />}
+                    valueStyle={{ color: '#1565c0', fontSize: '32px', fontWeight: 'bold' }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Card
+                  hoverable
+                  style={{
+                    borderRadius: '12px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                    border: 'none',
+                    transition: 'all 0.3s ease',
+                  }}
+                  bodyStyle={{ padding: '24px' }}
+                >
+                  <Statistic
+                    title="Parceiros Estratégicos"
+                    value={stats.parceiros}
+                    prefix={<TeamOutlined style={{ color: '#00c853' }} />}
+                    valueStyle={{ color: '#00c853', fontSize: '32px', fontWeight: 'bold' }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Card
+                  hoverable
+                  style={{
+                    borderRadius: '12px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                    border: 'none',
+                    transition: 'all 0.3s ease',
+                  }}
+                  bodyStyle={{ padding: '24px' }}
+                >
+                  <Statistic
+                    title="Anos de Atuação"
+                    value={10}
+                    prefix={<TrophyOutlined style={{ color: '#1a237e' }} />}
+                    valueStyle={{ color: '#1a237e', fontSize: '32px', fontWeight: 'bold' }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Card
+                  hoverable
+                  style={{
+                    borderRadius: '12px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                    border: 'none',
+                    transition: 'all 0.3s ease',
+                  }}
+                  bodyStyle={{ padding: '24px' }}
+                >
+                  <Statistic
+                    title="Eventos Realizados"
+                    value={50}
+                    prefix={<TrophyOutlined style={{ color: '#42a5f5' }} />}
+                    valueStyle={{ color: '#42a5f5', fontSize: '32px', fontWeight: 'bold' }}
+                  />
+                </Card>
+              </Col>
+            </Row>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Benefícios */}
       <div style={{ padding: window.innerWidth < 768 ? '48px 16px' : '80px 24px', background: '#fff' }}>
@@ -410,7 +433,7 @@ const Home = () => {
         />
         <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <Title level={2} style={{ color: '#fff', marginBottom: '20px', fontSize: window.innerWidth < 768 ? '26px' : '38px', fontWeight: 'bold' }}>
-            Faça parte da AECAC
+            {flags.preCadastroMode ? 'Manifeste seu Interesse' : 'Faça parte da AECAC'}
           </Title>
           <Paragraph
             style={{
@@ -420,8 +443,10 @@ const Home = () => {
               lineHeight: '1.8',
             }}
           >
-            Junte-se a nós e fortaleça seu negócio junto com outros empresários
-            de Águas Claras.
+            {flags.preCadastroMode 
+              ? 'Estamos em fase de pré-lançamento. Registre seu interesse e seja um dos primeiros a fazer parte da AECAC em Águas Claras.'
+              : 'Junte-se a nós e fortaleça seu negócio junto com outros empresários de Águas Claras.'
+            }
           </Paragraph>
           <Space size="large" direction={window.innerWidth < 768 ? 'vertical' : 'horizontal'} style={{ width: window.innerWidth < 768 ? '100%' : 'auto' }}>
             <Button
@@ -476,7 +501,7 @@ const Home = () => {
                 e.currentTarget.style.background = 'linear-gradient(135deg, #00c853 0%, #00e676 100%)'
               }}
             >
-              Associar Minha Empresa
+              {flags.preCadastroMode ? '🚀 Manifestar Interesse' : 'Associar Minha Empresa'}
             </Button>
           </Space>
         </div>

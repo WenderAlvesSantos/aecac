@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Form, Input, Select, Button, Card, Typography, message, Upload } from 'antd'
-import { ShopOutlined, UploadOutlined, CheckCircleOutlined } from '@ant-design/icons'
+import { Form, Input, Select, Button, Card, Typography, message, Upload, Alert, Space } from 'antd'
+import { ShopOutlined, UploadOutlined, CheckCircleOutlined, HomeOutlined } from '@ant-design/icons'
 import { createEmpresa, buscarCNPJ as buscarCNPJAPI, buscarCEP as buscarCEPAPI } from '../lib/api'
+import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
+import { useNavigate } from 'react-router-dom'
 
 const { Title, Paragraph } = Typography
 const { TextArea } = Input
@@ -82,6 +84,7 @@ const validateCNPJ = (cnpj) => {
 }
 
 const CadastroEmpresa = () => {
+  const navigate = useNavigate()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -89,6 +92,13 @@ const CadastroEmpresa = () => {
   const [buscandoCEP, setBuscandoCEP] = useState(false)
   const [cnpjValue, setCnpjValue] = useState('')
   const [cepValue, setCepValue] = useState('')
+  const { flags } = useFeatureFlags()
+  
+  const preCadastro = flags.preCadastroMode
+  const titulo = preCadastro ? 'Pré-Cadastro de Interesse' : 'Cadastro de Empresa'
+  const subtitulo = preCadastro
+    ? 'Manifeste seu interesse em fazer parte da AECAC. Entraremos em contato em breve!'
+    : 'Preencha o formulário abaixo para se associar à AECAC'
 
   const convertImageToBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -230,7 +240,7 @@ const CadastroEmpresa = () => {
   const onFinish = async (values) => {
     setLoading(true)
     try {
-      const formData = { ...values }
+      const formData = { ...values, preCadastro }
 
       // Limpar CNPJ e CEP (remover formatação)
       if (formData.cnpj) {
@@ -252,7 +262,12 @@ const CadastroEmpresa = () => {
       delete formData.imagemFile
 
       await createEmpresa(formData)
-      message.success('Cadastro realizado com sucesso! Aguarde a aprovação do administrador.')
+      
+      const mensagem = preCadastro
+        ? 'Pré-cadastro realizado com sucesso! Entraremos em contato em breve.'
+        : 'Cadastro realizado com sucesso! Aguarde a aprovação do administrador.'
+      
+      message.success(mensagem)
       form.resetFields()
       setSubmitted(true)
     } catch (error) {
@@ -263,45 +278,63 @@ const CadastroEmpresa = () => {
   }
 
   if (submitted) {
+    const mensagemSucesso = preCadastro
+      ? 'Pré-cadastro Enviado com Sucesso!'
+      : 'Cadastro Enviado com Sucesso!'
+    
+    const descricaoSucesso = preCadastro
+      ? 'Seu pré-cadastro foi recebido. Entraremos em contato em breve para os próximos passos!'
+      : 'Seu cadastro foi recebido e está aguardando aprovação do administrador. Você receberá uma notificação assim que sua empresa for aprovada.'
+    
     return (
       <div style={{ padding: '64px 24px', background: '#f0f2f5', minHeight: '80vh' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
           <Card>
             <div style={{ textAlign: 'center', padding: '32px' }}>
               <CheckCircleOutlined style={{ fontSize: '64px', color: '#52c41a', marginBottom: '24px' }} />
-              <Title level={2}>Cadastro Enviado com Sucesso!</Title>
+              <Title level={2}>{mensagemSucesso}</Title>
               <Paragraph style={{ fontSize: '16px', marginTop: '16px' }}>
-                Seu cadastro foi recebido e está aguardando aprovação do administrador.
-                Você receberá uma notificação assim que sua empresa for aprovada.
+                {descricaoSucesso}
               </Paragraph>
-              <div style={{ 
-                marginTop: '24px', 
-                padding: '16px', 
-                background: '#f0f7ff', 
-                borderRadius: '8px',
-                textAlign: 'left'
-              }}>
-                <Title level={4} style={{ fontSize: '16px', marginBottom: '8px' }}>
-                  📋 Próximos Passos:
-                </Title>
-                <Paragraph style={{ fontSize: '14px', marginBottom: '8px' }}>
-                  1. Aguarde a aprovação do administrador
-                </Paragraph>
-                <Paragraph style={{ fontSize: '14px', marginBottom: '8px' }}>
-                  2. Após aprovação, acesse <strong>/associado/login</strong>
-                </Paragraph>
-                <Paragraph style={{ fontSize: '14px' }}>
-                  3. Use o <strong>mesmo email</strong> cadastrado aqui para criar sua conta de associado
-                </Paragraph>
-              </div>
-              <Button
-                type="primary"
-                size="large"
-                onClick={() => setSubmitted(false)}
-                style={{ marginTop: '24px' }}
-              >
-                Fazer Novo Cadastro
-              </Button>
+              {!preCadastro && (
+                <div style={{ 
+                  marginTop: '24px', 
+                  padding: '16px', 
+                  background: '#f0f7ff', 
+                  borderRadius: '8px',
+                  textAlign: 'left'
+                }}>
+                  <Title level={4} style={{ fontSize: '16px', marginBottom: '8px' }}>
+                    📋 Próximos Passos:
+                  </Title>
+                  <Paragraph style={{ fontSize: '14px', marginBottom: '8px' }}>
+                    1. Aguarde a aprovação do administrador
+                  </Paragraph>
+                  <Paragraph style={{ fontSize: '14px', marginBottom: '8px' }}>
+                    2. Após aprovação, acesse <strong>/associado/login</strong>
+                  </Paragraph>
+                  <Paragraph style={{ fontSize: '14px' }}>
+                    3. Use o <strong>mesmo email</strong> cadastrado aqui para criar sua conta de associado
+                  </Paragraph>
+                </div>
+              )}
+              <Space size="middle" style={{ marginTop: '24px' }}>
+                <Button
+                  type="default"
+                  size="large"
+                  icon={<HomeOutlined />}
+                  onClick={() => navigate('/')}
+                >
+                  Voltar para Home
+                </Button>
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => setSubmitted(false)}
+                >
+                  Fazer Novo Cadastro
+                </Button>
+              </Space>
             </div>
           </Card>
         </div>
@@ -310,17 +343,110 @@ const CadastroEmpresa = () => {
   }
 
   return (
-    <div style={{ padding: '64px 24px', background: '#f0f2f5', minHeight: '80vh' }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <ShopOutlined style={{ fontSize: '48px', color: '#1890ff', marginBottom: '16px' }} />
-          <Title level={1}>Cadastro de Empresa</Title>
-          <Paragraph style={{ fontSize: '18px', color: '#8c8c8c' }}>
-            Preencha o formulário abaixo para se associar à AECAC
+    <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
+      {/* Header Section com gradiente */}
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
+          color: '#fff',
+          padding: window.innerWidth < 768 ? '50px 16px' : '80px 24px',
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Elementos decorativos */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '-30%',
+            right: '-10%',
+            width: '500px',
+            height: '500px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-20%',
+            left: '-10%',
+            width: '400px',
+            height: '400px',
+            background: 'rgba(0, 200, 83, 0.1)',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          {preCadastro && (
+            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                padding: '8px 20px',
+                borderRadius: '20px',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <ShopOutlined style={{ fontSize: '18px' }} />
+                <span style={{ fontSize: '14px', fontWeight: '600' }}>Pré-Lançamento</span>
+              </div>
+            </div>
+          )}
+          <ShopOutlined style={{ fontSize: '48px', color: '#fff', marginBottom: '16px' }} />
+          <Title
+            level={1}
+            style={{
+              color: '#fff',
+              marginBottom: '16px',
+              fontSize: window.innerWidth < 768 ? '32px' : '42px',
+              fontWeight: 'bold',
+              textShadow: '0 2px 10px rgba(0,0,0,0.2)',
+            }}
+          >
+            {titulo}
+          </Title>
+          <Paragraph
+            style={{
+              color: 'rgba(255,255,255,0.95)',
+              fontSize: window.innerWidth < 768 ? '16px' : '20px',
+              lineHeight: '1.8',
+              margin: 0,
+            }}
+          >
+            {subtitulo}
           </Paragraph>
         </div>
+      </div>
 
-        <Card>
+      {/* Content Section */}
+      <div style={{ padding: window.innerWidth < 768 ? '32px 16px' : '48px 24px', maxWidth: '800px', margin: '0 auto' }}>
+        {preCadastro && (
+          <Alert
+            message="🚀 Estamos em fase de pré-lançamento"
+            description="Registre seu interesse e seja um dos primeiros a fazer parte da AECAC!"
+            type="info"
+            showIcon
+            style={{ 
+              marginBottom: '24px',
+              borderRadius: '12px',
+              padding: '16px 24px'
+            }}
+          />
+        )}
+
+        <Card
+          style={{
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            border: '1px solid #e0e0e0',
+          }}
+        >
           <Form
             form={form}
             layout="vertical"

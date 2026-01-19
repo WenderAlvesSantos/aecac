@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons'
 import Logo from './Logo'
 import { getConfiguracoes } from '../lib/api'
+import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 
 const { Footer: AntFooter } = Layout
 const { Title, Text } = Typography
@@ -29,6 +30,7 @@ const formatPhone = (value) => {
 }
 
 const Footer = () => {
+  const { flags } = useFeatureFlags()
   const [configuracoes, setConfiguracoes] = useState({
     contato: {},
     redesSociais: {},
@@ -158,24 +160,30 @@ const Footer = () => {
               >
                 Sobre Nós
               </a>
-              <a
-                href="/parceiros"
-                style={{ color: 'rgba(255,255,255,0.85)', display: 'block' }}
-              >
-                Parceiros
-              </a>
-              <a
-                href="/empresas"
-                style={{ color: 'rgba(255,255,255,0.85)', display: 'block' }}
-              >
-                Empresas
-              </a>
-              <a
-                href="/galeria"
-                style={{ color: 'rgba(255,255,255,0.85)', display: 'block' }}
-              >
-                Galeria
-              </a>
+              {!flags.preLancamento && flags.mostrarParceiros && (
+                <a
+                  href="/parceiros"
+                  style={{ color: 'rgba(255,255,255,0.85)', display: 'block' }}
+                >
+                  Parceiros
+                </a>
+              )}
+              {!flags.preLancamento && flags.mostrarEmpresas && (
+                <a
+                  href="/empresas"
+                  style={{ color: 'rgba(255,255,255,0.85)', display: 'block' }}
+                >
+                  Empresas
+                </a>
+              )}
+              {!flags.preLancamento && flags.mostrarGaleria && (
+                <a
+                  href="/galeria"
+                  style={{ color: 'rgba(255,255,255,0.85)', display: 'block' }}
+                >
+                  Galeria
+                </a>
+              )}
             </Space>
           </Col>
         </Row>

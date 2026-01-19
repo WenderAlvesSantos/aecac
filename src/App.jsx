@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
+import { FeatureFlagsProvider } from './contexts/FeatureFlagsContext'
 import Layout from './components/Layout'
 import './styles/admin-associado.css'
 import Home from './pages/Home'
@@ -17,32 +18,34 @@ import Associado from './pages/Associado'
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/admin/*" element={<Admin />} />
-        <Route path="/associado/*" element={<Associado />} />
-        <Route
-          path="/*"
-          element={
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/sobre" element={<Sobre />} />
-                <Route path="/galeria" element={<Galeria />} />
-                <Route path="/parceiros" element={<Parceiros />} />
-                <Route path="/empresas" element={<Empresas />} />
-                <Route path="/eventos" element={<Eventos />} />
-                <Route path="/beneficios" element={<Beneficios />} />
-                <Route path="/capacitacoes" element={<Capacitacoes />} />
-                <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
-                <Route path="/como-associar" element={<ComoAssociar />} />
-              </Routes>
-            </Layout>
-          }
-        />
-      </Routes>
-      <Analytics />
-    </Router>
+    <FeatureFlagsProvider>
+      <Router>
+        <Routes>
+          <Route path="/admin/*" element={<Admin />} />
+          <Route path="/associado/*" element={<Associado />} />
+          <Route
+            path="/*"
+            element={
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/sobre" element={<Sobre />} />
+                  <Route path="/galeria" element={<Galeria />} />
+                  <Route path="/parceiros" element={<Parceiros />} />
+                  <Route path="/empresas" element={<Empresas />} />
+                  <Route path="/eventos" element={<Eventos />} />
+                  <Route path="/beneficios" element={<Beneficios />} />
+                  <Route path="/capacitacoes" element={<Capacitacoes />} />
+                  <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
+                  <Route path="/como-associar" element={<ComoAssociar />} />
+                </Routes>
+              </Layout>
+            }
+          />
+        </Routes>
+        <Analytics />
+      </Router>
+    </FeatureFlagsProvider>
   )
 }
 

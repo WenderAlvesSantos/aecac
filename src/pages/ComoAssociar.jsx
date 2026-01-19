@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Row, Col, Typography, Card, Space, Button, Divider, Spin } from 'antd'
+import { Row, Col, Typography, Card, Space, Button, Divider, Spin, Alert } from 'antd'
 import {
   GiftOutlined,
   TeamOutlined,
@@ -9,14 +9,17 @@ import {
   TrophyOutlined,
   CheckCircleOutlined,
   ArrowRightOutlined,
+  RocketOutlined,
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { getConfiguracoes } from '../lib/api'
+import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 
 const { Title, Paragraph } = Typography
 
 const ComoAssociar = () => {
   const navigate = useNavigate()
+  const { flags } = useFeatureFlags()
   const [valorMensalidade, setValorMensalidade] = useState(100.00)
   const [loading, setLoading] = useState(true)
 
@@ -122,6 +125,23 @@ const ComoAssociar = () => {
             }}
           />
           <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+            {flags.preCadastroMode && (
+              <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+                <div style={{
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  padding: '8px 20px',
+                  borderRadius: '20px',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <RocketOutlined style={{ fontSize: '18px' }} />
+                  <span style={{ fontSize: '14px', fontWeight: '600' }}>Pré-Lançamento</span>
+                </div>
+              </div>
+            )}
             <Title
               level={1}
               style={{
@@ -132,7 +152,7 @@ const ComoAssociar = () => {
                 textShadow: '0 2px 10px rgba(0,0,0,0.2)',
               }}
             >
-              Como Associar-se à AECAC
+              {flags.preCadastroMode ? 'Manifeste seu Interesse na AECAC' : 'Como Associar-se à AECAC'}
             </Title>
             <Paragraph
               style={{
@@ -141,70 +161,89 @@ const ComoAssociar = () => {
                 lineHeight: '1.8',
               }}
             >
-              Junte-se à Associação Empresarial e Comercial de Águas Claras e
-              fortaleça seu negócio com uma rede de apoio e oportunidades exclusivas
+              {flags.preCadastroMode 
+                ? 'Estamos em fase de pré-lançamento! Registre seu interesse e seja um dos primeiros empresários a fazer parte da AECAC em Águas Claras.'
+                : 'Junte-se à Associação Empresarial e Comercial de Águas Claras e fortaleça seu negócio com uma rede de apoio e oportunidades exclusivas'
+              }
             </Paragraph>
           </div>
         </div>
 
         {/* Content Section */}
         <div style={{ padding: window.innerWidth < 768 ? '32px 16px' : '64px 24px', maxWidth: '1200px', margin: '0 auto' }}>
+          {/* Alert de Pré-Lançamento */}
+          {flags.preCadastroMode && (
+            <Alert
+              message="🚀 Estamos em fase de pré-lançamento!"
+              description="Registre seu interesse agora e seja um dos primeiros a fazer parte da AECAC. Entraremos em contato assim que o lançamento oficial acontecer."
+              type="info"
+              showIcon
+              style={{ 
+                marginBottom: '32px',
+                borderRadius: '12px',
+                padding: '16px 24px'
+              }}
+            />
+          )}
+
           {/* Investimento */}
-          <Card
-            style={{
-              marginBottom: '48px',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-              border: '1px solid #e0e0e0',
-              background: 'linear-gradient(135deg, rgba(26, 35, 126, 0.05) 0%, rgba(21, 101, 192, 0.05) 50%, rgba(0, 200, 83, 0.05) 100%)',
-            }}
-          >
-            <div style={{ textAlign: 'center' }}>
-              <Title level={2} style={{ color: '#1a237e', marginBottom: '16px' }}>
-                Investimento Mensal
-              </Title>
-              {loading ? (
-                <Spin size="large" />
-              ) : (
-                <div
-                  style={{
-                    fontSize: '48px',
-                    fontWeight: 'bold',
-                    color: '#00c853',
-                    marginBottom: '8px',
-                  }}
-                >
-                  R$ {valorMensalidade.toFixed(2).replace('.', ',')}
-                </div>
-              )}
-              <Paragraph style={{ fontSize: '18px', color: '#666', marginBottom: '24px' }}>
-                Assinatura mensal que dá acesso a todos os benefícios e serviços da AECAC
-              </Paragraph>
-              <Space size="large">
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<ArrowRightOutlined />}
-                  onClick={() => navigate('/cadastro-empresa')}
-                  style={{
-                    background: '#00c853',
-                    borderColor: '#00c853',
-                    height: '48px',
-                    padding: '0 32px',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                  }}
-                >
-                  Associar Minha Empresa
-                </Button>
-              </Space>
-            </div>
-          </Card>
+          {!flags.preCadastroMode && (
+            <Card
+              style={{
+                marginBottom: '48px',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                border: '1px solid #e0e0e0',
+                background: 'linear-gradient(135deg, rgba(26, 35, 126, 0.05) 0%, rgba(21, 101, 192, 0.05) 50%, rgba(0, 200, 83, 0.05) 100%)',
+              }}
+            >
+              <div style={{ textAlign: 'center' }}>
+                <Title level={2} style={{ color: '#1a237e', marginBottom: '16px' }}>
+                  Investimento Mensal
+                </Title>
+                {loading ? (
+                  <Spin size="large" />
+                ) : (
+                  <div
+                    style={{
+                      fontSize: '48px',
+                      fontWeight: 'bold',
+                      color: '#00c853',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    R$ {valorMensalidade.toFixed(2).replace('.', ',')}
+                  </div>
+                )}
+                <Paragraph style={{ fontSize: '18px', color: '#666', marginBottom: '24px' }}>
+                  Assinatura mensal que dá acesso a todos os benefícios e serviços da AECAC
+                </Paragraph>
+                <Space size="large">
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<ArrowRightOutlined />}
+                    onClick={() => navigate('/cadastro-empresa')}
+                    style={{
+                      background: '#00c853',
+                      borderColor: '#00c853',
+                      height: '48px',
+                      padding: '0 32px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Associar Minha Empresa
+                  </Button>
+                </Space>
+              </div>
+            </Card>
+          )}
 
           {/* Benefícios */}
           <div style={{ marginBottom: '48px' }}>
             <Title level={2} style={{ color: '#1a237e', marginBottom: '32px', textAlign: 'center' }}>
-              Benefícios de se Associar
+              {flags.preCadastroMode ? 'O que você terá ao se associar' : 'Benefícios de se Associar'}
             </Title>
             <Row gutter={[24, 24]}>
               {beneficios.map((beneficio, index) => (
@@ -265,7 +304,7 @@ const ComoAssociar = () => {
           {/* Processo de Associação */}
           <div style={{ marginBottom: '48px' }}>
             <Title level={2} style={{ color: '#1a237e', marginBottom: '32px', textAlign: 'center' }}>
-              Processo de Associação
+              {flags.preCadastroMode ? 'Como Funciona o Pré-Cadastro' : 'Processo de Associação'}
             </Title>
             <Row gutter={[24, 24]}>
               <Col xs={24} md={6}>
@@ -297,10 +336,13 @@ const ComoAssociar = () => {
                     1
                   </div>
                   <Title level={4} style={{ color: '#1a237e', marginBottom: '8px' }}>
-                    Cadastro
+                    {flags.preCadastroMode ? 'Manifestar Interesse' : 'Cadastro'}
                   </Title>
                   <Paragraph style={{ color: '#666', fontSize: '14px' }}>
-                    Preencha o formulário de cadastro com os dados da sua empresa
+                    {flags.preCadastroMode 
+                      ? 'Preencha o formulário manifestando seu interesse em fazer parte da AECAC'
+                      : 'Preencha o formulário de cadastro com os dados da sua empresa'
+                    }
                   </Paragraph>
                 </Card>
               </Col>
@@ -333,10 +375,13 @@ const ComoAssociar = () => {
                     2
                   </div>
                   <Title level={4} style={{ color: '#1a237e', marginBottom: '8px' }}>
-                    Análise
+                    {flags.preCadastroMode ? 'Aguardar Contato' : 'Análise'}
                   </Title>
                   <Paragraph style={{ color: '#666', fontSize: '14px' }}>
-                    Nossa equipe analisa o cadastro e verifica a documentação
+                    {flags.preCadastroMode
+                      ? 'Entraremos em contato assim que o lançamento oficial acontecer'
+                      : 'Nossa equipe analisa o cadastro e verifica a documentação'
+                    }
                   </Paragraph>
                 </Card>
               </Col>
@@ -369,10 +414,13 @@ const ComoAssociar = () => {
                     3
                   </div>
                   <Title level={4} style={{ color: '#1a237e', marginBottom: '8px' }}>
-                    Aprovação
+                    {flags.preCadastroMode ? 'Lançamento' : 'Aprovação'}
                   </Title>
                   <Paragraph style={{ color: '#666', fontSize: '14px' }}>
-                    Após a aprovação, você receberá as credenciais de acesso
+                    {flags.preCadastroMode
+                      ? 'No lançamento oficial, você terá prioridade para se associar'
+                      : 'Após a aprovação, você receberá as credenciais de acesso'
+                    }
                   </Paragraph>
                 </Card>
               </Col>
@@ -405,10 +453,13 @@ const ComoAssociar = () => {
                     <CheckCircleOutlined />
                   </div>
                   <Title level={4} style={{ color: '#1a237e', marginBottom: '8px' }}>
-                    Ativação
+                    {flags.preCadastroMode ? 'Seja um Pioneiro' : 'Ativação'}
                   </Title>
                   <Paragraph style={{ color: '#666', fontSize: '14px' }}>
-                    Comece a aproveitar todos os benefícios da associação
+                    {flags.preCadastroMode
+                      ? 'Seja um dos fundadores e ajude a construir a AECAC'
+                      : 'Comece a aproveitar todos os benefícios da associação'
+                    }
                   </Paragraph>
                 </Card>
               </Col>
@@ -422,33 +473,38 @@ const ComoAssociar = () => {
               borderRadius: '12px',
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               border: '1px solid #e0e0e0',
-              background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 100%)',
+              background: flags.preCadastroMode 
+                ? 'linear-gradient(135deg, #00c853 0%, #00e676 100%)'
+                : 'linear-gradient(135deg, #1a237e 0%, #1565c0 100%)',
               color: '#fff',
               textAlign: 'center',
             }}
             bodyStyle={{ padding: '48px' }}
           >
             <Title level={2} style={{ color: '#fff', marginBottom: '16px' }}>
-              Pronto para se Associar?
+              {flags.preCadastroMode ? '🚀 Seja um Pioneiro!' : 'Pronto para se Associar?'}
             </Title>
             <Paragraph style={{ color: 'rgba(255,255,255,0.9)', fontSize: '18px', marginBottom: '32px' }}>
-              Faça parte da AECAC e fortaleça seu negócio com uma rede de apoio e oportunidades exclusivas
+              {flags.preCadastroMode
+                ? 'Manifeste seu interesse agora e tenha prioridade no lançamento oficial da AECAC'
+                : 'Faça parte da AECAC e fortaleça seu negócio com uma rede de apoio e oportunidades exclusivas'
+              }
             </Paragraph>
             <Button
               type="primary"
               size="large"
-              icon={<ArrowRightOutlined />}
+              icon={flags.preCadastroMode ? <RocketOutlined /> : <ArrowRightOutlined />}
               onClick={() => navigate('/cadastro-empresa')}
               style={{
-                background: '#00c853',
-                borderColor: '#00c853',
+                background: flags.preCadastroMode ? '#1a237e' : '#00c853',
+                borderColor: flags.preCadastroMode ? '#1a237e' : '#00c853',
                 height: '48px',
                 padding: '0 32px',
                 fontSize: '16px',
                 fontWeight: '600',
               }}
             >
-              Cadastrar Minha Empresa
+              {flags.preCadastroMode ? 'Manifestar Interesse Agora' : 'Cadastrar Minha Empresa'}
             </Button>
           </Card>
         </div>

@@ -7,12 +7,15 @@ import {
   SafetyOutlined,
   GlobalOutlined,
   BulbOutlined,
+  RocketOutlined,
 } from '@ant-design/icons'
 import { getSobre, getDiretoria } from '../lib/api'
+import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 
 const { Title, Paragraph } = Typography
 
 const Sobre = () => {
+  const { flags } = useFeatureFlags()
   const [sobre, setSobre] = useState(null)
   const [diretoria, setDiretoria] = useState([])
   const [loading, setLoading] = useState(true)
@@ -95,6 +98,23 @@ const Sobre = () => {
           }}
         />
         <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          {flags.preCadastroMode && (
+            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                padding: '8px 20px',
+                borderRadius: '20px',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <RocketOutlined style={{ fontSize: '18px' }} />
+                <span style={{ fontSize: '14px', fontWeight: '600' }}>Pré-Lançamento</span>
+              </div>
+            </div>
+          )}
           <Title level={1} style={{ color: '#fff', marginBottom: '16px', fontSize: window.innerWidth < 768 ? '32px' : '42px', fontWeight: 'bold', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
             Sobre a AECAC
           </Title>

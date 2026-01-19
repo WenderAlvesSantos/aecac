@@ -1,8 +1,9 @@
 import { Layout, Menu, Button, Drawer, Space } from 'antd'
-import { MenuOutlined, UserOutlined } from '@ant-design/icons'
+import { MenuOutlined, UserOutlined, RocketOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import Logo from './Logo'
 import Notificacoes from './Notificacoes'
+import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 
 const { Header: AntHeader } = Layout
 
@@ -14,6 +15,8 @@ const Header = ({
   onMobileMenuToggle,
 }) => {
   const navigate = useNavigate()
+  const { flags } = useFeatureFlags()
+  const preCadastroMode = flags.preCadastroMode
   const associadoToken = localStorage.getItem('associadoToken')
   const associado = associadoToken ? JSON.parse(localStorage.getItem('associado') || '{}') : null
   return (
@@ -82,11 +85,18 @@ const Header = ({
           ) : (
             <Button
               type="primary"
-              icon={<UserOutlined />}
-              onClick={() => navigate('/associado/login')}
-              style={{ marginLeft: '16px', flexShrink: 0 }}
+              icon={preCadastroMode ? <RocketOutlined /> : <UserOutlined />}
+              onClick={() => navigate(preCadastroMode ? '/como-associar' : '/associado/login')}
+              style={{ 
+                marginLeft: '16px', 
+                flexShrink: 0,
+                ...(preCadastroMode && {
+                  background: 'linear-gradient(135deg, #1a237e 0%, #00c853 100%)',
+                  borderColor: '#1a237e',
+                }),
+              }}
             >
-              Entrar
+              {preCadastroMode ? 'Pré-Cadastro' : 'Entrar'}
             </Button>
           )}
         </div>

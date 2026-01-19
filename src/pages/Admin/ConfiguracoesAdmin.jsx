@@ -7,6 +7,9 @@ import {
   message,
   Space,
   InputNumber,
+  Divider,
+  Switch,
+  Alert,
 } from 'antd'
 import {
   PhoneOutlined,
@@ -16,6 +19,7 @@ import {
   InstagramOutlined,
   LinkedinOutlined,
   DollarOutlined,
+  FlagOutlined,
 } from '@ant-design/icons'
 import { getConfiguracoes, updateConfiguracoes } from '../../lib/api'
 
@@ -66,6 +70,16 @@ const ConfiguracoesAdmin = () => {
         instagram: data.redesSociais?.instagram || '',
         linkedin: data.redesSociais?.linkedin || '',
         valorMensalidade: data.valorMensalidade || 100.00,
+        featureFlags: data.featureFlags || {
+          preLancamento: false,
+          mostrarParceiros: true,
+          mostrarEmpresas: true,
+          mostrarEventos: true,
+          mostrarBeneficios: true,
+          mostrarCapacitacoes: true,
+          mostrarGaleria: true,
+          preCadastroMode: false,
+        },
       })
     } catch (error) {
       message.error('Erro ao carregar configurações')
@@ -90,10 +104,20 @@ const ConfiguracoesAdmin = () => {
           linkedin: values.linkedin || '',
         },
         valorMensalidade: values.valorMensalidade || 100.00,
+        featureFlags: values.featureFlags || {
+          preLancamento: false,
+          mostrarParceiros: true,
+          mostrarEmpresas: true,
+          mostrarEventos: true,
+          mostrarBeneficios: true,
+          mostrarCapacitacoes: true,
+          mostrarGaleria: true,
+          preCadastroMode: false,
+        },
       }
 
       await updateConfiguracoes(data)
-      message.success('Configurações atualizadas com sucesso')
+      message.success('Configurações atualizadas com sucesso! Recarregue a página para ver as alterações.')
     } catch (error) {
       console.error('Erro ao salvar configurações:', error)
       message.error('Erro ao salvar configurações: ' + (error.response?.data?.error || error.message))
@@ -260,6 +284,123 @@ const ConfiguracoesAdmin = () => {
             <Input
               prefix={<LinkedinOutlined />}
               placeholder="https://linkedin.com/company/aecac"
+            />
+          </Form.Item>
+        </Card>
+
+        <Card
+          title={
+            <Space>
+              <FlagOutlined />
+              <span>Feature Flags (Controle de Funcionalidades)</span>
+            </Space>
+          }
+          style={{ marginBottom: '24px' }}
+        >
+          <Alert
+            message="Modo Pré-Lançamento"
+            description="Ative para ocultar todas as funcionalidades públicas (exceto Home e Sobre). Útil durante a fase de pré-lançamento da associação."
+            type="warning"
+            showIcon
+            style={{ marginBottom: '24px' }}
+          />
+
+          <Form.Item
+            name={['featureFlags', 'preLancamento']}
+            label="Modo Pré-Lançamento"
+            valuePropName="checked"
+            tooltip="Quando ativo, oculta todos os menus exceto Home e Sobre"
+          >
+            <Switch 
+              checkedChildren="Ativo" 
+              unCheckedChildren="Inativo"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name={['featureFlags', 'preCadastroMode']}
+            label="Modo Pré-Cadastro"
+            valuePropName="checked"
+            tooltip="Cadastro de empresa vira pré-cadastro de interesse (altera textos e status)"
+          >
+            <Switch 
+              checkedChildren="Ativo" 
+              unCheckedChildren="Inativo"
+            />
+          </Form.Item>
+
+          <Divider>Visibilidade Individual (sobrescritas pelo Pré-Lançamento)</Divider>
+          
+          <Alert
+            message="Nota"
+            description="Se o Modo Pré-Lançamento estiver ATIVO, estas configurações serão ignoradas."
+            type="info"
+            style={{ marginBottom: '16px' }}
+          />
+
+          <Form.Item
+            name={['featureFlags', 'mostrarParceiros']}
+            label="Mostrar Parceiros"
+            valuePropName="checked"
+          >
+            <Switch 
+              checkedChildren="Visível" 
+              unCheckedChildren="Oculto"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name={['featureFlags', 'mostrarEmpresas']}
+            label="Mostrar Empresas"
+            valuePropName="checked"
+          >
+            <Switch 
+              checkedChildren="Visível" 
+              unCheckedChildren="Oculto"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name={['featureFlags', 'mostrarEventos']}
+            label="Mostrar Eventos"
+            valuePropName="checked"
+          >
+            <Switch 
+              checkedChildren="Visível" 
+              unCheckedChildren="Oculto"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name={['featureFlags', 'mostrarBeneficios']}
+            label="Mostrar Benefícios"
+            valuePropName="checked"
+          >
+            <Switch 
+              checkedChildren="Visível" 
+              unCheckedChildren="Oculto"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name={['featureFlags', 'mostrarCapacitacoes']}
+            label="Mostrar Capacitações"
+            valuePropName="checked"
+          >
+            <Switch 
+              checkedChildren="Visível" 
+              unCheckedChildren="Oculto"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name={['featureFlags', 'mostrarGaleria']}
+            label="Mostrar Galeria"
+            valuePropName="checked"
+          >
+            <Switch 
+              checkedChildren="Visível" 
+              unCheckedChildren="Oculto"
             />
           </Form.Item>
         </Card>

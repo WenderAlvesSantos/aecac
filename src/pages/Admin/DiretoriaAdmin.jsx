@@ -11,13 +11,40 @@ import {
   Upload,
   Image,
 } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, HolderOutlined } from '@ant-design/icons'
 import {
   getDiretoria,
   createMembro,
   updateMembro,
   deleteMembro,
+  updateOrdemDiretoria,
 } from '../../lib/api'
+import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+// Componente de linha arrastável
+const Row = (props) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: props['data-row-key'],
+  })
+
+  const style = {
+    ...props.style,
+    transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
+    transition,
+    cursor: 'move',
+    ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
+  }
+
+  return <tr {...props} ref={setNodeRef} style={style} {...attributes} {...listeners} />
+}
 
 const DiretoriaAdmin = () => {
   const [diretoria, setDiretoria] = useState([])
@@ -26,6 +53,14 @@ const DiretoriaAdmin = () => {
   const [editingMembro, setEditingMembro] = useState(null)
   const editingMembroRef = useRef(null)
   const [form] = Form.useForm()
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 1,
+      },
+    })
+  )
 
   useEffect(() => {
     loadDiretoria()
@@ -100,6 +135,25 @@ const DiretoriaAdmin = () => {
       loadDiretoria()
     } catch (error) {
       message.error('Erro ao deletar membro')
+    }
+  }
+
+  const onDragEnd = async ({ active, over }) => {
+    if (active.id !== over?.id) {
+      const activeIndex = diretoria.findIndex((i) => i._id === active.id)
+      const overIndex = diretoria.findIndex((i) => i._id === over?.id)
+      
+      const newDiretoria = arrayMove(diretoria, activeIndex, overIndex)
+      setDiretoria(newDiretoria)
+
+      try {
+        await updateOrdemDiretoria(newDiretoria)
+        message.success('Ordem atualizada com sucesso')
+      } catch (error) {
+        message.error('Erro ao atualizar ordem')
+        // Reverter em caso de erro
+        loadDiretoria()
+      }
     }
   }
 
@@ -226,6 +280,11 @@ const DiretoriaAdmin = () => {
 
   const columns = [
     {
+      key: 'sort',
+      width: 50,
+      render: () => <HolderOutlined style={{ cursor: 'move', color: '#999' }} />,
+    },
+    {
       title: 'Foto',
       dataIndex: 'foto',
       key: 'foto',
@@ -294,13 +353,23 @@ const DiretoriaAdmin = () => {
         </Button>
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={diretoria}
-        loading={loading}
-        rowKey="_id"
-        scroll={{ x: 'max-content' }}
-      />
+      <DndContext sensors={sensors} modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+        <SortableContext items={diretoria.map((i) => i._id)} strategy={verticalListSortingStrategy}>
+          <Table
+            components={{
+              body: {
+                row: Row,
+              },
+            }}
+            columns={columns}
+            dataSource={diretoria}
+            loading={loading}
+            rowKey="_id"
+            scroll={{ x: 'max-content' }}
+            pagination={false}
+          />
+        </SortableContext>
+      </DndContext>
 
       <Modal
         title={editingMembro ? 'Editar Membro' : 'Novo Membro'}

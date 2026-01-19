@@ -13,6 +13,7 @@ import {
   Image,
   Tag,
   Tooltip,
+  Tabs,
 } from 'antd'
 import { PlusOutlined, DeleteOutlined, UploadOutlined, CheckOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons'
 import {
@@ -410,11 +411,13 @@ const EmpresasAdmin = () => {
       key: 'status',
       render: (status) => {
         const colors = {
+          'pre-cadastro': 'blue',
           pendente: 'orange',
           aprovado: 'green',
           rejeitado: 'red',
         }
         const labels = {
+          'pre-cadastro': 'Pré-Cadastro',
           pendente: 'Pendente',
           aprovado: 'Aprovado',
           rejeitado: 'Rejeitado',
@@ -507,31 +510,27 @@ const EmpresasAdmin = () => {
         gap: '16px'
       }}>
         <h2 style={{ margin: 0 }}>Gerenciar Empresas</h2>
-        <Space size="large" wrap>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontWeight: 500 }}>Filtrar por status:</span>
-            <Select
-              value={filtroStatus}
-              onChange={setFiltroStatus}
-              style={{ width: 160, minWidth: 160 }}
-              placeholder="Selecione o status"
-            >
-              <Select.Option value="all">Todas</Select.Option>
-              <Select.Option value="pendente">Pendentes</Select.Option>
-              <Select.Option value="aprovado">Aprovadas</Select.Option>
-              <Select.Option value="rejeitado">Rejeitadas</Select.Option>
-            </Select>
-          </div>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleCreate}
-            size="large"
-          >
-            Nova Empresa
-          </Button>
-        </Space>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={handleCreate}
+          size="large"
+        >
+          Nova Empresa
+        </Button>
       </div>
+
+      <Tabs 
+        activeKey={filtroStatus} 
+        onChange={setFiltroStatus}
+        style={{ marginBottom: '24px' }}
+      >
+        <Tabs.TabPane tab="Todas" key="all" />
+        <Tabs.TabPane tab="Pré-Cadastros" key="pre-cadastro" />
+        <Tabs.TabPane tab="Pendentes" key="pendente" />
+        <Tabs.TabPane tab="Aprovadas" key="aprovado" />
+        <Tabs.TabPane tab="Rejeitadas" key="rejeitado" />
+      </Tabs>
 
       <Table
         columns={columns}

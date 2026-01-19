@@ -259,6 +259,7 @@ export const getDiretoria = () => api.get('/diretoria')
 export const createMembro = (data) => api.post('/diretoria', data)
 export const updateMembro = (id, data) => api.put(`/diretoria/${id}`, data)
 export const deleteMembro = (id) => api.delete(`/diretoria/${id}`)
+export const updateOrdemDiretoria = (data) => api.put('/diretoria/ordem', { membros: data })
 
 // Sobre
 export const getSobre = () => api.get('/sobre')
@@ -267,6 +268,9 @@ export const updateSobre = (data) => api.put('/sobre', data)
 // Configurações
 export const getConfiguracoes = () => api.get('/configuracoes')
 export const updateConfiguracoes = (data) => api.put('/configuracoes', data)
+
+// Feature Flags
+export const getFeatureFlags = () => api.get('/feature-flags')
 
 // Benefícios (Admin)
 export const getBeneficiosAdmin = () => api.get('/beneficios')
