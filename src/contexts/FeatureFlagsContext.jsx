@@ -4,15 +4,17 @@ import { getFeatureFlags } from '../lib/api'
 const FeatureFlagsContext = createContext({})
 
 export const FeatureFlagsProvider = ({ children }) => {
+  // Valores padrão conservadores: assumir pré-lançamento ativo por padrão
+  // para evitar flash de conteúdo antes do carregamento
   const [flags, setFlags] = useState({
-    preLancamento: false,
-    mostrarParceiros: true,
-    mostrarEmpresas: true,
-    mostrarEventos: true,
-    mostrarBeneficios: true,
-    mostrarCapacitacoes: true,
-    mostrarGaleria: true,
-    preCadastroMode: false,
+    preLancamento: true, // Assumir ativo por padrão para evitar flash
+    mostrarParceiros: false,
+    mostrarEmpresas: false,
+    mostrarEventos: false,
+    mostrarBeneficios: false,
+    mostrarCapacitacoes: false,
+    mostrarGaleria: false,
+    preCadastroMode: true, // Assumir ativo por padrão
   })
   const [loading, setLoading] = useState(true)
 
@@ -23,10 +25,14 @@ export const FeatureFlagsProvider = ({ children }) => {
   const loadFeatureFlags = async () => {
     try {
       const response = await getFeatureFlags()
-      setFlags(response.data)
+      // Só atualiza se receber dados válidos
+      if (response?.data) {
+        setFlags(response.data)
+      }
     } catch (error) {
       console.error('Erro ao carregar feature flags:', error)
-      // Manter valores padrão em caso de erro
+      // Manter valores padrão conservadores em caso de erro
+      // (pré-lançamento ativo por padrão para evitar mostrar conteúdo indevido)
     } finally {
       setLoading(false)
     }
