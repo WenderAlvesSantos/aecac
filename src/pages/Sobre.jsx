@@ -397,8 +397,23 @@ const Sobre = () => {
               </Title>
               <Row gutter={[24, 24]} justify="center">
                 {diretoria.map((membro) => (
-                  <Col xs={24} sm={12} md={8} key={membro._id}>
-                    <Card hoverable style={{ textAlign: 'center' }}>
+                  <Col xs={24} sm={12} md={8} key={membro._id} style={{ display: 'flex' }}>
+                    <Card 
+                      hoverable 
+                      style={{ 
+                        textAlign: 'center',
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: '380px',
+                      }}
+                      bodyStyle={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flex: 1,
+                        padding: '24px',
+                      }}
+                    >
                       {membro.foto ? (
                         <div
                           style={{
@@ -412,6 +427,7 @@ const Sobre = () => {
                             justifyContent: 'center',
                             background: '#f0f0f0',
                             position: 'relative',
+                            flexShrink: 0,
                           }}
                         >
                           <img
@@ -421,7 +437,8 @@ const Sobre = () => {
                               width: '100%',
                               height: '100%',
                               objectFit: 'contain',
-                              objectPosition: 'center',
+                              objectPosition: 'center center',
+                              display: 'block',
                             }}
                           />
                         </div>
@@ -438,13 +455,14 @@ const Sobre = () => {
                             justifyContent: 'center',
                             fontSize: '64px',
                             color: '#1890ff',
+                            flexShrink: 0,
                           }}
                         >
                           <TeamOutlined />
                         </div>
                       )}
-                      <Title level={4}>{membro.cargo}</Title>
-                      <Paragraph>{membro.nome}</Paragraph>
+                      <Title level={4} style={{ marginBottom: '8px', flexShrink: 0 }}>{membro.cargo}</Title>
+                      <Paragraph style={{ marginBottom: 0, flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>{membro.nome}</Paragraph>
                     </Card>
                   </Col>
                 ))}

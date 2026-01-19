@@ -11,6 +11,7 @@ import {
   Upload,
   Image,
 } from 'antd'
+import ImgCrop from 'antd-img-crop'
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, HolderOutlined } from '@ant-design/icons'
 import {
   getDiretoria,
@@ -157,50 +158,9 @@ const DiretoriaAdmin = () => {
     }
   }
 
-  const compressImage = (file, maxWidth = 1200, maxHeight = 1200, quality = 0.75) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = (event) => {
-        const img = new window.Image()
-        img.src = event.target.result
-        
-        img.onload = () => {
-          const canvas = document.createElement('canvas')
-          let width = img.width
-          let height = img.height
-          
-          if (width > maxWidth || height > maxHeight) {
-            const ratio = Math.min(maxWidth / width, maxHeight / height)
-            width = width * ratio
-            height = height * ratio
-          }
-          
-          canvas.width = width
-          canvas.height = height
-          const ctx = canvas.getContext('2d')
-          ctx.drawImage(img, 0, 0, width, height)
-          
-          const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
-          resolve(compressedBase64)
-        }
-        
-        img.onerror = (error) => {
-          reject(new Error('Erro ao carregar a imagem'))
-        }
-      }
-      
-      reader.onerror = (error) => {
-        reject(new Error('Erro ao ler o arquivo'))
-      }
-    })
-  }
-
   const convertImageToBase64 = (file) => {
-    if (file.type === 'image/png' || file.size > 500000) {
-      return compressImage(file, 1200, 1200, 0.75)
-    }
-    
+    // O antd-img-crop já retorna a imagem cropada exatamente como o usuário ajustou
+    // Usar diretamente sem processamento adicional para preservar o crop exato
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
       reader.readAsDataURL(file)
@@ -218,7 +178,8 @@ const DiretoriaAdmin = () => {
         const file = values.fotoFile[0]
         
         if (file.originFileObj) {
-          // Nova imagem enviada - converter para base64
+          // Nova imagem enviada - usar diretamente do crop sem processamento
+          // O antd-img-crop já fez o crop exato, então apenas convertemos para base64
           try {
             const base64Image = await convertImageToBase64(file.originFileObj)
             formData.foto = base64Image
@@ -420,59 +381,74 @@ const DiretoriaAdmin = () => {
             }}
           >
             <div>
-              <Upload
-                listType="picture-card"
-                maxCount={1}
-                multiple={false}
-                beforeUpload={(file) => {
-                  const isImage = file.type.startsWith('image/')
-                  if (!isImage) {
-                    message.error('Apenas arquivos de imagem são permitidos!')
-                    return Upload.LIST_IGNORE
-                  }
-                  const isLt10M = file.size / 1024 / 1024 < 10
-                  if (!isLt10M) {
-                    message.error('A imagem deve ser menor que 10MB!')
-                    return Upload.LIST_IGNORE
-                  }
-                  return false // Não fazer upload automático
-                }}
-                onChange={(info) => {
-                  // Garantir que apenas 1 arquivo seja mantido
-                  let fileList = [...info.fileList]
-                  
-                  // Se houver mais de 1 arquivo, manter apenas o último
-                  if (fileList.length > 1) {
-                    fileList = [fileList[fileList.length - 1]]
-                    message.warning('Apenas uma imagem é permitida. A última imagem selecionada será mantida.')
-                  }
-                  
-                  // Atualizar o form manualmente
-                  form.setFieldValue('fotoFile', fileList)
-                }}
-                onPreview={(file) => {
-                  // Abrir preview da imagem
-                  if (file.url || file.originFileObj) {
-                    previewFile(file).then((url) => {
-                      const image = new window.Image()
-                      image.src = url
-                      const imgWindow = window.open(url)
-                      imgWindow?.document.write(image.outerHTML)
-                    })
-                  }
-                }}
-                previewFile={previewFile}
-                accept="image/*"
+              <ImgCrop
+                rotationSlider
+                quality={1}
+                aspect={1}
+                shape="rect"
+                zoomSlider
+                showGrid
+                modalTitle="Ajustar Foto (será exibida em formato circular)"
+                modalOk="Confirmar"
+                modalCancel="Cancelar"
+                minZoom={1}
+                maxZoom={3}
+                fillColor="transparent"
               >
-                {(form.getFieldValue('fotoFile')?.length || 0) < 1 && (
-                  <div>
-                    <UploadOutlined />
-                    <div style={{ marginTop: 8 }}>Upload</div>
-                  </div>
-                )}
-              </Upload>
+                <Upload
+                  listType="picture-card"
+                  maxCount={1}
+                  multiple={false}
+                  beforeUpload={(file) => {
+                    const isImage = file.type.startsWith('image/')
+                    if (!isImage) {
+                      message.error('Apenas arquivos de imagem são permitidos!')
+                      return Upload.LIST_IGNORE
+                    }
+                    const isLt10M = file.size / 1024 / 1024 < 10
+                    if (!isLt10M) {
+                      message.error('A imagem deve ser menor que 10MB!')
+                      return Upload.LIST_IGNORE
+                    }
+                    return false // Não fazer upload automático
+                  }}
+                  onChange={(info) => {
+                    // Garantir que apenas 1 arquivo seja mantido
+                    let fileList = [...info.fileList]
+                    
+                    // Se houver mais de 1 arquivo, manter apenas o último
+                    if (fileList.length > 1) {
+                      fileList = [fileList[fileList.length - 1]]
+                      message.warning('Apenas uma imagem é permitida. A última imagem selecionada será mantida.')
+                    }
+                    
+                    // Atualizar o form manualmente
+                    form.setFieldValue('fotoFile', fileList)
+                  }}
+                  onPreview={(file) => {
+                    // Abrir preview da imagem
+                    if (file.url || file.originFileObj) {
+                      previewFile(file).then((url) => {
+                        const image = new window.Image()
+                        image.src = url
+                        const imgWindow = window.open(url)
+                        imgWindow?.document.write(image.outerHTML)
+                      })
+                    }
+                  }}
+                  previewFile={previewFile}
+                  accept="image/*"
+                >
+                  {(form.getFieldValue('fotoFile')?.length || 0) < 1 && (
+                    <div>
+                      <UploadOutlined />
+                      <div style={{ marginTop: 8 }}>Upload</div>
+                    </div>
+                  )}
+                </Upload>
+              </ImgCrop>
               <div style={{ marginTop: 8, color: '#666', fontSize: '12px' }}>
-                Apenas uma imagem. Formatos: JPG, PNG. Máximo recomendado: 1MB.
+                Apenas uma imagem. Formatos: JPG, PNG. Máximo recomendado: 1MB. Ajuste a foto no formato quadrado - ela será exibida em formato circular na página.
               </div>
             </div>
           </Form.Item>
