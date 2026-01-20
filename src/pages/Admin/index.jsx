@@ -14,6 +14,7 @@ import UsuariosAdmin from './UsuariosAdmin'
 import BeneficiosAdmin from './BeneficiosAdmin'
 import CapacitacoesAdmin from './CapacitacoesAdmin'
 import RelatoriosAdmin from './RelatoriosAdmin'
+import DocumentosAdmin from './DocumentosAdmin'
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('authToken')
@@ -53,6 +54,7 @@ const Admin = () => {
         <Route path="beneficios" element={<BeneficiosAdmin />} />
         <Route path="capacitacoes" element={<CapacitacoesAdmin />} />
         <Route path="relatorios" element={<RelatoriosAdmin />} />
+        <Route path="documentos" element={<DocumentosAdmin />} />
       </Route>
     </Routes>
   )

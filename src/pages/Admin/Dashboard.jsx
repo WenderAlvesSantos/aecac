@@ -14,6 +14,7 @@ import {
   GiftOutlined,
   BookOutlined,
   MenuOutlined,
+  FolderOutlined,
 } from '@ant-design/icons'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { getEventosAdmin, getParceiros, getEmpresas, getGaleria, getDiretoria, getBeneficiosAdmin, getCapacitacoesAdmin } from '../../lib/api'
@@ -115,6 +116,11 @@ const Dashboard = () => {
       key: '/admin/capacitacoes',
       icon: <BookOutlined />,
       label: 'Capacitações',
+    },
+    {
+      key: '/admin/documentos',
+      icon: <FolderOutlined />,
+      label: 'Documentos',
     },
     // {
     //   key: '/admin/relatorios',

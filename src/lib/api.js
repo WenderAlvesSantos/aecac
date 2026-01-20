@@ -37,6 +37,8 @@ api.interceptors.request.use((config) => {
     '/relatorios',
     '/exportar',
     '/notificacoes',
+    '/documentos',
+    '/documentos/categorias',
     // CRUD de Eventos, Benefícios e Capacitações (sem area=logged)
     // Essas rotas são detectadas pela ausência de area=logged
   ]
@@ -350,6 +352,38 @@ export const exportarDados = (tipo, formato = 'json') => {
 // Consultas
 export const buscarCNPJ = (cnpj) => api.get(`/consultas/buscar-cnpj?cnpj=${cnpj}`)
 export const buscarCEP = (cep) => api.get(`/consultas/buscar-cep?cep=${cep}`)
+
+// Documentos
+export const getDocumentos = (categoria, params = {}) => {
+  const queryParams = new URLSearchParams()
+  if (categoria && categoria !== 'todas') {
+    queryParams.append('categoria', categoria)
+  }
+  if (params.nome) {
+    queryParams.append('nome', params.nome)
+  }
+  if (params.criadoPor) {
+    queryParams.append('criadoPor', params.criadoPor)
+  }
+  if (params.dataInicio) {
+    queryParams.append('dataInicio', params.dataInicio)
+  }
+  if (params.dataFim) {
+    queryParams.append('dataFim', params.dataFim)
+  }
+  const queryString = queryParams.toString()
+  return api.get(`/documentos${queryString ? `?${queryString}` : ''}`)
+}
+export const getDocumento = (id) => api.get(`/documentos/${id}`)
+export const createDocumento = (data) => api.post('/documentos', data)
+export const updateDocumento = (id, data) => api.put(`/documentos/${id}`, data)
+export const deleteDocumento = (id) => api.delete(`/documentos/${id}`)
+
+// Categorias de Documentos
+export const getCategoriasDocumentos = () => api.get('/documentos/categorias')
+export const createCategoriaDocumento = (data) => api.post('/documentos/categorias', data)
+export const updateCategoriaDocumento = (id, data) => api.put('/documentos/categorias', { id, ...data })
+export const deleteCategoriaDocumento = (id) => api.delete(`/documentos/categorias?id=${id}`)
 
 export default api
 
