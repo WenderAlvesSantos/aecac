@@ -95,9 +95,9 @@ const CadastroEmpresa = () => {
   const { flags } = useFeatureFlags()
   
   const preCadastro = flags.preCadastroMode
-  const titulo = preCadastro ? 'Pré-Cadastro de Interesse' : 'Cadastro de Empresa'
+  const titulo = preCadastro ? 'Cadastro de Fundadores' : 'Cadastro de Empresa'
   const subtitulo = preCadastro
-    ? 'Faça seu pré-cadastro para participar da AECAC. Entraremos em contato em breve!'
+    ? 'Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e poucas empresas terão o título de fundador. Garanta sua posição.'
     : 'Preencha o formulário abaixo para se associar à AECAC'
 
   const convertImageToBase64 = (file) => {
@@ -264,7 +264,7 @@ const CadastroEmpresa = () => {
       await createEmpresa(formData)
       
       const mensagem = preCadastro
-        ? 'Pré-cadastro realizado com sucesso! Entraremos em contato em breve.'
+        ? 'Cadastro de fundador realizado com sucesso! Entraremos em contato em breve.'
         : 'Cadastro realizado com sucesso! Aguarde a aprovação do administrador.'
       
       message.success(mensagem)
@@ -279,11 +279,11 @@ const CadastroEmpresa = () => {
 
   if (submitted) {
     const mensagemSucesso = preCadastro
-      ? 'Pré-cadastro Enviado com Sucesso!'
+      ? 'Cadastro de Fundador Enviado com Sucesso!'
       : 'Cadastro Enviado com Sucesso!'
     
     const descricaoSucesso = preCadastro
-      ? 'Seu pré-cadastro foi recebido. Entraremos em contato em breve para os próximos passos!'
+      ? 'Seu cadastro de fundador foi recebido. Entraremos em contato em breve para os próximos passos!'
       : 'Seu cadastro foi recebido e está aguardando aprovação do administrador. Você receberá uma notificação assim que sua empresa for aprovada.'
     
     return (
@@ -428,8 +428,8 @@ const CadastroEmpresa = () => {
       <div style={{ padding: window.innerWidth < 768 ? '32px 16px' : '48px 24px', maxWidth: '800px', margin: '0 auto' }}>
         {preCadastro && (
           <Alert
-            message="🚀 Em breve estaremos disponíveis"
-            description="Registre seu interesse e seja um dos primeiros a fazer parte da AECAC!"
+            message="🚀 Cadastro de Fundadores"
+            description="Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e poucas empresas terão o título de fundador. Garanta sua posição."
             type="info"
             showIcon
             style={{ 

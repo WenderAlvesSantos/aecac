@@ -96,7 +96,7 @@ const Header = ({
                 }),
               }}
             >
-              {preCadastroMode ? 'Pré-Cadastro' : 'Entrar'}
+              {preCadastroMode ? 'Cadastro de Fundadores' : 'Entrar'}
             </Button>
           )}
         </div>

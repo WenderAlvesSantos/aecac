@@ -417,7 +417,7 @@ const EmpresasAdmin = () => {
           rejeitado: 'red',
         }
         const labels = {
-          'pre-cadastro': 'Pré-Cadastro',
+          'pre-cadastro': 'Fundador',
           pendente: 'Pendente',
           aprovado: 'Aprovado',
           rejeitado: 'Rejeitado',
@@ -526,7 +526,7 @@ const EmpresasAdmin = () => {
         style={{ marginBottom: '24px' }}
       >
         <Tabs.TabPane tab="Todas" key="all" />
-        <Tabs.TabPane tab="Pré-Cadastros" key="pre-cadastro" />
+        <Tabs.TabPane tab="Fundadores" key="pre-cadastro" />
         <Tabs.TabPane tab="Pendentes" key="pendente" />
         <Tabs.TabPane tab="Aprovadas" key="aprovado" />
         <Tabs.TabPane tab="Rejeitadas" key="rejeitado" />

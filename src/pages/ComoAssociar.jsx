@@ -152,7 +152,7 @@ const ComoAssociar = () => {
                 textShadow: '0 2px 10px rgba(0,0,0,0.2)',
               }}
             >
-              {flags.preCadastroMode ? 'Fazer Pré-Cadastro na AECAC' : 'Como Associar-se à AECAC'}
+              {flags.preCadastroMode ? 'Cadastro de Fundadores da AECAC' : 'Como Associar-se à AECAC'}
             </Title>
             <Paragraph
               style={{
@@ -162,7 +162,7 @@ const ComoAssociar = () => {
               }}
             >
               {flags.preCadastroMode 
-                ? 'Em breve estaremos disponíveis! Registre seu interesse e seja um dos primeiros empresários a fazer parte da AECAC em Águas Claras.'
+                ? 'Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e poucas empresas terão o título de fundador. Garanta sua posição.'
                 : 'Junte-se à Associação Empresarial e Comercial de Águas Claras e fortaleça seu negócio com uma rede de apoio e oportunidades exclusivas'
               }
             </Paragraph>
@@ -174,8 +174,8 @@ const ComoAssociar = () => {
           {/* Alert de Pré-Lançamento */}
           {flags.preCadastroMode && (
             <Alert
-              message="🚀 Em breve estaremos disponíveis!"
-              description="Registre seu interesse agora e seja um dos primeiros a fazer parte da AECAC. Entraremos em contato assim que o lançamento oficial acontecer."
+              message="🚀 Cadastro de Fundadores"
+              description="Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e poucas empresas terão o título de fundador. Garanta sua posição."
               type="info"
               showIcon
               style={{ 
@@ -304,7 +304,7 @@ const ComoAssociar = () => {
           {/* Processo de Associação */}
           <div style={{ marginBottom: '48px' }}>
             <Title level={2} style={{ color: '#1a237e', marginBottom: '32px', textAlign: 'center' }}>
-              {flags.preCadastroMode ? 'Como Funciona o Pré-Cadastro' : 'Processo de Associação'}
+              {flags.preCadastroMode ? 'Como Funciona o Cadastro de Fundadores' : 'Processo de Associação'}
             </Title>
             <Row gutter={[24, 24]}>
               <Col xs={24} md={6}>
@@ -336,11 +336,11 @@ const ComoAssociar = () => {
                     1
                   </div>
                   <Title level={4} style={{ color: '#1a237e', marginBottom: '8px' }}>
-                    {flags.preCadastroMode ? 'Pré-Cadastro' : 'Cadastro'}
+                    {flags.preCadastroMode ? 'Cadastro de Fundadores' : 'Cadastro'}
                   </Title>
                   <Paragraph style={{ color: '#666', fontSize: '14px' }}>
                     {flags.preCadastroMode 
-                      ? 'Preencha o formulário de pré-cadastro para participar da AECAC'
+                      ? 'Preencha o formulário de Cadastro de Fundadores para participar da AECAC'
                       : 'Preencha o formulário de cadastro com os dados da sua empresa'
                     }
                   </Paragraph>
@@ -486,7 +486,7 @@ const ComoAssociar = () => {
             </Title>
             <Paragraph style={{ color: 'rgba(255,255,255,0.9)', fontSize: '18px', marginBottom: '32px' }}>
               {flags.preCadastroMode
-                ? 'Faça seu pré-cadastro agora e tenha prioridade no lançamento oficial da AECAC'
+                ? 'Garanta sua posição como empresa fundadora e ajude a definir os rumos da AECAC.'
                 : 'Faça parte da AECAC e fortaleça seu negócio com uma rede de apoio e oportunidades exclusivas'
               }
             </Paragraph>
@@ -504,7 +504,7 @@ const ComoAssociar = () => {
                 fontWeight: '600',
               }}
             >
-              {flags.preCadastroMode ? 'Fazer Pré-Cadastro Agora' : 'Cadastrar Minha Empresa'}
+              {flags.preCadastroMode ? 'Quero ser Fundador' : 'Cadastrar Minha Empresa'}
             </Button>
           </Card>
         </div>

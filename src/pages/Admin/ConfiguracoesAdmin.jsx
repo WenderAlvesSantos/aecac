@@ -331,9 +331,9 @@ const ConfiguracoesAdmin = () => {
 
           <Form.Item
             name={['featureFlags', 'preCadastroMode']}
-            label="Modo Pré-Cadastro"
+            label="Modo Cadastro de Fundadores"
             valuePropName="checked"
-            tooltip="Cadastro de empresa vira pré-cadastro de interesse (altera textos e status)"
+            tooltip="Cadastro de empresa vira cadastro de fundadores (altera textos e status)"
           >
             <Switch 
               checkedChildren="Ativo" 

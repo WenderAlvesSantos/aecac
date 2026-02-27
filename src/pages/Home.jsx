@@ -433,7 +433,7 @@ const Home = () => {
         />
         <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <Title level={2} style={{ color: '#fff', marginBottom: '20px', fontSize: window.innerWidth < 768 ? '26px' : '38px', fontWeight: 'bold' }}>
-            {flags.preCadastroMode ? 'Fazer Pré-Cadastro' : 'Faça parte da AECAC'}
+            {flags.preCadastroMode ? 'Cadastro de Fundadores' : 'Faça parte da AECAC'}
           </Title>
           <Paragraph
             style={{
@@ -444,7 +444,7 @@ const Home = () => {
             }}
           >
             {flags.preCadastroMode 
-              ? 'Em breve estaremos disponíveis. Registre seu interesse e seja um dos primeiros a fazer parte da AECAC em Águas Claras.'
+              ? 'Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e poucas empresas terão o título de fundador. Garanta sua posição.'
               : 'Junte-se a nós e fortaleça seu negócio junto com outros empresários de Águas Claras.'
             }
           </Paragraph>
@@ -501,7 +501,7 @@ const Home = () => {
                 e.currentTarget.style.background = 'linear-gradient(135deg, #00c853 0%, #00e676 100%)'
               }}
             >
-              {flags.preCadastroMode ? '🚀 Fazer Pré-Cadastro' : 'Associar Minha Empresa'}
+              {flags.preCadastroMode ? '🚀 Quero ser Fundador' : 'Associar Minha Empresa'}
             </Button>
           </Space>
         </div>
