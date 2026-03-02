@@ -172,10 +172,10 @@ const ComoAssociar = () => {
         {/* Content Section */}
         <div style={{ padding: window.innerWidth < 768 ? '32px 16px' : '64px 24px', maxWidth: '1200px', margin: '0 auto' }}>
           {/* Alert de Pré-Lançamento */}
-          {flags.preCadastroMode && (
+          {/* {flags.preCadastroMode && (
             <Alert
-              message="🚀 Cadastro de Fundadores"
-              description="Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e poucas empresas terão o título de fundador. Garanta sua posição."
+              message="🚀 Em breve estaremos disponíveis!"
+              description="Registre seu interesse agora e seja um dos primeiros a fazer parte da AECAC. Entraremos em contato assim que o lançamento oficial acontecer."
               type="info"
               showIcon
               style={{ 
@@ -184,7 +184,7 @@ const ComoAssociar = () => {
                 padding: '16px 24px'
               }}
             />
-          )}
+          )} */}
 
           {/* Investimento */}
           {!flags.preCadastroMode && (

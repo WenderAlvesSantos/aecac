@@ -426,10 +426,10 @@ const CadastroEmpresa = () => {
 
       {/* Content Section */}
       <div style={{ padding: window.innerWidth < 768 ? '32px 16px' : '48px 24px', maxWidth: '800px', margin: '0 auto' }}>
-        {preCadastro && (
+        {/* {preCadastro && (
           <Alert
-            message="🚀 Cadastro de Fundadores"
-            description="Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e poucas empresas terão o título de fundador. Garanta sua posição."
+            message="🚀 Em breve estaremos disponíveis"
+            description="Registre seu interesse e seja um dos primeiros a fazer parte da AECAC!"
             type="info"
             showIcon
             style={{ 
@@ -438,7 +438,7 @@ const CadastroEmpresa = () => {
               padding: '16px 24px'
             }}
           />
-        )}
+        )} */}
 
         <Card
           style={{
