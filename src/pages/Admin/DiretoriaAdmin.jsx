@@ -148,7 +148,8 @@ const DiretoriaAdmin = () => {
       setDiretoria(newDiretoria)
 
       try {
-        await updateOrdemDiretoria(newDiretoria)
+        // Enviar apenas _id de cada membro para evitar 413 (payload com base64 é muito grande)
+        await updateOrdemDiretoria(newDiretoria.map(({ _id }) => ({ _id })))
         message.success('Ordem atualizada com sucesso')
       } catch (error) {
         message.error('Erro ao atualizar ordem')
