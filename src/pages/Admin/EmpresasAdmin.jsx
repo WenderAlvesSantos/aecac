@@ -23,6 +23,11 @@ import {
   deleteEmpresa,
   aprovarEmpresa,
 } from '../../lib/api'
+import {
+  instagramHandleForForm,
+  instagramHandleToStoredUrl,
+  normalizeInstagramInput,
+} from '../../lib/instagram'
 
 const { TextArea } = Input
 
@@ -150,6 +155,9 @@ const EmpresasAdmin = () => {
             }
             if (empresaData.cep) {
               empresaData.cep = formatCEP(empresaData.cep)
+            }
+            if (empresaData.instagram !== undefined && empresaData.instagram !== null) {
+              empresaData.instagram = instagramHandleForForm(empresaData.instagram)
             }
             form.setFieldsValue({
               ...empresaData,
@@ -331,6 +339,8 @@ const EmpresasAdmin = () => {
       if (formData.cep) {
         formData.cep = formData.cep.replace(/\D/g, '')
       }
+
+      formData.instagram = instagramHandleToStoredUrl(values.instagram)
       
       console.log('Dados finais a serem enviados:', {
         nome: formData.nome,
@@ -679,14 +689,10 @@ const EmpresasAdmin = () => {
           <Form.Item
             name="instagram"
             label="Instagram"
-            rules={[
-              {
-                type: 'url',
-                message: 'URL inválida',
-              },
-            ]}
+            normalize={(v) => normalizeInstagramInput(v)}
+            rules={[{ max: 50, message: 'No máximo 50 caracteres' }]}
           >
-            <Input placeholder="https://instagram.com/empresa" />
+            <Input prefix="@" placeholder="usuario" allowClear />
           </Form.Item>
 
           <Form.Item

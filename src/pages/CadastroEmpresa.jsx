@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Form, Input, Select, Button, Card, Typography, message, Upload, Alert, Space } from 'antd'
 import { ShopOutlined, UploadOutlined, CheckCircleOutlined, HomeOutlined } from '@ant-design/icons'
 import { createEmpresa, buscarCNPJ as buscarCNPJAPI, buscarCEP as buscarCEPAPI } from '../lib/api'
+import { instagramHandleToStoredUrl, normalizeInstagramInput } from '../lib/instagram'
 import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 import { useNavigate } from 'react-router-dom'
 
@@ -249,6 +250,8 @@ const CadastroEmpresa = () => {
       if (formData.cep) {
         formData.cep = formData.cep.replace(/\D/g, '')
       }
+
+      formData.instagram = instagramHandleToStoredUrl(values.instagram)
 
       // Processar imagem se houver
       if (values.imagemFile && values.imagemFile.length > 0) {
@@ -596,9 +599,10 @@ const CadastroEmpresa = () => {
             <Form.Item
               name="instagram"
               label="Instagram"
-              rules={[{ type: 'url', message: 'URL inválida' }]}
+              normalize={(v) => normalizeInstagramInput(v)}
+              rules={[{ max: 50, message: 'No máximo 50 caracteres' }]}
             >
-              <Input placeholder="https://instagram.com/empresa" />
+              <Input prefix="@" placeholder="usuario" allowClear />
             </Form.Item>
 
             <Form.Item

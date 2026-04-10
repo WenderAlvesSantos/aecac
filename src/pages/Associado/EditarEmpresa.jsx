@@ -9,6 +9,11 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { updateEmpresa, buscarCNPJ, buscarCEP } from '../../lib/api'
 import api from '../../lib/api'
+import {
+  instagramHandleForForm,
+  instagramHandleToStoredUrl,
+  normalizeInstagramInput,
+} from '../../lib/instagram'
 
 const { Content } = Layout
 const { Title } = Typography
@@ -116,6 +121,9 @@ const EditarEmpresa = () => {
       if (empresaData.cep) {
         empresaData.cep = formatCEP(empresaData.cep)
       }
+      if (empresaData.instagram !== undefined && empresaData.instagram !== null) {
+        empresaData.instagram = instagramHandleForForm(empresaData.instagram)
+      }
 
       form.setFieldsValue({
         ...empresaData,
@@ -209,6 +217,8 @@ const EditarEmpresa = () => {
       if (formData.cep) {
         formData.cep = formData.cep.replace(/\D/g, '')
       }
+
+      formData.instagram = instagramHandleToStoredUrl(values.instagram)
 
       await updateEmpresa(associado.empresaId, formData)
       message.success('Dados da empresa atualizados com sucesso!')
@@ -419,9 +429,10 @@ const EditarEmpresa = () => {
             <Form.Item
               name="instagram"
               label="Instagram"
-              rules={[{ type: 'url', message: 'URL inválida' }]}
+              normalize={(v) => normalizeInstagramInput(v)}
+              rules={[{ max: 50, message: 'No máximo 50 caracteres' }]}
             >
-              <Input placeholder="https://instagram.com/empresa" />
+              <Input prefix="@" placeholder="usuario" allowClear />
             </Form.Item>
 
             <Form.Item
