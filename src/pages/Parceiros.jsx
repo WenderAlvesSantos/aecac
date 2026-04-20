@@ -273,7 +273,7 @@ const Parceiros = () => {
                   <Title level={4} style={{ color: '#00c853', marginBottom: '16px', fontSize: '20px', fontWeight: '600' }}>Prioridade no Atendimento</Title>
                   <Paragraph style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: 0 }}>
                     Receba atendimento prioritário e personalizado dos nossos
-                    parceiros, com suporte dedicado para sua empresa.
+                    parceiros, com suporte dedicado ao seu negócio.
                   </Paragraph>
                 </Card>
               </Col>

@@ -146,7 +146,7 @@ const RelatoriosAdmin = () => {
             <Select.Option value="todos">Todos</Select.Option>
             <Select.Option value="inscricoes">Inscrições</Select.Option>
             <Select.Option value="beneficios">Benefícios</Select.Option>
-            <Select.Option value="empresas">Empresas</Select.Option>
+            <Select.Option value="empresas">Fundadores</Select.Option>
             <Select.Option value="usuarios">Usuários</Select.Option>
           </Select>
         </Space>
@@ -212,7 +212,7 @@ const RelatoriosAdmin = () => {
                 <Col xs={24} sm={12} md={6}>
                   <Card>
                     <Statistic
-                      title="Total de Empresas"
+                      title="Total de fundadores"
                       value={relatorio.empresas.total}
                       prefix={<ShopOutlined />}
                       valueStyle={{ color: '#fa8c16' }}
@@ -287,10 +287,10 @@ const RelatoriosAdmin = () => {
             </Card>
           )}
 
-          {/* Relatório de Empresas */}
+          {/* Relatório de fundadores (API: empresas) */}
           {relatorio?.empresas && (tipoRelatorio === 'todos' || tipoRelatorio === 'empresas') && (
             <Card
-              title="Relatório de Empresas"
+              title="Relatório de fundadores"
               extra={
                 <Space>
                   <Button
@@ -321,10 +321,10 @@ const RelatoriosAdmin = () => {
                 </Col>
               </Row>
               <div>
-                <Title level={4}>Empresas por Categoria</Title>
+                <Title level={4}>Fundadores por categoria</Title>
                 {Object.entries(relatorio.empresas.porCategoria).map(([categoria, count]) => (
                   <div key={categoria} style={{ marginBottom: '8px' }}>
-                    <strong>{categoria}:</strong> {count} empresa(s)
+                    <strong>{categoria}:</strong> {count} cadastro(s)
                   </div>
                 ))}
               </div>

@@ -692,7 +692,7 @@ const CapacitacoesAssociado = () => {
         title={
           <Space>
             <BookOutlined />
-            <span>Capacitações da Minha Empresa</span>
+            <span>Capacitações do meu cadastro</span>
           </Space>
         }
         extra={

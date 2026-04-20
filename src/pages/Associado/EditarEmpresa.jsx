@@ -78,7 +78,7 @@ const EditarEmpresa = () => {
     try {
       setLoading(true)
       if (!associado.empresaId) {
-        message.error('Você não está vinculado a uma empresa')
+        message.error('Você não está vinculado a um cadastro de fundador')
         navigate('/associado')
         return
       }
@@ -88,7 +88,7 @@ const EditarEmpresa = () => {
       const minhaEmpresa = response.data
       
       if (!minhaEmpresa) {
-        message.error('Empresa não encontrada')
+        message.error('Cadastro não encontrado')
         navigate('/associado')
         return
       }
@@ -131,7 +131,7 @@ const EditarEmpresa = () => {
       })
     } catch (error) {
       console.error('Erro ao carregar empresa:', error)
-      message.error('Erro ao carregar dados da empresa')
+      message.error('Erro ao carregar seu cadastro')
     } finally {
       setLoading(false)
     }
@@ -221,11 +221,11 @@ const EditarEmpresa = () => {
       formData.instagram = instagramHandleToStoredUrl(values.instagram)
 
       await updateEmpresa(associado.empresaId, formData)
-      message.success('Dados da empresa atualizados com sucesso!')
+      message.success('Dados do seu cadastro de fundador atualizados com sucesso!')
       navigate('/associado')
     } catch (error) {
       console.error('Erro ao atualizar empresa:', error)
-      message.error(error.response?.data?.error || 'Erro ao atualizar dados da empresa')
+      message.error(error.response?.data?.error || 'Erro ao atualizar seu cadastro')
     } finally {
       setSaving(false)
     }
@@ -300,7 +300,7 @@ const EditarEmpresa = () => {
               {isMobile ? '' : 'Voltar'}
             </Button>
             <Title level={2} style={{ margin: 0, fontSize: isMobile ? '18px' : '24px' }}>
-              <ShopOutlined /> {isMobile ? 'Cadastral' : 'Alteração Cadastral'}
+              <ShopOutlined /> {isMobile ? 'Fundador' : 'Alterar cadastro de fundador'}
             </Title>
           </Space>
 
@@ -325,7 +325,7 @@ const EditarEmpresa = () => {
 
             <Form.Item
               name="nome"
-              label="Nome da Empresa"
+              label="Nome da empresa (fundador)"
             >
               <Input disabled style={{ background: '#f5f5f5' }} />
             </Form.Item>
@@ -358,7 +358,7 @@ const EditarEmpresa = () => {
               label="Descrição"
               rules={[{ required: true, message: 'Campo obrigatório' }]}
             >
-              <TextArea rows={4} placeholder="Descreva sua empresa e seus serviços" maxLength={700} showCount />
+              <TextArea rows={4} placeholder="Descreva a empresa fundadora e seus serviços" maxLength={700} showCount />
             </Form.Item>
 
             <Form.Item
@@ -407,7 +407,7 @@ const EditarEmpresa = () => {
               name="endereco"
               label="Endereço Completo"
             >
-              <TextArea rows={2} placeholder="Endereço completo da empresa" />
+              <TextArea rows={2} placeholder="Endereço completo do negócio" />
             </Form.Item>
 
             <Form.Item

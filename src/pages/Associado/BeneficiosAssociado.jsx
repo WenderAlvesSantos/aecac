@@ -686,7 +686,7 @@ const BeneficiosAssociado = () => {
         title={
           <Space>
             <GiftOutlined />
-            <span>Benefícios da Minha Empresa</span>
+            <span>Benefícios do meu cadastro</span>
           </Space>
         }
         extra={

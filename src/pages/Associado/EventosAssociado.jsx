@@ -610,7 +610,7 @@ const EventosAssociado = () => {
         title={
           <Space>
             <CalendarOutlined />
-            <span>Eventos da Minha Empresa</span>
+            <span>Eventos do meu cadastro</span>
           </Space>
         }
         extra={

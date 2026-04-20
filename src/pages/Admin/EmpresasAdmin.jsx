@@ -97,8 +97,8 @@ const EmpresasAdmin = () => {
       }))
       setEmpresas(empresasComStatus)
     } catch (error) {
-      console.error('Erro ao carregar empresas:', error)
-      message.error('Erro ao carregar empresas')
+      console.error('Erro ao carregar fundadores:', error)
+      message.error('Erro ao carregar fundadores')
     } finally {
       setLoading(false)
     }
@@ -176,17 +176,17 @@ const EmpresasAdmin = () => {
   const handleDelete = async (id) => {
     try {
       await deleteEmpresa(id)
-      message.success('Empresa deletada com sucesso')
+      message.success('Fundador removido com sucesso')
       loadEmpresas()
     } catch (error) {
-      message.error('Erro ao deletar empresa')
+      message.error('Erro ao remover fundador')
     }
   }
 
   const handleAprovar = async (empresaId, acao) => {
     try {
       await aprovarEmpresa(empresaId, acao)
-      message.success(`Empresa ${acao === 'aprovar' ? 'aprovada' : 'rejeitada'} com sucesso`)
+      message.success(`Cadastro ${acao === 'aprovar' ? 'aprovado' : 'rejeitado'} com sucesso`)
       loadEmpresas()
     } catch (error) {
       message.error('Erro ao processar solicitação')
@@ -352,13 +352,13 @@ const EmpresasAdmin = () => {
       })
 
       if (editingEmpresa) {
-        console.log('Atualizando empresa existente...')
+        console.log('Atualizando cadastro de fundador...')
         await updateEmpresa(editingEmpresa._id, formData)
-        message.success('Empresa atualizada com sucesso')
+        message.success('Cadastro de fundador atualizado com sucesso')
       } else {
-        console.log('Criando nova empresa...')
+        console.log('Criando novo cadastro de fundador...')
         await createEmpresa(formData)
-        message.success('Empresa criada com sucesso')
+        message.success('Cadastro de fundador criado com sucesso')
       }
 
       setModalVisible(false)
@@ -368,7 +368,7 @@ const EmpresasAdmin = () => {
     } catch (error) {
       console.error('=== ERRO NO SUBMIT ===', error)
       console.error('Erro completo:', error.response || error)
-      message.error('Erro ao salvar empresa: ' + (error.response?.data?.error || error.message))
+      message.error('Erro ao salvar cadastro: ' + (error.response?.data?.error || error.message))
     }
   }
 
@@ -383,7 +383,7 @@ const EmpresasAdmin = () => {
           return (
             <Image
               src={imagem}
-              alt="Fachada"
+              alt="Logomarca"
               width={60}
               height={60}
               style={{ objectFit: 'cover', borderRadius: '4px' }}
@@ -446,14 +446,14 @@ const EmpresasAdmin = () => {
             {isPendente && (
               <>
                 <Popconfirm
-                  title="Confirmar aprovação desta empresa?"
-                  description="A empresa será aprovada e um email será enviado automaticamente."
+                  title="Confirmar aprovação deste cadastro?"
+                  description="O fundador será aprovado e um e-mail será enviado automaticamente."
                   onConfirm={() => handleAprovar(record._id, 'aprovar')}
                   okText="Sim, aprovar"
                   cancelText="Cancelar"
                   okButtonProps={{ type: 'primary', danger: false }}
                 >
-                  <Tooltip title="Aprovar empresa">
+                  <Tooltip title="Aprovar fundador">
                     <Button
                       type="primary"
                       icon={<CheckOutlined />}
@@ -463,14 +463,14 @@ const EmpresasAdmin = () => {
                   </Tooltip>
                 </Popconfirm>
                 <Popconfirm
-                  title="Confirmar rejeição desta empresa?"
-                  description="A empresa será rejeitada e um email será enviado automaticamente."
+                  title="Confirmar rejeição deste cadastro?"
+                  description="O cadastro será rejeitado e um e-mail será enviado automaticamente."
                   onConfirm={() => handleAprovar(record._id, 'rejeitar')}
                   okText="Sim, rejeitar"
                   cancelText="Cancelar"
                   okButtonProps={{ type: 'primary', danger: true }}
                 >
-                  <Tooltip title="Rejeitar empresa">
+                  <Tooltip title="Rejeitar cadastro">
                     <Button
                       danger
                       icon={<CloseOutlined />}
@@ -480,7 +480,7 @@ const EmpresasAdmin = () => {
                 </Popconfirm>
               </>
             )}
-            <Tooltip title="Visualizar empresa">
+            <Tooltip title="Visualizar cadastro">
               <Button
                 type="text"
                 icon={<EyeOutlined />}
@@ -489,12 +489,12 @@ const EmpresasAdmin = () => {
               />
             </Tooltip>
             <Popconfirm
-              title="Tem certeza que deseja deletar esta empresa?"
+              title="Tem certeza que deseja excluir este cadastro de fundador?"
               onConfirm={() => handleDelete(record._id)}
               okText="Sim"
               cancelText="Não"
             >
-              <Tooltip title="Deletar empresa">
+              <Tooltip title="Excluir cadastro">
                 <Button 
                   type="text" 
                   danger 
@@ -519,14 +519,14 @@ const EmpresasAdmin = () => {
         flexWrap: 'wrap',
         gap: '16px'
       }}>
-        <h2 style={{ margin: 0 }}>Gerenciar Empresas</h2>
+        <h2 style={{ margin: 0 }}>Gerenciar Fundadores</h2>
         <Button
           type="primary"
           icon={<PlusOutlined />}
           onClick={handleCreate}
           size="large"
         >
-          Nova Empresa
+          Novo fundador
         </Button>
       </div>
 
@@ -535,11 +535,10 @@ const EmpresasAdmin = () => {
         onChange={setFiltroStatus}
         style={{ marginBottom: '24px' }}
       >
-        <Tabs.TabPane tab="Todas" key="all" />
-        <Tabs.TabPane tab="Fundadores" key="pre-cadastro" />
+        <Tabs.TabPane tab="Todos" key="all" />
         <Tabs.TabPane tab="Pendentes" key="pendente" />
-        <Tabs.TabPane tab="Aprovadas" key="aprovado" />
-        <Tabs.TabPane tab="Rejeitadas" key="rejeitado" />
+        <Tabs.TabPane tab="Aprovados" key="aprovado" />
+        <Tabs.TabPane tab="Rejeitados" key="rejeitado" />
       </Tabs>
 
       <Table
@@ -551,7 +550,7 @@ const EmpresasAdmin = () => {
       />
 
       <Modal
-        title={editingEmpresa ? 'Editar Empresa' : 'Nova Empresa'}
+        title={editingEmpresa ? 'Editar cadastro de fundador' : 'Novo cadastro de fundador'}
         open={modalVisible}
         onCancel={() => {
           setModalVisible(false)
@@ -594,10 +593,10 @@ const EmpresasAdmin = () => {
 
           <Form.Item
             name="nome"
-            label="Nome"
+            label="Nome da empresa (fundador)"
             rules={[{ required: true, message: 'Campo obrigatório' }]}
           >
-            <Input />
+            <Input placeholder="Razão social ou nome fantasia" />
           </Form.Item>
 
           <Form.Item
@@ -626,10 +625,10 @@ const EmpresasAdmin = () => {
 
           <Form.Item
             name="descricao"
-            label="Descrição"
+            label="Descrição (negócio do fundador)"
             rules={[{ required: true, message: 'Campo obrigatório' }]}
           >
-            <TextArea rows={3} />
+            <TextArea rows={3} placeholder="Atividade e diferenciais do fundador" />
           </Form.Item>
 
           <Form.Item
@@ -832,7 +831,7 @@ const EmpresasAdmin = () => {
 
       {/* Modal de Visualização */}
       <Modal
-        title="Visualizar Empresa"
+        title="Visualizar cadastro de fundador"
         open={viewModalVisible}
         onCancel={() => {
           setViewModalVisible(false)
@@ -854,7 +853,7 @@ const EmpresasAdmin = () => {
               {viewingEmpresa.imagem && (
                 <Image
                   src={viewingEmpresa.imagem}
-                  alt="Fachada"
+                  alt="Logomarca"
                   width={200}
                   height={200}
                   style={{ objectFit: 'cover', borderRadius: '8px' }}
@@ -870,15 +869,15 @@ const EmpresasAdmin = () => {
               <div>
                 <strong>Status:</strong>
                 <div>
-                  <Tag color={viewingEmpresa.status === 'aprovado' ? 'green' : viewingEmpresa.status === 'rejeitado' ? 'red' : 'orange'}>
-                    {viewingEmpresa.status === 'aprovado' ? 'Aprovado' : viewingEmpresa.status === 'rejeitado' ? 'Rejeitado' : 'Pendente'}
+                  <Tag color={viewingEmpresa.status === 'aprovado' ? 'green' : viewingEmpresa.status === 'rejeitado' ? 'red' : viewingEmpresa.status === 'pre-cadastro' ? 'blue' : 'orange'}>
+                    {viewingEmpresa.status === 'aprovado' ? 'Aprovado' : viewingEmpresa.status === 'rejeitado' ? 'Rejeitado' : viewingEmpresa.status === 'pre-cadastro' ? 'Fundador' : 'Pendente'}
                   </Tag>
                 </div>
               </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <strong>Nome da Empresa:</strong>
+              <strong>Nome da empresa (fundador):</strong>
               <div>{viewingEmpresa.nome || '-'}</div>
             </div>
 

@@ -66,7 +66,7 @@ const LayoutAssociado = () => {
     {
       key: '/associado/perfil',
       icon: <UserOutlined />,
-      label: 'Perfil e Dados da Empresa',
+      label: 'Perfil e cadastro de fundador',
     },
   ]
 

@@ -247,11 +247,11 @@ const Capacitacoes = () => {
               <div style={{ flex: 1, minWidth: '250px' }}>
                 <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666', fontWeight: 500 }}>
                   <ShopOutlined style={{ marginRight: '6px' }} />
-                  Empresa
+                  Fundador
                 </div>
                 <Select
                   showSearch
-                  placeholder="Selecione uma empresa"
+                  placeholder="Selecione um fundador"
                   optionFilterProp="children"
                   style={{ width: '100%' }}
                   allowClear
@@ -356,7 +356,7 @@ const Capacitacoes = () => {
               <>
                 {capacitacoesFiltradas.length === 0 ? (
                   <Empty
-                    description={filtroEmpresa ? "Nenhuma capacitação encontrada para esta empresa" : "Nenhuma capacitação disponível no momento"}
+                    description={filtroEmpresa ? "Nenhuma capacitação encontrada para este fundador" : "Nenhuma capacitação disponível no momento"}
                     style={{ padding: '64px 0' }}
                   />
                 ) : (

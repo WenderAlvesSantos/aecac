@@ -63,7 +63,7 @@ const Empresas = () => {
       const response = await getEmpresas()
       setEmpresas(response.data)
     } catch (error) {
-      console.error('Erro ao carregar empresas:', error)
+      console.error('Erro ao carregar fundadores:', error)
     } finally {
       setLoading(false)
     }
@@ -170,7 +170,7 @@ const Empresas = () => {
         />
         <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <Title level={1} style={{ color: '#fff', marginBottom: '16px', fontSize: window.innerWidth < 768 ? '32px' : '42px', fontWeight: 'bold', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-            Empresas Associadas
+            Fundadores associados
           </Title>
           <Paragraph
             style={{
@@ -179,8 +179,8 @@ const Empresas = () => {
               lineHeight: '1.8',
             }}
           >
-            Conheça as empresas que fazem parte da AECAC e fortalecem o
-            comércio em Águas Claras
+            Conheça os fundadores que fazem parte da AECAC e fortalecem o comércio em Águas
+            Claras
           </Paragraph>
         </div>
       </div>
@@ -191,7 +191,7 @@ const Empresas = () => {
           <Row gutter={[16, 16]}>
             <Col xs={24} sm={12} md={14}>
               <Search
-                placeholder="Buscar empresas por nome, descrição, telefone, email, endereço ou categoria..."
+                placeholder="Buscar fundadores por nome, descrição, telefone, e-mail, endereço ou categoria..."
                 allowClear
                 enterButton={<SearchOutlined />}
                 size="large"
@@ -221,22 +221,22 @@ const Empresas = () => {
           <Row gutter={[16, 16]} style={{ marginTop: '16px' }}>
             <Col xs={24}>
               <div style={{ fontSize: '14px', color: '#8c8c8c' }}>
-                💡 Dica: Use a busca para encontrar empresas por qualquer informação cadastrada
+                💡 Dica: Use a busca para encontrar fundadores por qualquer informação cadastrada
               </div>
             </Col>
           </Row>
         </div>
       </div>
 
-      {/* Lista de Empresas */}
+      {/* Lista de fundadores */}
       <div style={{ padding: window.innerWidth < 768 ? '16px 16px 32px' : '32px 24px 64px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           {filteredEmpresas.length === 0 ? (
             <Card style={{ textAlign: 'center', padding: '48px' }}>
-              <Title level={4}>Nenhuma empresa encontrada</Title>
+              <Title level={4}>Nenhum fundador encontrado</Title>
               <Paragraph>
                 {empresas.length === 0
-                  ? 'Nenhuma empresa cadastrada ainda.'
+                  ? 'Nenhum fundador cadastrado ainda.'
                   : 'Tente ajustar os filtros de busca ou categoria.'}
               </Paragraph>
             </Card>
@@ -245,7 +245,7 @@ const Empresas = () => {
               <div style={{ marginBottom: '16px' }}>
                 <Paragraph>
                   Mostrando {filteredEmpresas.length} de {empresas.length}{' '}
-                  empresas
+                  fundadores
                 </Paragraph>
               </div>
               <Row gutter={[24, 24]}>
@@ -449,7 +449,7 @@ const Empresas = () => {
       >
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <Title level={2} style={{ color: '#fff', marginBottom: '16px' }}>
-            Sua empresa também pode fazer parte
+            Sua empresa também pode ser fundadora
           </Title>
           <Paragraph
             style={{
@@ -458,7 +458,7 @@ const Empresas = () => {
               marginBottom: '32px',
             }}
           >
-            Associe-se à AECAC e faça parte dessa rede de empresas que está
+            Associe-se à AECAC e faça parte dessa rede de fundadores que está
             fortalecendo o comércio em Águas Claras.
           </Paragraph>
           <Button

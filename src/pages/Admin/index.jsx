@@ -44,7 +44,8 @@ const Admin = () => {
       >
         <Route path="eventos" element={<EventosAdmin />} />
         <Route path="parceiros" element={<ParceirosAdmin />} />
-        <Route path="empresas" element={<EmpresasAdmin />} />
+        <Route path="fundadores" element={<EmpresasAdmin />} />
+        <Route path="empresas" element={<Navigate to="/admin/fundadores" replace />} />
         <Route path="galeria" element={<GaleriaAdmin />} />
         <Route path="diretoria" element={<DiretoriaAdmin />} />
         <Route path="sobre" element={<SobreAdmin />} />

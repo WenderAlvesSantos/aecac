@@ -279,11 +279,11 @@ const Eventos = () => {
                   <div style={{ flex: 1, minWidth: '250px' }}>
                     <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666', fontWeight: 500 }}>
                       <ShopOutlined style={{ marginRight: '6px' }} />
-                      Empresa
+                      Fundador
                     </div>
                     <Select
                       showSearch
-                      placeholder="Selecione uma empresa"
+                      placeholder="Selecione um fundador"
                       optionFilterProp="children"
                       style={{ width: '100%' }}
                       allowClear
@@ -392,7 +392,7 @@ const Eventos = () => {
                   <>
                     {/* Eventos Futuros */}
                     {eventosFuturosFiltrados.length === 0 && eventosPassadosFiltrados.length === 0 ? (
-                      <Empty description={filtroEmpresa ? "Nenhum evento encontrado para esta empresa" : "Nenhum evento cadastrado"} />
+                      <Empty description={filtroEmpresa ? "Nenhum evento encontrado para este fundador" : "Nenhum evento cadastrado"} />
                     ) : eventosFuturosPaginados.length > 0 && (
                       <div style={{ marginBottom: '48px' }}>
                         <Title level={2} style={{ marginBottom: '24px' }}>

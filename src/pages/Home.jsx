@@ -182,7 +182,7 @@ const Home = () => {
                 onClick={() => navigate('/empresas')}
                 block={window.innerWidth < 768}
               >
-                Ver Empresas
+                Ver fundadores
               </Button>
             )}
           </Space>
@@ -206,7 +206,7 @@ const Home = () => {
                   bodyStyle={{ padding: '24px' }}
                 >
                   <Statistic
-                    title="Empresas Associadas"
+                    title="Fundadores associados"
                     value={stats.empresas}
                     prefix={<ShopOutlined style={{ color: '#1565c0' }} />}
                     valueStyle={{ color: '#1565c0', fontSize: '32px', fontWeight: 'bold' }}
@@ -324,8 +324,8 @@ const Home = () => {
               >
                 <Title level={4} style={{ color: '#00c853', marginBottom: '16px', fontSize: '20px', fontWeight: '600' }}>Visibilidade</Title>
                 <Paragraph style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: 0 }}>
-                  Aumente a visibilidade da sua empresa na região de Águas
-                  Claras.
+                  Aumente a visibilidade do seu negócio como fundador na região
+                  de Águas Claras.
                 </Paragraph>
               </Card>
             </Col>
@@ -501,7 +501,7 @@ const Home = () => {
                 e.currentTarget.style.background = 'linear-gradient(135deg, #00c853 0%, #00e676 100%)'
               }}
             >
-              {flags.preCadastroMode ? '🚀 Quero ser Fundador' : 'Associar Minha Empresa'}
+              {flags.preCadastroMode ? '🚀 Quero ser Fundador' : 'Quero ser fundador'}
             </Button>
           </Space>
         </div>

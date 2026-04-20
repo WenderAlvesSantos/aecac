@@ -120,7 +120,7 @@ const AssociadoLogin = () => {
           >
             <Input
               prefix={<UserOutlined />}
-              placeholder="Email da empresa aprovada"
+              placeholder="E-mail do cadastro de fundador aprovado"
             />
           </Form.Item>
 
@@ -156,7 +156,7 @@ const AssociadoLogin = () => {
 
           {!isRegister && (
             <div style={{ marginTop: '16px', padding: '12px', background: '#f0f7ff', borderRadius: '4px', fontSize: '12px', color: '#666' }}>
-              <strong>Primeira vez?</strong> Use o mesmo email cadastrado na sua empresa aprovada para criar sua conta de associado.
+              <strong>Primeira vez?</strong> Use o mesmo e-mail informado no cadastro de fundador aprovado para criar sua conta de associado.
             </div>
           )}
         </Form>

@@ -54,7 +54,7 @@ const Layout = ({ children }) => {
     !flags.preLancamento && flags.mostrarEmpresas && {
       key: '/empresas',
       icon: <ShopOutlined />,
-      label: 'Empresas',
+      label: 'Fundadores',
     },
     !flags.preLancamento && flags.mostrarEventos && {
       key: '/eventos',

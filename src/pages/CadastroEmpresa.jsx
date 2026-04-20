@@ -96,10 +96,10 @@ const CadastroEmpresa = () => {
   const { flags } = useFeatureFlags()
   
   const preCadastro = flags.preCadastroMode
-  const titulo = preCadastro ? 'Cadastro de Fundadores' : 'Cadastro de Empresa'
+  const titulo = preCadastro ? 'Cadastro de fundadores' : 'Cadastro de fundador'
   const subtitulo = preCadastro
-    ? 'Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e poucas empresas terão o título de fundador. Garanta sua posição.'
-    : 'Preencha o formulário abaixo para se associar à AECAC'
+    ? 'Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e há poucas vagas de fundador. Garanta a sua.'
+    : 'Preencha o formulário abaixo para se cadastrar como fundador da AECAC'
 
   const convertImageToBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -268,13 +268,13 @@ const CadastroEmpresa = () => {
       
       const mensagem = preCadastro
         ? 'Cadastro de fundador realizado com sucesso! Entraremos em contato em breve.'
-        : 'Cadastro realizado com sucesso! Aguarde a aprovação do administrador.'
+        : 'Cadastro de fundador enviado com sucesso! Aguarde a aprovação do administrador.'
       
       message.success(mensagem)
       form.resetFields()
       setSubmitted(true)
     } catch (error) {
-      message.error(error.response?.data?.error || 'Erro ao cadastrar empresa')
+      message.error(error.response?.data?.error || 'Erro ao enviar cadastro de fundador')
     } finally {
       setLoading(false)
     }
@@ -282,12 +282,12 @@ const CadastroEmpresa = () => {
 
   if (submitted) {
     const mensagemSucesso = preCadastro
-      ? 'Cadastro de Fundador Enviado com Sucesso!'
-      : 'Cadastro Enviado com Sucesso!'
+      ? 'Cadastro de fundador enviado com sucesso!'
+      : 'Cadastro de fundador enviado com sucesso!'
     
     const descricaoSucesso = preCadastro
       ? 'Seu cadastro de fundador foi recebido. Entraremos em contato em breve para os próximos passos!'
-      : 'Seu cadastro foi recebido e está aguardando aprovação do administrador. Você receberá uma notificação assim que sua empresa for aprovada.'
+      : 'Seu cadastro de fundador foi recebido e está aguardando aprovação. Você receberá uma notificação quando for aprovado.'
     
     return (
       <div style={{ padding: '64px 24px', background: '#f0f2f5', minHeight: '80vh' }}>
@@ -489,10 +489,10 @@ const CadastroEmpresa = () => {
 
             <Form.Item
               name="nome"
-              label="Nome da Empresa"
+              label="Nome da empresa (fundador)"
               rules={[{ required: true, message: 'Campo obrigatório' }]}
             >
-              <Input placeholder="Nome da sua empresa" />
+              <Input placeholder="Razão social ou nome fantasia" />
             </Form.Item>
 
             <Form.Item
@@ -500,7 +500,7 @@ const CadastroEmpresa = () => {
               label="Nome do Responsável"
               rules={[{ required: true, message: 'Campo obrigatório' }]}
             >
-              <Input placeholder="Nome completo do responsável pela empresa" />
+              <Input placeholder="Nome completo do responsável pelo cadastro de fundador" />
             </Form.Item>
 
             <Form.Item
@@ -524,7 +524,7 @@ const CadastroEmpresa = () => {
               label="Descrição"
               rules={[{ required: true, message: 'Campo obrigatório' }]}
             >
-              <TextArea rows={4} placeholder="Descreva sua empresa e seus serviços" maxLength={700} showCount />
+              <TextArea rows={4} placeholder="Descreva a empresa fundadora e seus serviços" maxLength={700} showCount />
             </Form.Item>
 
             <Form.Item
@@ -577,7 +577,7 @@ const CadastroEmpresa = () => {
               name="endereco"
               label="Endereço Completo"
             >
-              <TextArea rows={2} placeholder="Endereço completo da empresa" />
+              <TextArea rows={2} placeholder="Endereço completo do negócio" />
             </Form.Item>
 
             <Form.Item

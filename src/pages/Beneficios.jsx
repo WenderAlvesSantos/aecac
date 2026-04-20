@@ -212,11 +212,11 @@ const Beneficios = () => {
               <div style={{ flex: 1, minWidth: '250px' }}>
                 <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666', fontWeight: 500 }}>
                   <ShopOutlined style={{ marginRight: '6px' }} />
-                  Empresa
+                  Fundador
                 </div>
                 <Select
                   showSearch
-                  placeholder="Selecione uma empresa"
+                  placeholder="Selecione um fundador"
                   optionFilterProp="children"
                   style={{ width: '100%' }}
                   allowClear
@@ -318,7 +318,7 @@ const Beneficios = () => {
               <>
                 {beneficiosPaginados.length === 0 ? (
                   <Empty
-                    description={filtroEmpresa ? "Nenhum benefício encontrado para esta empresa" : "Nenhum benefício disponível no momento"}
+                    description={filtroEmpresa ? "Nenhum benefício encontrado para este fundador" : "Nenhum benefício disponível no momento"}
                     style={{ padding: '64px 0' }}
                   />
                 ) : (

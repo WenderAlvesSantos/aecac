@@ -37,7 +37,7 @@ const PerfilAssociado = () => {
           const empresaRes = await api.get(`/empresas/${perfilData.empresaId}`)
           setEmpresa(empresaRes.data)
         } catch (error) {
-          console.error('Erro ao buscar empresa:', error)
+          console.error('Erro ao buscar cadastro de fundador:', error)
         }
       }
 
@@ -172,13 +172,13 @@ const PerfilAssociado = () => {
           </Card>
         </Col>
 
-        {/* Dados da Empresa */}
+        {/* Cadastro de fundador (dados do negócio) */}
         <Col xs={24} lg={12}>
           <Card
             title={
               <Space>
                 <ShopOutlined />
-                <span>Dados da Empresa</span>
+                <span>Meu cadastro de fundador</span>
               </Space>
             }
             loading={loading}
@@ -188,7 +188,7 @@ const PerfilAssociado = () => {
                 icon={<EditOutlined />}
                 onClick={() => navigate('/associado/editar-empresa')}
               >
-                Editar Empresa
+                Editar cadastro
               </Button>
             }
           >
@@ -269,7 +269,7 @@ const PerfilAssociado = () => {
               </Space>
             ) : (
               <div>
-                <Text type="secondary">Nenhuma empresa vinculada</Text>
+                <Text type="secondary">Nenhum cadastro de fundador vinculado à sua conta</Text>
               </div>
             )}
           </Card>

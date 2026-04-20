@@ -88,9 +88,9 @@ const Dashboard = () => {
       label: 'Parceiros',
     },
     {
-      key: '/admin/empresas',
+      key: '/admin/fundadores',
       icon: <ShopOutlined />,
-      label: 'Empresas',
+      label: 'Fundadores',
     },
     {
       key: '/admin/galeria',
@@ -332,7 +332,7 @@ const Dashboard = () => {
                     hoverable
                   >
                     <Statistic
-                      title="Empresas"
+                      title="Fundadores"
                       value={stats.empresas}
                       prefix={<ShopOutlined />}
                       valueStyle={{ color: '#1a237e' }}

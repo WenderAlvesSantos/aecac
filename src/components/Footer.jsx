@@ -173,7 +173,7 @@ const Footer = () => {
                   href="/empresas"
                   style={{ color: 'rgba(255,255,255,0.85)', display: 'block' }}
                 >
-                  Empresas
+                  Fundadores
                 </a>
               )}
               {!flags.preLancamento && flags.mostrarGaleria && (

@@ -333,7 +333,7 @@ const ConfiguracoesAdmin = () => {
             name={['featureFlags', 'preCadastroMode']}
             label="Modo Cadastro de Fundadores"
             valuePropName="checked"
-            tooltip="Cadastro de empresa vira cadastro de fundadores (altera textos e status)"
+            tooltip="Todo o fluxo público e administrativo é tratado como cadastro de fundadores (textos e status iniciais)"
           >
             <Switch 
               checkedChildren="Ativo" 
@@ -365,7 +365,7 @@ const ConfiguracoesAdmin = () => {
 
           <Form.Item
             name={['featureFlags', 'mostrarEmpresas']}
-            label="Mostrar Empresas"
+            label="Mostrar fundadores (diretório público)"
             valuePropName="checked"
           >
             <Switch 
