@@ -51,7 +51,7 @@ const Footer = () => {
 
   const contato = configuracoes.contato || {}
   const redesSociais = configuracoes.redesSociais || {}
-  
+
   const hasContato = contato.telefone || contato.email || contato.endereco
   const hasRedesSociais = redesSociais.facebook || redesSociais.instagram || redesSociais.linkedin
   return (
