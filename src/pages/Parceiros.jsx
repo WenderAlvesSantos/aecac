@@ -1,350 +1,212 @@
 import { useState, useEffect } from 'react'
-import { Row, Col, Typography, Card, Tag, Space, Spin, Empty } from 'antd'
+import { motion } from 'motion/react'
 import {
-  BankOutlined,
-  ShopOutlined,
-  GlobalOutlined,
-  TrophyOutlined,
-} from '@ant-design/icons'
+  Building2,
+  Store,
+  Cpu,
+  GraduationCap,
+  Truck,
+  Megaphone,
+  Sparkles,
+  Headphones,
+  Wallet,
+  PartyPopper,
+} from 'lucide-react'
 import { getParceiros, getConfiguracoes } from '../lib/api'
+import { PublicLoading } from '../components/public-site/PublicLoading'
+import { PublicInnerHero } from '../components/public-site/PublicInnerHero'
+import { glassPanel, pillActive, pillIdle, ctaBlue, pageTitle } from '../components/public-site/publicUi'
 
-const { Title, Paragraph } = Typography
+function categoryKey(cat) {
+  if (!cat) return ''
+  return String(cat)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+}
 
-const getIconForCategory = (categoria) => {
-  const icons = {
-    Financeiro: <BankOutlined />,
-    Varejo: <ShopOutlined />,
-    Tecnologia: <GlobalOutlined />,
-    Educação: <TrophyOutlined />,
-    Logística: <GlobalOutlined />,
-    Marketing: <GlobalOutlined />,
-  }
-  return icons[categoria] || <GlobalOutlined />
+function iconFor(cat) {
+  const k = categoryKey(cat)
+  if (k.includes('finance')) return Building2
+  if (k.includes('varejo')) return Store
+  if (k.includes('tecnolog')) return Cpu
+  if (k.includes('educa')) return GraduationCap
+  if (k.includes('logist')) return Truck
+  if (k.includes('market')) return Megaphone
+  return Sparkles
 }
 
 const Parceiros = () => {
   const [parceiros, setParceiros] = useState([])
   const [loading, setLoading] = useState(true)
   const [emailContato, setEmailContato] = useState('contato@aecac.org.br')
+  const [activeFilter, setActiveFilter] = useState('todos')
 
   useEffect(() => {
-    loadData()
+    void (async () => {
+      try {
+        const [parceirosRes, configuracoesRes] = await Promise.all([getParceiros(), getConfiguracoes()])
+        setParceiros(parceirosRes.data)
+        if (configuracoesRes.data?.contato?.email) {
+          setEmailContato(configuracoesRes.data.contato.email)
+        }
+      } catch (e) {
+        console.error('Erro ao carregar dados:', e)
+      } finally {
+        setLoading(false)
+      }
+    })()
   }, [])
 
-  const loadData = async () => {
-    try {
-      const [parceirosRes, configuracoesRes] = await Promise.all([
-        getParceiros(),
-        getConfiguracoes(),
-      ])
-      setParceiros(parceirosRes.data)
-      if (configuracoesRes.data?.contato?.email) {
-        setEmailContato(configuracoesRes.data.contato.email)
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  if (loading) return <PublicLoading />
 
-  if (loading) {
-    return (
-      <div style={{ padding: '100px', textAlign: 'center' }}>
-        <Spin size="large" />
-      </div>
-    )
-  }
-
-
-  const categorias = [
-    'Financeiro',
-    'Varejo',
-    'Tecnologia',
-    'Educação',
-    'Logística',
-    'Marketing',
+  const uniqueCats = [...new Set(parceiros.map((p) => categoryKey(p.categoria)).filter(Boolean))]
+  const filterButtons = [
+    { id: 'todos', label: 'Todos' },
+    ...uniqueCats.map((id) => ({
+      id,
+      label: parceiros.find((p) => categoryKey(p.categoria) === id)?.categoria || id,
+    })),
   ]
 
+  const filtered =
+    activeFilter === 'todos'
+      ? parceiros
+      : parceiros.filter((p) => categoryKey(p.categoria) === activeFilter)
+
   return (
-    <>
-      <style>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-      <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
-      {/* Header Section */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
-          color: '#fff',
-          padding: window.innerWidth < 768 ? '50px 16px' : '100px 24px',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
+    <div className="pb-24">
+      <PublicInnerHero
+        title="Nossos parceiros"
+        subtitle="Conheça parceiros estratégicos que oferecem benefícios exclusivos para associados e fundadores"
       >
-        {/* Decorative elements */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '-30%',
-            right: '-10%',
-            width: '500px',
-            height: '500px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-20%',
-            left: '-10%',
-            width: '400px',
-            height: '400px',
-            background: 'rgba(0, 200, 83, 0.1)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <Title level={1} style={{ color: '#fff', marginBottom: '16px', fontSize: window.innerWidth < 768 ? '32px' : '42px', fontWeight: 'bold', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-            Nossos Parceiros
-          </Title>
-          <Paragraph
-            style={{
-              color: 'rgba(255,255,255,0.95)',
-              fontSize: window.innerWidth < 768 ? '16px' : '20px',
-              lineHeight: '1.8',
-            }}
-          >
-            Conheça nossos parceiros estratégicos que oferecem benefícios
-            exclusivos para empresas associadas
-          </Paragraph>
-        </div>
-      </div>
+        <motion.div
+          className="mt-12 flex flex-wrap justify-center gap-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.15 }}
+        >
+          {filterButtons.map((cat, index) => (
+            <motion.button
+              key={cat.id}
+              type="button"
+              onClick={() => setActiveFilter(cat.id)}
+              className={`rounded-full px-6 py-3 text-sm font-medium transition ${activeFilter === cat.id ? pillActive : pillIdle}`}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.04 }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              {cat.label}
+            </motion.button>
+          ))}
+        </motion.div>
+      </PublicInnerHero>
 
-      {/* Lista de Parceiros */}
-      <div style={{ padding: window.innerWidth < 768 ? '32px 16px' : '64px 24px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          {/* Filtros por Categoria */}
-          <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-            <Space wrap>
-              {categorias.map((categoria) => (
-                <Tag
-                  key={categoria}
-                  color="blue"
-                  style={{
-                    padding: '4px 16px',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {categoria}
-                </Tag>
-              ))}
-            </Space>
-          </div>
-
-          {/* Cards de Parceiros */}
-          {parceiros.length === 0 ? (
-            <Empty description="Nenhum parceiro cadastrado" />
+      <section className="px-6 py-8 lg:px-12">
+        <div className="mx-auto max-w-7xl">
+          {filtered.length === 0 ? (
+            <div className={`${glassPanel} py-16 text-center text-gray-400`}>Nenhum parceiro nesta categoria.</div>
           ) : (
-            <Row gutter={[24, 24]}>
-              {parceiros.map((parceiro, index) => (
-                <Col xs={24} sm={12} md={8} key={parceiro._id}>
-                  <Card
-                    hoverable
-                    style={{
-                      height: '100%',
-                      textAlign: 'center',
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                      border: '1px solid #e0e0e0',
-                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: '#fff',
-                      overflow: 'hidden',
-                      position: 'relative',
-                      opacity: 0,
-                      transform: 'translateY(30px)',
-                      animation: `fadeInUp 0.6s ease-out ${index * 0.1}s forwards`,
-                    }}
-                    bodyStyle={{ padding: '32px', position: 'relative', zIndex: 1 }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-8px)'
-                      e.currentTarget.style.boxShadow = `0 12px 24px ${parceiro.cor || '#1565c0'}33`
-                      const icon = e.currentTarget.querySelector('.partner-icon')
-                      if (icon) icon.style.transform = 'scale(1.15) rotate(5deg)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)'
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
-                      const icon = e.currentTarget.querySelector('.partner-icon')
-                      if (icon) icon.style.transform = 'scale(1) rotate(0deg)'
-                    }}
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((parceiro, index) => {
+                const Icon = iconFor(parceiro.categoria)
+                return (
+                  <motion.div
+                    key={parceiro._id}
+                    className={`${glassPanel} flex flex-col p-8 text-center`}
+                    initial={{ opacity: 0, y: 28 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: Math.min(index * 0.06, 0.35) }}
+                    whileHover={{ y: -8, borderColor: 'rgba(91, 155, 213, 0.35)' }}
                   >
-                    <div
-                      style={{
-                        fontSize: '56px',
-                        color: parceiro.cor || '#1565c0',
-                        marginBottom: '20px',
-                        transition: 'transform 0.3s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.1)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)'
-                      }}
-                    >
-                      {getIconForCategory(parceiro.categoria)}
+                    <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1e4d7b] to-[#5b9bd5] text-white shadow-lg">
+                      <Icon className="h-9 w-9" />
                     </div>
-                    <Title level={4} style={{ marginBottom: '12px', color: '#1a237e', fontSize: '20px', fontWeight: '600' }}>
-                      {parceiro.nome}
-                    </Title>
-                    <Tag 
-                      color={parceiro.cor || 'blue'} 
-                      style={{ 
-                        marginBottom: '16px',
-                        fontSize: '13px',
-                        padding: '4px 12px',
-                        borderRadius: '6px',
-                      }}
-                    >
-                      {parceiro.categoria}
-                    </Tag>
-                    <Paragraph style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: 0 }}>
-                      {parceiro.descricao}
-                    </Paragraph>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
+                    <h3 className="mb-3 text-xl font-bold text-white">{parceiro.nome}</h3>
+                    {parceiro.categoria && (
+                      <span className="mb-4 inline-block rounded-full bg-[#5b9bd5]/20 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-[#5b9bd5]">
+                        {parceiro.categoria}
+                      </span>
+                    )}
+                    <p className="flex-1 text-left text-sm leading-relaxed text-gray-400">{parceiro.descricao}</p>
+                  </motion.div>
+                )
+              })}
+            </div>
           )}
 
-          {/* Seção de Benefícios */}
-          <div style={{ marginTop: '64px' }}>
-            <Title level={2} style={{ textAlign: 'center', marginBottom: '48px', color: '#1a237e', fontSize: '32px', fontWeight: 'bold' }}>
-              Benefícios para Associados
-            </Title>
-            <Row gutter={[24, 24]}>
-              <Col xs={24} md={12}>
-                <Card
-                  hoverable
-                  style={{
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    border: '1px solid #e0e0e0',
-                    height: '100%',
-                    transition: 'all 0.3s ease',
-                  }}
-                  bodyStyle={{ padding: '28px' }}
-                >
-                  <Title level={4} style={{ color: '#1565c0', marginBottom: '16px', fontSize: '20px', fontWeight: '600' }}>Descontos Exclusivos</Title>
-                  <Paragraph style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: 0 }}>
-                    Aproveite descontos especiais em produtos e serviços dos
-                    nossos parceiros, exclusivos para empresas associadas à
-                    AECAC.
-                  </Paragraph>
-                </Card>
-              </Col>
-              <Col xs={24} md={12}>
-                <Card
-                  hoverable
-                  style={{
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    border: '1px solid #e0e0e0',
-                    height: '100%',
-                    transition: 'all 0.3s ease',
-                  }}
-                  bodyStyle={{ padding: '28px' }}
-                >
-                  <Title level={4} style={{ color: '#00c853', marginBottom: '16px', fontSize: '20px', fontWeight: '600' }}>Prioridade no Atendimento</Title>
-                  <Paragraph style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: 0 }}>
-                    Receba atendimento prioritário e personalizado dos nossos
-                    parceiros, com suporte dedicado ao seu negócio.
-                  </Paragraph>
-                </Card>
-              </Col>
-              <Col xs={24} md={12}>
-                <Card
-                  hoverable
-                  style={{
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    border: '1px solid #e0e0e0',
-                    height: '100%',
-                    transition: 'all 0.3s ease',
-                  }}
-                  bodyStyle={{ padding: '28px' }}
-                >
-                  <Title level={4} style={{ color: '#42a5f5', marginBottom: '16px', fontSize: '20px', fontWeight: '600' }}>Condições Especiais</Title>
-                  <Paragraph style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: 0 }}>
-                    Acesse condições especiais de pagamento e financiamento
-                    através dos nossos parceiros financeiros.
-                  </Paragraph>
-                </Card>
-              </Col>
-              <Col xs={24} md={12}>
-                <Card
-                  hoverable
-                  style={{
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    border: '1px solid #e0e0e0',
-                    height: '100%',
-                    transition: 'all 0.3s ease',
-                  }}
-                  bodyStyle={{ padding: '28px' }}
-                >
-                  <Title level={4} style={{ color: '#1a237e', marginBottom: '16px', fontSize: '20px', fontWeight: '600' }}>Eventos Exclusivos</Title>
-                  <Paragraph style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: 0 }}>
-                    Participe de eventos e workshops exclusivos organizados em
-                    parceria com nossos parceiros estratégicos.
-                  </Paragraph>
-                </Card>
-              </Col>
-            </Row>
+          <motion.h2
+            className={`${pageTitle} mt-24`}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            Benefícios para associados
+          </motion.h2>
+
+          <div className="mt-12 grid gap-8 md:grid-cols-2">
+            {[
+              {
+                title: 'Descontos exclusivos',
+                desc: 'Descontos em produtos e serviços dos parceiros para quem é associado.',
+                icon: Wallet,
+                accent: '#5b9bd5',
+              },
+              {
+                title: 'Prioridade no atendimento',
+                desc: 'Atendimento prioritário e personalizado ao seu negócio.',
+                icon: Headphones,
+                accent: '#6cb541',
+              },
+              {
+                title: 'Condições especiais',
+                desc: 'Condições diferenciadas de pagamento e financiamento com parceiros financeiros.',
+                icon: Building2,
+                accent: '#5b9bd5',
+              },
+              {
+                title: 'Eventos exclusivos',
+                desc: 'Workshops e encontros organizados com parceiros estratégicos.',
+                icon: PartyPopper,
+                accent: '#6cb541',
+              },
+            ].map((b, i) => (
+              <motion.div
+                key={b.title}
+                className={`${glassPanel} p-8`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+              >
+                <b.icon className="mb-4 h-8 w-8" style={{ color: b.accent }} />
+                <h4 className="mb-3 text-lg font-bold text-white">{b.title}</h4>
+                <p className="text-sm leading-relaxed text-gray-400">{b.desc}</p>
+              </motion.div>
+            ))}
           </div>
 
-          {/* CTA */}
-          <div
-            style={{
-              marginTop: '64px',
-              padding: window.innerWidth < 768 ? '32px 24px' : '48px',
-              background: 'linear-gradient(135deg, rgba(26, 35, 126, 0.05) 0%, rgba(21, 101, 192, 0.05) 50%, rgba(0, 200, 83, 0.05) 100%)',
-              borderRadius: '12px',
-              textAlign: 'center',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-              border: '1px solid #e0e0e0',
-            }}
+          <motion.div
+            className={`${glassPanel} mt-16 p-10 text-center sm:p-12`}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
           >
-            <Title level={3} style={{ color: '#1a237e', marginBottom: '16px', fontSize: '28px', fontWeight: 'bold' }}>Torne-se um Parceiro</Title>
-            <Paragraph style={{ fontSize: '16px', marginBottom: '24px', color: '#666', lineHeight: '1.8' }}>
-              Sua empresa pode se tornar um parceiro estratégico da AECAC e
-              oferecer benefícios exclusivos para nossos associados.
-            </Paragraph>
-            <Paragraph style={{ fontSize: '18px', color: '#1565c0', fontWeight: '600' }}>
-              Entre em contato: <a href={`mailto:${emailContato}`} style={{ color: '#1565c0' }}>{emailContato}</a>
-            </Paragraph>
-          </div>
+            <h3 className="mb-4 text-2xl font-bold text-white">Torne-se um parceiro</h3>
+            <p className="mx-auto mb-6 max-w-2xl text-gray-400">
+              Sua empresa pode se tornar parceira da AECAC e oferecer benefícios aos nossos associados.
+            </p>
+            <a href={`mailto:${emailContato}`} className={ctaBlue}>
+              {emailContato}
+            </a>
+          </motion.div>
         </div>
-      </div>
+      </section>
     </div>
-    </>
   )
 }
 
 export default Parceiros
-

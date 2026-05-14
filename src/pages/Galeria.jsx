@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Row, Col, Typography, Image, Modal, Spin, Empty } from 'antd'
-import { EyeOutlined } from '@ant-design/icons'
+import { motion, AnimatePresence } from 'motion/react'
+import { X, Maximize2 } from 'lucide-react'
 import { getGaleria } from '../lib/api'
-
-const { Title, Paragraph } = Typography
+import { ImageWithFallback } from '../components/public-site/ImageWithFallback'
+import { PublicLoading } from '../components/public-site/PublicLoading'
+import { PublicInnerHero } from '../components/public-site/PublicInnerHero'
+import { glassPanel } from '../components/public-site/publicUi'
 
 const Galeria = () => {
   const [selectedImage, setSelectedImage] = useState(null)
@@ -12,230 +14,111 @@ const Galeria = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadImages()
+    void (async () => {
+      try {
+        const response = await getGaleria()
+        const sorted = [...response.data].sort((a, b) => (a.order || 0) - (b.order || 0))
+        setImages(sorted)
+      } catch (e) {
+        console.error('Erro ao carregar imagens:', e)
+      } finally {
+        setLoading(false)
+      }
+    })()
   }, [])
 
-  const loadImages = async () => {
-    try {
-      const response = await getGaleria()
-      // Ordenar imagens pela ordem salva
-      const sortedImages = [...response.data].sort((a, b) => (a.order || 0) - (b.order || 0))
-      setImages(sortedImages)
-    } catch (error) {
-      console.error('Erro ao carregar imagens:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  if (loading) return <PublicLoading />
 
-  if (loading) {
-    return (
-      <div style={{ padding: '100px', textAlign: 'center' }}>
-        <Spin size="large" />
-      </div>
-    )
-  }
-
-  const handleImageClick = (image) => {
-    setSelectedImage(image)
+  const open = (img) => {
+    setSelectedImage(img)
     setIsModalOpen(true)
   }
 
-  const handleCloseModal = () => {
+  const close = () => {
     setIsModalOpen(false)
     setSelectedImage(null)
   }
 
   return (
-    <>
-      <style>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-      <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
-      {/* Header Section */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
-          color: '#fff',
-          padding: window.innerWidth < 768 ? '50px 16px' : '100px 24px',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Decorative elements */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '-30%',
-            right: '-10%',
-            width: '500px',
-            height: '500px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-20%',
-            left: '-10%',
-            width: '400px',
-            height: '400px',
-            background: 'rgba(0, 200, 83, 0.1)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <Title level={1} style={{ color: '#fff', marginBottom: '16px', fontSize: window.innerWidth < 768 ? '32px' : '42px', fontWeight: 'bold', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-            Galeria
-          </Title>
-          <Paragraph
-            style={{
-              color: 'rgba(255,255,255,0.95)',
-              fontSize: window.innerWidth < 768 ? '16px' : '20px',
-              lineHeight: '1.8',
-            }}
-          >
-            Confira os momentos marcantes dos nossos eventos e atividades
-          </Paragraph>
-        </div>
-      </div>
+    <div className="pb-24">
+      <PublicInnerHero title="Galeria" subtitle="Momentos marcantes da AECAC" />
 
-      {/* Galeria de Imagens */}
-      <div style={{ padding: window.innerWidth < 768 ? '32px 16px' : '64px 24px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <section className="px-6 py-8 lg:px-12">
+        <div className="mx-auto max-w-7xl">
           {images.length === 0 ? (
-            <Empty description="Nenhuma imagem disponível" />
+            <div className={`${glassPanel} py-20 text-center text-gray-400`}>Nenhuma imagem disponível no momento.</div>
           ) : (
-            <Row gutter={[16, 16]}>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {images.map((image, index) => (
-                <Col xs={24} sm={12} md={8} key={image._id || image.id}>
-                  <div
-                  style={{
-                    position: 'relative',
-                    cursor: 'pointer',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    transition: 'all 0.3s ease',
-                    border: '1px solid #e0e0e0',
-                    opacity: 0,
-                    transform: 'translateY(30px)',
-                    animation: `fadeInUp 0.6s ease-out ${index * 0.1}s forwards`,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.03)'
-                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)'
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
-                  }}
-                  onClick={() => handleImageClick(image)}
+                <motion.button
+                  key={image._id || image.id}
+                  type="button"
+                  className={`group relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-white/10 bg-white/5 text-left transition hover:border-[#5b9bd5]/40`}
+                  initial={{ opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: Math.min(index * 0.06, 0.4) }}
+                  onClick={() => open(image)}
                 >
-                  <Image
+                  <ImageWithFallback
                     src={image.url}
                     alt={image.title || 'Imagem'}
-                    style={{
-                      width: '100%',
-                      height: '300px',
-                      objectFit: 'cover',
-                    }}
-                    preview={false}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   />
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
-                      padding: '16px',
-                      color: '#fff',
-                    }}
-                  >
-                    <Title
-                      level={5}
-                      style={{ color: '#fff', margin: 0, marginBottom: '4px' }}
-                    >
-                      {image.title}
-                    </Title>
-                    {image.description && (
-                      <Paragraph
-                        style={{
-                          color: 'rgba(255,255,255,0.9)',
-                          margin: 0,
-                          fontSize: '12px',
-                        }}
-                      >
-                        {image.description}
-                      </Paragraph>
-                    )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <p className="text-base font-semibold">{image.title}</p>
+                    {image.description && <p className="mt-1 line-clamp-2 text-xs text-white/80">{image.description}</p>}
                   </div>
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '16px',
-                      right: '16px',
-                      background: 'rgba(255,255,255,0.9)',
-                      borderRadius: '50%',
-                      width: '40px',
-                      height: '40px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <EyeOutlined style={{ fontSize: '20px', color: '#1565c0' }} />
+                  <div className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-[#1e4d7b] shadow">
+                    <Maximize2 className="h-4 w-4" />
                   </div>
-                </div>
-                </Col>
+                </motion.button>
               ))}
-            </Row>
+            </div>
           )}
         </div>
-      </div>
+      </section>
 
-      {/* Modal para visualização ampliada */}
-      <Modal
-        open={isModalOpen}
-        onCancel={handleCloseModal}
-        footer={null}
-        width={window.innerWidth < 768 ? '95%' : 800}
-        centered
-      >
-        {selectedImage && (
-          <div>
-            <Image
-              src={selectedImage.url}
-              alt={selectedImage.title || 'Imagem'}
-              style={{ width: '100%', marginBottom: '20px', borderRadius: '8px' }}
-            />
-            <Title level={4} style={{ color: '#1a237e', marginBottom: '12px', fontSize: '22px', fontWeight: 'bold' }}>{selectedImage.title}</Title>
-            {selectedImage.description && (
-              <Paragraph style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: 0 }}>
-                {selectedImage.description}
-              </Paragraph>
-            )}
-          </div>
+      <AnimatePresence>
+        {isModalOpen && selectedImage && (
+          <motion.div
+            className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={close}
+          >
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              className={`${glassPanel} relative max-h-[90vh] max-w-4xl overflow-auto p-4 sm:p-6`}
+              initial={{ scale: 0.94, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.94, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="absolute right-3 top-3 rounded-full p-2 text-gray-400 transition hover:bg-white/10 hover:text-white"
+                onClick={close}
+                aria-label="Fechar"
+              >
+                <X className="h-6 w-6" />
+              </button>
+              <img
+                src={selectedImage.url}
+                alt={selectedImage.title || ''}
+                className="mb-4 max-h-[65vh] w-full rounded-2xl object-contain"
+              />
+              <h2 className="pr-10 text-2xl font-bold text-white">{selectedImage.title}</h2>
+              {selectedImage.description && <p className="mt-3 text-gray-400">{selectedImage.description}</p>}
+            </motion.div>
+          </motion.div>
         )}
-      </Modal>
+      </AnimatePresence>
     </div>
-    </>
   )
 }
 
 export default Galeria
-

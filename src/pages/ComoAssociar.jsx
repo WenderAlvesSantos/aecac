@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Row, Col, Typography, Card, Space, Button, Divider, Spin, Alert } from 'antd'
+import { Row, Col, Typography, Card, Space, Button, Divider, Spin } from 'antd'
+import { PublicInnerHero } from '../components/public-site/PublicInnerHero'
+import { glassPanel } from '../components/public-site/publicUi'
 import {
   GiftOutlined,
   TeamOutlined,
@@ -87,90 +89,27 @@ const ComoAssociar = () => {
           }
         }
       `}</style>
-      <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
-        {/* Header Section */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
-            color: '#fff',
-            padding: window.innerWidth < 768 ? '50px 16px' : '100px 24px',
-            textAlign: 'center',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          {/* Decorative elements */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '-30%',
-              right: '-10%',
-              width: '500px',
-              height: '500px',
-              background: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: '50%',
-              filter: 'blur(80px)',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '-20%',
-              left: '-10%',
-              width: '400px',
-              height: '400px',
-              background: 'rgba(0, 200, 83, 0.1)',
-              borderRadius: '50%',
-              filter: 'blur(80px)',
-            }}
-          />
-          <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-            {flags.preCadastroMode && (
-              <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  padding: '8px 20px',
-                  borderRadius: '20px',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <RocketOutlined style={{ fontSize: '18px' }} />
-                  <span style={{ fontSize: '14px', fontWeight: '600' }}>Em Breve</span>
+      <div className="pb-24 text-white">
+        <PublicInnerHero
+          badge={
+            flags.preCadastroMode ? (
+              <div className="mb-4 flex justify-center">
+                <div className={`${glassPanel} inline-flex items-center gap-2 rounded-full px-5 py-2`}>
+                  <RocketOutlined className="text-lg" />
+                  <span className="text-sm font-semibold">Em breve</span>
                 </div>
               </div>
-            )}
-            <Title
-              level={1}
-              style={{
-                color: '#fff',
-                marginBottom: '16px',
-                fontSize: window.innerWidth < 768 ? '32px' : '42px',
-                fontWeight: 'bold',
-                textShadow: '0 2px 10px rgba(0,0,0,0.2)',
-              }}
-            >
-              {flags.preCadastroMode ? 'Cadastro de Fundadores da AECAC' : 'Como ser fundador na AECAC'}
-            </Title>
-            <Paragraph
-              style={{
-                color: 'rgba(255,255,255,0.95)',
-                fontSize: window.innerWidth < 768 ? '16px' : '20px',
-                lineHeight: '1.8',
-              }}
-            >
-              {flags.preCadastroMode 
-                ? 'Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e há poucas vagas de fundador. Garanta a sua.'
-                : 'Junte-se à Associação Empresarial e Comercial de Águas Claras como fundador e fortaleça seu negócio com rede de apoio e oportunidades exclusivas.'
-              }
-            </Paragraph>
-          </div>
-        </div>
+            ) : null
+          }
+          title={flags.preCadastroMode ? 'Cadastro de fundadores da AECAC' : 'Como ser fundador na AECAC'}
+          subtitle={
+            flags.preCadastroMode
+              ? 'Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e há poucas vagas de fundador. Garanta a sua.'
+              : 'Junte-se à Associação Empresarial e Comercial de Águas Claras como fundador e fortaleça seu negócio com rede de apoio e oportunidades exclusivas.'
+          }
+        />
 
-        {/* Content Section */}
-        <div style={{ padding: window.innerWidth < 768 ? '32px 16px' : '64px 24px', maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="mx-auto max-w-6xl px-6 pb-8 lg:px-12">
           {/* Alert de Pré-Lançamento */}
           {/* {flags.preCadastroMode && (
             <Alert

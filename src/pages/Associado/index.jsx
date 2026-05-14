@@ -8,6 +8,7 @@ import BeneficiosAssociado from './BeneficiosAssociado'
 import CapacitacoesAssociado from './CapacitacoesAssociado'
 import EventosAssociado from './EventosAssociado'
 import PerfilAssociado from './PerfilAssociado'
+import '../../styles/admin-associado.css'
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('associadoToken')
@@ -25,6 +26,7 @@ const Associado = () => {
   }, [token, navigate])
 
   return (
+    <div className="aecac-managed-ui min-h-screen">
     <Routes>
       <Route path="login" element={<Login />} />
       <Route
@@ -52,6 +54,7 @@ const Associado = () => {
         <Route path="*" element={<Navigate to="/associado/dashboard" replace />} />
       </Route>
     </Routes>
+    </div>
   )
 }
 

@@ -1,51 +1,34 @@
 import { useState, useEffect } from 'react'
-import {
-  Row,
-  Col,
-  Typography,
-  Card,
-  Input,
-  Select,
-  Tag,
-  Space,
-  Button,
-  Spin,
-  Tooltip,
-} from 'antd'
-import { SearchOutlined, ShopOutlined, PhoneOutlined, MailOutlined, GlobalOutlined, FacebookOutlined, InstagramOutlined, LinkedinOutlined, WhatsAppOutlined } from '@ant-design/icons'
+import { motion } from 'motion/react'
+import { Search, MapPin, Phone, Globe, Mail } from 'lucide-react'
+import { FacebookOutlined, InstagramOutlined, LinkedinOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { getEmpresas } from '../lib/api'
+import { ImageWithFallback } from '../components/public-site/ImageWithFallback'
+import { PublicLoading } from '../components/public-site/PublicLoading'
+import { PublicInnerHero } from '../components/public-site/PublicInnerHero'
+import { glassPanel, inputDark, selectDark, ctaBlue } from '../components/public-site/publicUi'
 
-const { Title, Paragraph } = Typography
-const { Search } = Input
-const { Option } = Select
-
-// Função para formatar telefone
 const formatPhone = (value) => {
   if (!value) return ''
-  // Remove tudo que não é dígito
   const numbers = value.replace(/\D/g, '')
-  
-  // Aplica máscara: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
   if (numbers.length <= 10) {
     return numbers.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '')
-  } else {
-    return numbers.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '')
   }
+  return numbers.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '')
 }
 
-// Função para gerar link do WhatsApp
 const getWhatsAppLink = (whatsapp) => {
   if (!whatsapp) return null
-  // Remove formatação e adiciona código do país (55 para Brasil)
   const numbers = whatsapp.replace(/\D/g, '')
-  // Se não começar com 55, adiciona
   if (numbers.length >= 10) {
     const phoneNumber = numbers.startsWith('55') ? numbers : `55${numbers}`
     return `https://wa.me/${phoneNumber}`
   }
   return null
 }
+
+const categorias = ['all', 'Varejo', 'Alimentação', 'Tecnologia', 'Saúde', 'Serviços', 'Beleza', 'Construção']
 
 const Empresas = () => {
   const navigate = useNavigate()
@@ -55,426 +38,205 @@ const Empresas = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadEmpresas()
+    void (async () => {
+      try {
+        const response = await getEmpresas()
+        setEmpresas(response.data)
+      } catch (e) {
+        console.error('Erro ao carregar fundadores:', e)
+      } finally {
+        setLoading(false)
+      }
+    })()
   }, [])
 
-  const loadEmpresas = async () => {
-    try {
-      const response = await getEmpresas()
-      setEmpresas(response.data)
-    } catch (error) {
-      console.error('Erro ao carregar fundadores:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div style={{ padding: '100px', textAlign: 'center' }}>
-        <Spin size="large" />
-      </div>
-    )
-  }
-
-
-  const categorias = [
-    'all',
-    'Varejo',
-    'Alimentação',
-    'Tecnologia',
-    'Saúde',
-    'Serviços',
-    'Beleza',
-    'Construção',
-  ]
-
-  const getCategoryColor = (categoria) => {
-    const colors = {
-      Varejo: 'blue',
-      Alimentação: 'orange',
-      Tecnologia: 'purple',
-      Saúde: 'green',
-      Serviços: 'cyan',
-      Beleza: 'pink',
-      Construção: 'geekblue',
-    }
-    return colors[categoria] || 'default'
-  }
+  if (loading) return <PublicLoading />
 
   const filteredEmpresas = empresas.filter((empresa) => {
     const searchLower = searchTerm.toLowerCase()
     const matchesSearch =
       !searchTerm ||
-      empresa.nome.toLowerCase().includes(searchLower) ||
+      empresa.nome?.toLowerCase().includes(searchLower) ||
       empresa.descricao?.toLowerCase().includes(searchLower) ||
       empresa.telefone?.includes(searchTerm) ||
       empresa.email?.toLowerCase().includes(searchLower) ||
       empresa.endereco?.toLowerCase().includes(searchLower) ||
       empresa.categoria?.toLowerCase().includes(searchLower)
-    const matchesCategory =
-      selectedCategory === 'all' || empresa.categoria === selectedCategory
+    const matchesCategory = selectedCategory === 'all' || empresa.categoria === selectedCategory
     return matchesSearch && matchesCategory
   })
 
   return (
-    <>
-      <style>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-      <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
-      {/* Header Section */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
-          color: '#fff',
-          padding: window.innerWidth < 768 ? '50px 16px' : '100px 24px',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Decorative elements */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '-30%',
-            right: '-10%',
-            width: '500px',
-            height: '500px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-20%',
-            left: '-10%',
-            width: '400px',
-            height: '400px',
-            background: 'rgba(0, 200, 83, 0.1)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <Title level={1} style={{ color: '#fff', marginBottom: '16px', fontSize: window.innerWidth < 768 ? '32px' : '42px', fontWeight: 'bold', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-            Fundadores associados
-          </Title>
-          <Paragraph
-            style={{
-              color: 'rgba(255,255,255,0.95)',
-              fontSize: window.innerWidth < 768 ? '16px' : '20px',
-              lineHeight: '1.8',
-            }}
-          >
-            Conheça os fundadores que fazem parte da AECAC e fortalecem o comércio em Águas
-            Claras
-          </Paragraph>
-        </div>
-      </div>
+    <div className="pb-24">
+      <PublicInnerHero
+        title="Fundadores associados"
+        subtitle="Conheça os fundadores que fazem parte da AECAC e fortalecem o comércio em Águas Claras"
+      />
 
-      {/* Filtros e Busca Avançada */}
-      <div style={{ padding: window.innerWidth < 768 ? '16px 16px 0' : '32px 24px 0' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12} md={14}>
-              <Search
-                placeholder="Buscar fundadores por nome, descrição, telefone, e-mail, endereço ou categoria..."
-                allowClear
-                enterButton={<SearchOutlined />}
-                size="large"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={10}>
-              <Select
-                placeholder="Filtrar por categoria"
-                size="large"
-                style={{ width: '100%' }}
-                value={selectedCategory}
-                onChange={setSelectedCategory}
-              >
-                <Option value="all">Todas as categorias</Option>
-                {categorias
-                  .filter((cat) => cat !== 'all')
-                  .map((categoria) => (
-                    <Option key={categoria} value={categoria}>
-                      {categoria}
-                    </Option>
-                  ))}
-              </Select>
-            </Col>
-          </Row>
-          <Row gutter={[16, 16]} style={{ marginTop: '16px' }}>
-            <Col xs={24}>
-              <div style={{ fontSize: '14px', color: '#8c8c8c' }}>
-                💡 Dica: Use a busca para encontrar fundadores por qualquer informação cadastrada
+      <div className="mx-auto max-w-7xl px-6 lg:px-12">
+          <div className="mx-auto max-w-4xl">
+            <div className={`${glassPanel} p-6 sm:p-8`}>
+              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end">
+                <div className="min-w-0 flex-1">
+                  <label className="mb-2 block text-sm text-gray-400">Buscar</label>
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                    <input
+                      type="text"
+                      placeholder="Nome, descrição, telefone, e-mail, endereço ou categoria..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className={`${inputDark} pl-12`}
+                    />
+                  </div>
+                </div>
+                <div className="w-full sm:w-56">
+                  <label className="mb-2 block text-sm text-gray-400">Categoria</label>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className={selectDark}
+                  >
+                    <option value="all">Todas</option>
+                    {categorias
+                      .filter((c) => c !== 'all')
+                      .map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                  </select>
+                </div>
               </div>
-            </Col>
-          </Row>
+              <p className="text-sm text-gray-500">Dica: combine busca e categoria para refinar o diretório.</p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Lista de fundadores */}
-      <div style={{ padding: window.innerWidth < 768 ? '16px 16px 32px' : '32px 24px 64px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <section className="px-6 py-8 lg:px-12">
+        <div className="mx-auto max-w-7xl">
           {filteredEmpresas.length === 0 ? (
-            <Card style={{ textAlign: 'center', padding: '48px' }}>
-              <Title level={4}>Nenhum fundador encontrado</Title>
-              <Paragraph>
-                {empresas.length === 0
-                  ? 'Nenhum fundador cadastrado ainda.'
-                  : 'Tente ajustar os filtros de busca ou categoria.'}
-              </Paragraph>
-            </Card>
+            <div className={`${glassPanel} py-16 text-center`}>
+              <p className="text-lg text-gray-300">Nenhum fundador encontrado</p>
+              <p className="mt-2 text-gray-500">
+                {empresas.length === 0 ? 'Nenhum fundador cadastrado ainda.' : 'Ajuste os filtros ou a busca.'}
+              </p>
+            </div>
           ) : (
             <>
-              <div style={{ marginBottom: '16px' }}>
-                <Paragraph>
-                  Mostrando {filteredEmpresas.length} de {empresas.length}{' '}
-                  fundadores
-                </Paragraph>
-              </div>
-              <Row gutter={[24, 24]}>
+              <p className="mb-8 text-center text-gray-400">
+                Mostrando {filteredEmpresas.length} de {empresas.length} fundadores
+              </p>
+              <div className="grid gap-8 md:grid-cols-2">
                 {filteredEmpresas.map((empresa, index) => (
-                  <Col xs={24} sm={12} md={8} key={empresa._id}>
-                    <Card
-                      hoverable
-                      style={{
-                        height: '100%',
-                        borderRadius: '12px',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                        border: '1px solid #e0e0e0',
-                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                        overflow: 'hidden',
-                        background: '#fff',
-                        opacity: 0,
-                        transform: 'translateY(30px)',
-                        animation: `fadeInUp 0.6s ease-out ${index * 0.1}s forwards`,
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-8px)'
-                        e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)'
-                        const cover = e.currentTarget.querySelector('.ant-card-cover')
-                        if (cover) {
-                          const img = cover.querySelector('img')
-                          if (img) img.style.transform = 'scale(1.05)'
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)'
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
-                        const cover = e.currentTarget.querySelector('.ant-card-cover')
-                        if (cover) {
-                          const img = cover.querySelector('img')
-                          if (img) img.style.transform = 'scale(1)'
-                        }
-                      }}
-                      cover={
-                        empresa.imagem ? (
-                          <img
-                            alt={empresa.nome}
-                            src={empresa.imagem}
-                            style={{
-                              height: '200px',
-                              objectFit: 'cover',
-                              width: '100%',
-                            }}
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              height: '200px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              background: '#f0f0f0',
-                            }}
-                          >
-                            <ShopOutlined
-                              style={{
-                                fontSize: '64px',
-                                color: '#1890ff',
-                              }}
-                            />
+                  <motion.article
+                    key={empresa._id}
+                    className={`${glassPanel} overflow-hidden`}
+                    initial={{ opacity: 0, y: 28 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: Math.min(index * 0.05, 0.35) }}
+                    whileHover={{ y: -8, borderColor: 'rgba(91, 155, 213, 0.35)' }}
+                  >
+                    <div className="relative h-52 overflow-hidden bg-gradient-to-br from-[#1e4d7b] to-[#5b9bd5]">
+                      {empresa.imagem ? (
+                        <ImageWithFallback src={empresa.imagem} alt={empresa.nome} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-5xl text-white/40">AECAC</div>
+                      )}
+                    </div>
+                    <div className="p-8 sm:p-10">
+                      <div className="mb-4 text-center">
+                        <h3 className="mb-3 text-2xl font-bold text-white">{empresa.nome}</h3>
+                        {empresa.categoria && (
+                          <span className="inline-block rounded-full bg-[#5b9bd5]/20 px-4 py-1 text-sm font-medium text-[#5b9bd5]">
+                            {empresa.categoria}
+                          </span>
+                        )}
+                      </div>
+                      {empresa.descricao && (
+                        <p className="mb-6 line-clamp-5 text-center text-sm leading-relaxed text-gray-400">
+                          {empresa.descricao.length > 280 ? `${empresa.descricao.slice(0, 280)}…` : empresa.descricao}
+                        </p>
+                      )}
+                      <div className="space-y-3 border-t border-white/10 pt-6 text-sm text-gray-400">
+                        {empresa.telefone && (
+                          <div className="flex items-center gap-3">
+                            <Phone className="h-4 w-4 shrink-0 text-[#5b9bd5]" />
+                            <span>{formatPhone(empresa.telefone)}</span>
                           </div>
-                        )
-                      }
-                    >
-                      <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                        <Title level={4} style={{ marginBottom: '8px' }}>
-                          {empresa.nome}
-                        </Title>
-                        <Tag color={getCategoryColor(empresa.categoria)}>
-                          {empresa.categoria}
-                        </Tag>
-                      </div>
-                          {empresa.descricao && (
-                            <Tooltip 
-                              title={empresa.descricao.length > 250 ? (
-                                <div style={{ whiteSpace: 'pre-line', maxWidth: '400px' }}>
-                                  {empresa.descricao}
-                                </div>
-                              ) : null}
-                              placement="top"
+                        )}
+                        {empresa.email && (
+                          <div className="flex items-center gap-3">
+                            <Mail className="h-4 w-4 shrink-0 text-[#5b9bd5]" />
+                            <span className="truncate">{empresa.email}</span>
+                          </div>
+                        )}
+                        {empresa.endereco && (
+                          <div className="flex items-start gap-3">
+                            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#5b9bd5]" />
+                            <span>{empresa.endereco}</span>
+                          </div>
+                        )}
+                        {empresa.site && (
+                          <div className="flex items-center gap-3">
+                            <Globe className="h-4 w-4 shrink-0 text-[#5b9bd5]" />
+                            <a href={empresa.site} target="_blank" rel="noopener noreferrer" className="text-[#5b9bd5] hover:underline">
+                              Site
+                            </a>
+                          </div>
+                        )}
+                        <div className="flex flex-wrap items-center gap-3 pt-2">
+                          {empresa.whatsapp && getWhatsAppLink(empresa.whatsapp) && (
+                            <a
+                              href={getWhatsAppLink(empresa.whatsapp)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-medium text-[#25D366] hover:underline"
                             >
-                              <Paragraph 
-                                style={{ 
-                                  marginBottom: '16px',
-                                  whiteSpace: 'pre-line',
-                                  cursor: empresa.descricao.length > 250 ? 'help' : 'default'
-                                }}
-                              >
-                                {empresa.descricao.length > 250
-                                  ? empresa.descricao.substring(0, 250) + '...'
-                                  : empresa.descricao}
-                              </Paragraph>
-                            </Tooltip>
+                              WhatsApp
+                            </a>
                           )}
-                      <div
-                        style={{
-                          borderTop: '1px solid #f0f0f0',
-                          paddingTop: '16px',
-                        }}
-                      >
-                        <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                          {empresa.telefone && (
-                            <div style={{ fontSize: '12px', color: '#666' }}>
-                              <PhoneOutlined style={{ marginRight: '8px' }} />
-                              <span>{formatPhone(empresa.telefone)}</span>
-                            </div>
+                          {empresa.facebook && (
+                            <a href={empresa.facebook} target="_blank" rel="noopener noreferrer" className="text-[#1877f2] hover:opacity-80">
+                              <FacebookOutlined className="text-lg" />
+                            </a>
                           )}
-                          {empresa.email && (
-                            <div style={{ fontSize: '12px', color: '#666' }}>
-                              <MailOutlined style={{ marginRight: '8px' }} />
-                              <span>{empresa.email}</span>
-                            </div>
+                          {empresa.instagram && (
+                            <a href={empresa.instagram} target="_blank" rel="noopener noreferrer" className="text-[#e4405f] hover:opacity-80">
+                              <InstagramOutlined className="text-lg" />
+                            </a>
                           )}
-                          {empresa.endereco && (
-                            <div style={{ fontSize: '12px', color: '#666' }}>
-                              {empresa.endereco}
-                            </div>
+                          {empresa.linkedin && (
+                            <a href={empresa.linkedin} target="_blank" rel="noopener noreferrer" className="text-[#0077b5] hover:opacity-80">
+                              <LinkedinOutlined className="text-lg" />
+                            </a>
                           )}
-                          {empresa.site && (
-                            <div style={{ fontSize: '12px', color: '#666' }}>
-                              <GlobalOutlined style={{ marginRight: '8px' }} />
-                              <a 
-                                href={empresa.site} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                style={{ color: '#1890ff' }}
-                              >
-                                Site
-                              </a>
-                            </div>
-                          )}
-                          {(empresa.whatsapp || empresa.facebook || empresa.instagram || empresa.linkedin) && (
-                            <div style={{ fontSize: '12px', color: '#666', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                              {empresa.whatsapp && getWhatsAppLink(empresa.whatsapp) && (
-                                <Tooltip title="Abrir WhatsApp">
-                                  <a
-                                    href={getWhatsAppLink(empresa.whatsapp)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{ color: '#25D366' }}
-                                  >
-                                    <WhatsAppOutlined style={{ fontSize: '18px' }} />
-                                  </a>
-                                </Tooltip>
-                              )}
-                              {empresa.facebook && (
-                                <a
-                                  href={empresa.facebook}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{ color: '#1877f2' }}
-                                >
-                                  <FacebookOutlined style={{ fontSize: '16px' }} />
-                                </a>
-                              )}
-                              {empresa.instagram && (
-                                <a
-                                  href={empresa.instagram}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{ color: '#e4405f' }}
-                                >
-                                  <InstagramOutlined style={{ fontSize: '16px' }} />
-                                </a>
-                              )}
-                              {empresa.linkedin && (
-                                <a
-                                  href={empresa.linkedin}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{ color: '#0077b5' }}
-                                >
-                                  <LinkedinOutlined style={{ fontSize: '16px' }} />
-                                </a>
-                              )}
-                            </div>
-                          )}
-                        </Space>
+                        </div>
                       </div>
-                    </Card>
-                  </Col>
+                    </div>
+                  </motion.article>
                 ))}
-              </Row>
+              </div>
             </>
           )}
         </div>
-      </div>
+      </section>
 
-      {/* CTA para Associar-se */}
-      <div
-        style={{
-          padding: '64px 24px',
-          background: '#1890ff',
-          color: '#fff',
-          textAlign: 'center',
-        }}
-      >
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <Title level={2} style={{ color: '#fff', marginBottom: '16px' }}>
-            Sua empresa também pode ser fundadora
-          </Title>
-          <Paragraph
-            style={{
-              color: 'rgba(255,255,255,0.9)',
-              fontSize: '18px',
-              marginBottom: '32px',
-            }}
-          >
-            Associe-se à AECAC e faça parte dessa rede de fundadores que está
-            fortalecendo o comércio em Águas Claras.
-          </Paragraph>
-          <Button
-            type="default"
-            size="large"
-            onClick={() => navigate('/como-associar')}
-            style={{ background: '#fff', color: '#1890ff' }}
-          >
-            Saiba Como Associar-se
-          </Button>
+      <section className="relative overflow-hidden px-6 py-20 lg:px-12">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1e4d7b] to-[#5b9bd5]" />
+        <div className="relative z-10 mx-auto max-w-3xl text-center">
+          <h2 className="mb-4 text-3xl font-bold text-white sm:text-4xl">Sua empresa também pode ser fundadora</h2>
+          <p className="mb-8 text-lg text-white/90">
+            Associe-se à AECAC e faça parte da rede que fortalece o comércio em Águas Claras.
+          </p>
+          <button type="button" onClick={() => navigate('/como-associar')} className={ctaBlue}>
+            Como associar
+          </button>
         </div>
-      </div>
+      </section>
     </div>
-    </>
   )
 }
 
 export default Empresas
-

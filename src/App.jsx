@@ -1,8 +1,7 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { FeatureFlagsProvider } from './contexts/FeatureFlagsContext'
-import Layout from './components/Layout'
-import './styles/admin-associado.css'
+import PublicLayout from './components/public-site/PublicLayout'
 import Home from './pages/Home'
 import Sobre from './pages/Sobre'
 import Galeria from './pages/Galeria'
@@ -26,7 +25,7 @@ function App() {
           <Route
             path="/*"
             element={
-              <Layout>
+              <PublicLayout>
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/sobre" element={<Sobre />} />
@@ -37,9 +36,10 @@ function App() {
                   <Route path="/beneficios" element={<Beneficios />} />
                   <Route path="/capacitacoes" element={<Capacitacoes />} />
                   <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
+                  <Route path="/cadastro-fundadores" element={<Navigate to="/cadastro-empresa" replace />} />
                   <Route path="/como-associar" element={<ComoAssociar />} />
                 </Routes>
-              </Layout>
+              </PublicLayout>
             }
           />
         </Routes>

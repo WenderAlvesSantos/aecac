@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Row, Col, Typography, Card, Tag, Space, Button, Calendar, Badge, Spin, Empty, Modal, Form, Input, message, Statistic, Select, Pagination } from 'antd'
+import { Row, Col, Typography, Card, Tag, Space, Button, Calendar, Badge, Empty, Modal, Form, Input, message, Statistic, Select, Pagination } from 'antd'
 import { CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined, UserOutlined, BankOutlined, ShopOutlined, FilterOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { getEventosPublicos, inscreverEventoPublico, getEmpresas } from '../lib/api'
+import { PublicLoading } from '../components/public-site/PublicLoading'
+import { PublicInnerHero } from '../components/public-site/PublicInnerHero'
+import { glassPanel } from '../components/public-site/publicUi'
 
 const { Title, Paragraph } = Typography
 
@@ -119,11 +122,7 @@ const Eventos = () => {
   }
 
   if (loading) {
-    return (
-      <div style={{ padding: '100px', textAlign: 'center' }}>
-        <Spin size="large" />
-      </div>
-    )
+    return <PublicLoading label="Carregando eventos…" />
   }
 
   const getCategoryColor = (categoria) => {
@@ -181,104 +180,44 @@ const Eventos = () => {
           }
         }
       `}</style>
-      <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
-      {/* Header Section */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
-          color: '#fff',
-          padding: window.innerWidth < 768 ? '50px 16px' : '100px 24px',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Decorative elements */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '-30%',
-            right: '-10%',
-            width: '500px',
-            height: '500px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
+      <div className="pb-24 text-white">
+        <PublicInnerHero
+          title="Eventos"
+          subtitle="Confira nossos eventos, workshops, palestras e encontros empresariais"
         />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-20%',
-            left: '-10%',
-            width: '400px',
-            height: '400px',
-            background: 'rgba(0, 200, 83, 0.1)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <Title level={1} style={{ color: '#fff', marginBottom: '16px', fontSize: window.innerWidth < 768 ? '32px' : '42px', fontWeight: 'bold', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-            Eventos
-          </Title>
-          <Paragraph
-            style={{
-              color: 'rgba(255,255,255,0.95)',
-              fontSize: window.innerWidth < 768 ? '16px' : '20px',
-              lineHeight: '1.8',
-            }}
-          >
-            Confira nossos eventos, workshops, palestras e encontros
-            empresariais
-          </Paragraph>
-        </div>
-      </div>
 
-      {/* Toggle View Mode */}
-      <div style={{ padding: window.innerWidth < 768 ? '16px' : '24px', textAlign: 'center' }}>
-        <Space>
-          <Button
-            type={viewMode === 'list' ? 'primary' : 'default'}
-            onClick={() => setViewMode('list')}
-          >
-            Lista
-          </Button>
-          <Button
-            type={viewMode === 'calendar' ? 'primary' : 'default'}
-            onClick={() => setViewMode('calendar')}
-          >
-            Calendário
-          </Button>
-        </Space>
-      </div>
+        <div className="mx-auto max-w-6xl px-6 pb-8 lg:px-12">
+          <div className="mb-8 flex justify-center">
+            <Space>
+              <Button
+                type={viewMode === 'list' ? 'primary' : 'default'}
+                onClick={() => setViewMode('list')}
+              >
+                Lista
+              </Button>
+              <Button
+                type={viewMode === 'calendar' ? 'primary' : 'default'}
+                onClick={() => setViewMode('calendar')}
+              >
+                Calendário
+              </Button>
+            </Space>
+          </div>
 
-      <div style={{ padding: window.innerWidth < 768 ? '0 16px 32px' : '0 24px 64px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           {viewMode === 'list' ? (
             <>
               {/* Filtros */}
-              <div 
-                style={{ 
-                  marginBottom: '32px', 
-                  paddingTop: '24px',
-                  background: '#fff',
-                  borderRadius: '12px',
-                  padding: '24px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                  border: '1px solid #e8e8e8'
-                }}
-              >
-                <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <FilterOutlined style={{ fontSize: '18px', color: '#1a237e' }} />
-                  <Title level={5} style={{ margin: 0, color: '#1a237e', fontWeight: 600 }}>
+              <div className={`${glassPanel} mb-8 p-6`}>
+                <div className="mb-4 flex items-center gap-2">
+                  <FilterOutlined className="text-lg text-sky-400" />
+                  <Title level={5} className="!m-0 !font-semibold !text-white/90">
                     Filtros
                   </Title>
                 </div>
                 <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1, minWidth: '250px' }}>
-                    <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666', fontWeight: 500 }}>
-                      <ShopOutlined style={{ marginRight: '6px' }} />
+                    <div className="mb-2 text-sm font-medium text-zinc-400">
+                      <ShopOutlined className="mr-1.5" />
                       Fundador
                     </div>
                     <Select
@@ -319,7 +258,7 @@ const Eventos = () => {
                     />
                   </div>
                   <div style={{ flex: 1, minWidth: '200px' }}>
-                    <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666', fontWeight: 500 }}>
+                    <div className="mb-2 text-sm font-medium text-zinc-400">
                       Categoria
                     </div>
                     <Select
@@ -395,7 +334,7 @@ const Eventos = () => {
                       <Empty description={filtroEmpresa ? "Nenhum evento encontrado para este fundador" : "Nenhum evento cadastrado"} />
                     ) : eventosFuturosPaginados.length > 0 && (
                       <div style={{ marginBottom: '48px' }}>
-                        <Title level={2} style={{ marginBottom: '24px' }}>
+                        <Title level={2} className="!mb-6 !text-white">
                           Próximos Eventos
                         </Title>
                         <Row gutter={[24, 24]}>
@@ -403,21 +342,19 @@ const Eventos = () => {
                             <Col xs={24} md={12} key={evento._id}>
                         <Card
                           hoverable
+                          className="!border-white/10 !bg-white/[0.04]"
                           style={{
                             height: '100%',
-                            borderRadius: '12px',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                            border: '1px solid #e0e0e0',
+                            borderRadius: '16px',
                             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                             overflow: 'hidden',
-                            background: '#fff',
                             opacity: 0,
                             transform: 'translateY(30px)',
                             animation: `fadeInUp 0.6s ease-out ${index * 0.1}s forwards`,
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'translateY(-8px)'
-                            e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)'
+                            e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.35)'
                             const cover = e.currentTarget.querySelector('.ant-card-cover')
                             if (cover) {
                               cover.style.transform = 'scale(1.05)'
@@ -425,7 +362,7 @@ const Eventos = () => {
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+                            e.currentTarget.style.boxShadow = 'none'
                             const cover = e.currentTarget.querySelector('.ant-card-cover')
                             if (cover) {
                               cover.style.transform = 'scale(1)'
@@ -433,7 +370,7 @@ const Eventos = () => {
                           }}
                           cover={
                             evento.imagem ? (
-                              <div style={{ overflow: 'hidden', height: '200px' }}>
+                              <div className="h-[200px] overflow-hidden bg-zinc-900">
                                 <img
                                   alt={evento.titulo}
                                   src={evento.imagem}
@@ -465,7 +402,7 @@ const Eventos = () => {
                           <Title level={4} style={{ marginBottom: '12px' }}>
                             {evento.titulo}
                           </Title>
-                          <div style={{ marginBottom: '12px', color: '#666', fontSize: '14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <div style={{ marginBottom: '12px', color: 'rgba(255,255,255,0.65)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                             <BankOutlined />
                             <strong>{evento.empresa?.nome || 'AECAC - Associação Empresarial e Comercial de Águas Claras'}</strong>
                           </div>
@@ -526,19 +463,18 @@ const Eventos = () => {
                     {/* Eventos Passados - não paginados, apenas filtrados */}
                     {eventosPassadosFiltrados.length > 0 && (
                       <div>
-                        <Title level={2} style={{ marginBottom: '24px' }}>
+                        <Title level={2} className="!mb-6 !text-white">
                           Eventos Realizados
                         </Title>
                         <Row gutter={[24, 24]}>
                           {eventosPassadosFiltrados.map((evento) => (
                             <Col xs={24} md={12} key={evento._id}>
                               <Card
+                                className="!border-white/10 !bg-white/[0.03]"
                                 style={{
                                   height: '100%',
-                                  borderRadius: '12px',
-                                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                                  border: '1px solid #e0e0e0',
-                                  opacity: 0.7,
+                                  borderRadius: '16px',
+                                  opacity: 0.75,
                                   transition: 'all 0.3s ease',
                                 }}
                                 cover={
@@ -561,7 +497,7 @@ const Eventos = () => {
                                   {evento.titulo}
                                 </Title>
                                 {evento.empresa?.nome && (
-                                  <div style={{ marginBottom: '12px', color: '#666', fontSize: '14px' }}>
+                                  <div style={{ marginBottom: '12px', color: 'rgba(255,255,255,0.65)', fontSize: '14px' }}>
                                     <strong>{evento.empresa.nome}</strong>
                                   </div>
                                 )}
@@ -591,15 +527,13 @@ const Eventos = () => {
               })()}
             </>
           ) : (
-            <Card>
+            <Card className={`${glassPanel} border-white/10 p-4`}>
               <Calendar
                 cellRender={(value) => getDateCellData(value)}
-                style={{ background: '#fff' }}
               />
             </Card>
           )}
         </div>
-      </div>
 
       {/* Modal de Inscrição Pública */}
       <Modal
@@ -607,7 +541,7 @@ const Eventos = () => {
           <div>
             <div>Inscrever-se no Evento</div>
             {eventoSelecionado && (
-              <div style={{ fontSize: '14px', fontWeight: 'normal', marginTop: '4px', color: '#666' }}>
+              <div className="mt-1 text-sm font-normal text-zinc-400">
                 {eventoSelecionado.titulo}
               </div>
             )}
@@ -690,7 +624,7 @@ const Eventos = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+      </div>
     </>
   )
 }

@@ -15,6 +15,7 @@ import BeneficiosAdmin from './BeneficiosAdmin'
 import CapacitacoesAdmin from './CapacitacoesAdmin'
 import RelatoriosAdmin from './RelatoriosAdmin'
 import DocumentosAdmin from './DocumentosAdmin'
+import '../../styles/admin-associado.css'
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('authToken')
@@ -32,6 +33,7 @@ const Admin = () => {
   }, [token, navigate])
 
   return (
+    <div className="aecac-managed-ui min-h-screen">
     <Routes>
       <Route path="login" element={<Login />} />
       <Route
@@ -58,6 +60,7 @@ const Admin = () => {
         <Route path="documentos" element={<DocumentosAdmin />} />
       </Route>
     </Routes>
+    </div>
   )
 }
 

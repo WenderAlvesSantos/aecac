@@ -1,13 +1,18 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Tailwind: @source relativo a este ficheiro (src/) — evita falhas de scan com ficheiro em src/styles/ */
+@import 'tailwindcss' source(none);
+@source './**/*.{jsx,js}';
+
+@import 'tw-animate-css';
+
+html {
+  color-scheme: dark;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  background-color: #000000;
+  color: #f4f4f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+    'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -16,3 +21,81 @@ body {
   min-height: 100vh;
 }
 
+/* WebKit: gradiente em texto (bg-clip-text) com resets / Ant Design */
+.public-marketing .bg-clip-text.text-transparent {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Formulário cadastro fundador — alinhado ao protótipo (inputs escuros, cantos xl, foco azul AECAC) */
+.public-marketing .cadastro-fundador-form .ant-form-item-label > label {
+  color: rgb(212 212 216) !important;
+  font-weight: 500;
+  height: auto !important;
+}
+
+.public-marketing .cadastro-fundador-form .ant-input,
+.public-marketing .cadastro-fundador-form .ant-input-affix-wrapper,
+.public-marketing .cadastro-fundador-form textarea.ant-input {
+  background: rgb(0 0 0 / 0.5) !important;
+  border-color: rgb(255 255 255 / 0.1) !important;
+  border-radius: 0.75rem !important;
+  color: #fff !important;
+  padding: 0.75rem 1.25rem !important;
+  min-height: 3.25rem;
+}
+
+.public-marketing .cadastro-fundador-form .ant-input-affix-wrapper .ant-input {
+  background: transparent !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+
+.public-marketing .cadastro-fundador-form .ant-input::placeholder,
+.public-marketing .cadastro-fundador-form textarea.ant-input::placeholder {
+  color: rgb(82 82 91) !important;
+}
+
+.public-marketing .cadastro-fundador-form .ant-input-affix-wrapper:focus,
+.public-marketing .cadastro-fundador-form .ant-input-affix-wrapper-focused,
+.public-marketing .cadastro-fundador-form .ant-input:focus,
+.public-marketing .cadastro-fundador-form textarea.ant-input:focus {
+  border-color: #5b9bd5 !important;
+  box-shadow: 0 0 0 2px rgb(91 155 213 / 0.25) !important;
+}
+
+.public-marketing .cadastro-fundador-form .ant-select .ant-select-selector {
+  background: rgb(0 0 0 / 0.5) !important;
+  border-color: rgb(255 255 255 / 0.1) !important;
+  border-radius: 0.75rem !important;
+  min-height: 3.25rem !important;
+  padding: 0.5rem 1rem !important;
+  color: #fff !important;
+}
+
+.public-marketing .cadastro-fundador-form .ant-select-focused .ant-select-selector {
+  border-color: #5b9bd5 !important;
+  box-shadow: 0 0 0 2px rgb(91 155 213 / 0.25) !important;
+}
+
+.public-marketing .cadastro-fundador-form .ant-select-selection-placeholder {
+  color: rgb(82 82 91) !important;
+}
+
+.public-marketing .cadastro-fundador-form .ant-form-item-explain-error {
+  padding-top: 0.25rem;
+}
+
+.public-marketing .cadastro-fundador-form .cadastro-fundador-upload .ant-upload.ant-upload-select {
+  width: 100%;
+}
+
+.public-marketing .cadastro-fundador-form .cadastro-fundador-upload .ant-upload-select-picture-card {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 7rem;
+  margin: 0 !important;
+  background: rgb(0 0 0 / 0.5) !important;
+  border-color: rgb(255 255 255 / 0.1) !important;
+  border-radius: 0.75rem !important;
+}

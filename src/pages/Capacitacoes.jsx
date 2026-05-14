@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Row, Col, Card, Typography, Tag, Button, Space, Spin, Empty, Modal, message, Form, Input, Statistic, Select, Pagination } from 'antd'
+import { Row, Col, Card, Typography, Tag, Button, Space, Empty, Modal, message, Form, Input, Statistic, Select, Pagination } from 'antd'
 import { CalendarOutlined, UserOutlined, CheckCircleOutlined, EnvironmentOutlined, BankOutlined, ShopOutlined, FilterOutlined } from '@ant-design/icons'
 import { getCapacitacoesPublicas, inscreverCapacitacao, cancelarInscricao, getEmpresas } from '../lib/api'
 import dayjs from 'dayjs'
+import { PublicLoading } from '../components/public-site/PublicLoading'
+import { PublicInnerHero } from '../components/public-site/PublicInnerHero'
+import { glassPanel } from '../components/public-site/publicUi'
 
 const { Title, Paragraph } = Typography
 
@@ -149,11 +152,7 @@ const Capacitacoes = () => {
   }
 
   if (loading) {
-    return (
-      <div style={{ padding: '64px', textAlign: 'center' }}>
-        <Spin size="large" />
-      </div>
-    )
+    return <PublicLoading label="Carregando capacitações…" />
   }
 
   return (
@@ -170,83 +169,25 @@ const Capacitacoes = () => {
           }
         }
       `}</style>
-      <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
-      {/* Header Section */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
-          color: '#fff',
-          padding: window.innerWidth < 768 ? '50px 16px' : '100px 24px',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Decorative elements */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '-30%',
-            right: '-10%',
-            width: '500px',
-            height: '500px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
+      <div className="pb-24 text-white">
+        <PublicInnerHero
+          title="Capacitações"
+          subtitle="Palestras, cursos, workshops e treinamentos para associados"
         />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-20%',
-            left: '-10%',
-            width: '400px',
-            height: '400px',
-            background: 'rgba(0, 200, 83, 0.1)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <Title level={1} style={{ color: '#fff', marginBottom: '16px', fontSize: window.innerWidth < 768 ? '32px' : '42px', fontWeight: 'bold', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-            Capacitações
-          </Title>
-          <Paragraph
-            style={{
-              color: 'rgba(255,255,255,0.95)',
-              fontSize: window.innerWidth < 768 ? '16px' : '20px',
-              lineHeight: '1.8',
-            }}
-          >
-            Palestras, cursos, workshops e treinamentos para associados
-          </Paragraph>
-        </div>
-      </div>
 
-      <div style={{ padding: window.innerWidth < 768 ? '0 16px 32px' : '0 24px 64px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="mx-auto max-w-6xl px-6 pb-8 lg:px-12">
           {/* Filtros */}
-          <div 
-            style={{ 
-              marginBottom: '32px', 
-              marginTop: '24px',
-              background: '#fff',
-              borderRadius: '12px',
-              padding: '24px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-              border: '1px solid #e8e8e8'
-            }}
-          >
-            <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FilterOutlined style={{ fontSize: '18px', color: '#1a237e' }} />
-              <Title level={5} style={{ margin: 0, color: '#1a237e', fontWeight: 600 }}>
+          <div className={`${glassPanel} mb-8 mt-2 p-6`}>
+            <div className="mb-4 flex items-center gap-2">
+              <FilterOutlined className="text-lg text-sky-400" />
+              <Title level={5} className="!m-0 !font-semibold !text-white/90">
                 Filtros
               </Title>
             </div>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
               <div style={{ flex: 1, minWidth: '250px' }}>
-                <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666', fontWeight: 500 }}>
-                  <ShopOutlined style={{ marginRight: '6px' }} />
+                <div className="mb-2 text-sm font-medium text-zinc-400">
+                  <ShopOutlined className="mr-1.5" />
                   Fundador
                 </div>
                 <Select
@@ -287,7 +228,7 @@ const Capacitacoes = () => {
                 />
               </div>
               <div style={{ flex: 1, minWidth: '200px' }}>
-                <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666', fontWeight: 500 }}>
+                <div className="mb-2 text-sm font-medium text-zinc-400">
                   Categoria
                 </div>
                 <Select
@@ -364,7 +305,7 @@ const Capacitacoes = () => {
                     {/* Próximas Capacitações */}
                     {proximasPaginadas.length > 0 && (
                       <div style={{ marginBottom: '48px' }}>
-                        <Title level={2} style={{ marginBottom: '24px' }}>Próximas Capacitações</Title>
+                        <Title level={2} className="!mb-6 !text-white">Próximas Capacitações</Title>
                         <Row gutter={[24, 24]}>
                           {proximasPaginadas.map((capacitacao, index) => {
                     const inscrito = isInscrito(capacitacao)
@@ -372,16 +313,14 @@ const Capacitacoes = () => {
                       <Col xs={24} sm={12} lg={8} key={capacitacao._id}>
                         <Card
                           hoverable
-                          style={{ 
-                            height: '100%', 
-                            display: 'flex', 
+                          className="!border-white/10 !bg-white/[0.04]"
+                          style={{
+                            height: '100%',
+                            display: 'flex',
                             flexDirection: 'column',
-                            borderRadius: '12px',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                            border: '1px solid #e0e0e0',
+                            borderRadius: '16px',
                             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                             overflow: 'hidden',
-                            background: '#fff',
                             opacity: 0,
                             transform: 'translateY(30px)',
                             animation: `fadeInUp 0.6s ease-out ${index * 0.1}s forwards`,
@@ -389,7 +328,7 @@ const Capacitacoes = () => {
                           bodyStyle={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '24px', position: 'relative', zIndex: 1 }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'translateY(-8px)'
-                            e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)'
+                            e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.35)'
                             const cover = e.currentTarget.querySelector('.ant-card-cover')
                             if (cover) {
                               const img = cover.querySelector('img')
@@ -398,7 +337,7 @@ const Capacitacoes = () => {
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+                            e.currentTarget.style.boxShadow = 'none'
                             const cover = e.currentTarget.querySelector('.ant-card-cover')
                             if (cover) {
                               const img = cover.querySelector('img')
@@ -423,7 +362,7 @@ const Capacitacoes = () => {
                               <Title level={4} style={{ marginBottom: '8px' }}>
                                 {capacitacao.titulo}
                               </Title>
-                              <div style={{ marginBottom: '8px', color: '#666', fontSize: '14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <div style={{ marginBottom: '8px', color: 'rgba(255,255,255,0.65)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                                 <BankOutlined />
                                 <strong>{capacitacao.empresa?.nome || 'AECAC - Associação Empresarial e Comercial de Águas Claras'}</strong>
                               </div>
@@ -544,12 +483,13 @@ const Capacitacoes = () => {
                     {/* Capacitações Passadas - não paginadas, apenas filtradas */}
                     {passadasFiltradas.length > 0 && (
                       <div>
-                        <Title level={2} style={{ marginBottom: '24px' }}>Capacitações Realizadas</Title>
+                        <Title level={2} className="!mb-6 !text-white">Capacitações Realizadas</Title>
                         <Row gutter={[24, 24]}>
                           {passadasFiltradas.map((capacitacao) => (
                             <Col xs={24} sm={12} lg={8} key={capacitacao._id}>
                               <Card
-                                style={{ height: '100%', opacity: 0.7 }}
+                                className="!border-white/10 !bg-white/[0.03]"
+                                style={{ height: '100%', opacity: 0.75, borderRadius: '16px' }}
                                 cover={
                                   capacitacao.imagem ? (
                                     <img
@@ -570,7 +510,7 @@ const Capacitacoes = () => {
                                         {capacitacao.titulo}
                                       </Title>
                                       {capacitacao.empresa?.nome && (
-                                        <div style={{ marginBottom: '8px', color: '#666', fontSize: '14px' }}>
+                                        <div style={{ marginBottom: '8px', color: 'rgba(255,255,255,0.65)', fontSize: '14px' }}>
                                           <strong>{capacitacao.empresa.nome}</strong>
                                         </div>
                                       )}
@@ -598,9 +538,8 @@ const Capacitacoes = () => {
                 )}
               </>
             )
-          })()}
+            })()}
         </div>
-      </div>
 
       {/* Modal de Detalhes (Associado logado) */}
       <Modal
@@ -752,7 +691,7 @@ const Capacitacoes = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+      </div>
     </>
   )
 }

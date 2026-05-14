@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Form, Input, Select, Button, Card, Typography, message, Upload, Alert, Space } from 'antd'
-import { ShopOutlined, UploadOutlined, CheckCircleOutlined, HomeOutlined } from '@ant-design/icons'
+import { Form, Input, Select, Button, Typography, message, Upload, Space } from 'antd'
+import { UploadOutlined, CheckCircleOutlined, HomeOutlined } from '@ant-design/icons'
+import { motion } from 'motion/react'
 import { createEmpresa, buscarCNPJ as buscarCNPJAPI, buscarCEP as buscarCEPAPI } from '../lib/api'
 import { instagramHandleToStoredUrl, normalizeInstagramInput } from '../lib/instagram'
 import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 import { useNavigate } from 'react-router-dom'
+import { CartaAdesaoModal } from '../components/public-site/CartaAdesaoModal'
+import { CadastroFundadorContexto } from '../components/public-site/CadastroFundadorContexto'
 
 const { Title, Paragraph } = Typography
 const { TextArea } = Input
@@ -84,17 +87,31 @@ const validateCNPJ = (cnpj) => {
   return true
 }
 
+function CadastroFieldMotion({ children, delay = 0 }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, amount: 0.12 }}
+      transition={{ delay, duration: 0.38 }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 const CadastroEmpresa = () => {
   const navigate = useNavigate()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
-  const [buscandoCEP, setBuscandoCEP] = useState(false)
   const [cnpjValue, setCnpjValue] = useState('')
   const [cepValue, setCepValue] = useState('')
+  const [showCarta, setShowCarta] = useState(false)
+  const [cartaSnapshot, setCartaSnapshot] = useState(null)
+  const [pendingCadastro, setPendingCadastro] = useState(null)
+  const [cartSubmitLoading, setCartSubmitLoading] = useState(false)
   const { flags } = useFeatureFlags()
-  
   const preCadastro = flags.preCadastroMode
   const titulo = preCadastro ? 'Cadastro de fundadores' : 'Cadastro de fundador'
   const subtitulo = preCadastro
@@ -160,7 +177,6 @@ const CadastroEmpresa = () => {
       return
     }
 
-    setBuscandoCNPJ(true)
     try {
       const response = await buscarCNPJAPI(cnpjLimpo)
       const data = response.data
@@ -174,8 +190,6 @@ const CadastroEmpresa = () => {
       })
     } catch (error) {
       console.error('Erro ao buscar CNPJ:', error)
-    } finally {
-      setBuscandoCNPJ(false)
     }
   }
 
@@ -187,7 +201,6 @@ const CadastroEmpresa = () => {
       return
     }
 
-    setBuscandoCEP(true)
     try {
       const response = await buscarCEPAPI(cepLimpo)
       const data = response.data
@@ -203,8 +216,6 @@ const CadastroEmpresa = () => {
       })
     } catch (error) {
       console.error('Erro ao buscar CEP:', error)
-    } finally {
-      setBuscandoCEP(false)
     }
   }
 
@@ -238,12 +249,55 @@ const CadastroEmpresa = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cepValue])
 
+  const finalizeCadastroSucesso = () => {
+    form.resetFields()
+    setCnpjValue('')
+    setCepValue('')
+    setShowCarta(false)
+    setCartaSnapshot(null)
+    setPendingCadastro(null)
+    setSubmitted(true)
+  }
+
+  const handleDismissCarta = () => {
+    setShowCarta(false)
+    setCartaSnapshot(null)
+    setPendingCadastro(null)
+  }
+
+  const handleConfirmCarta = async ({ cartaAdesao, assinaturaDataUrl }) => {
+    if (!pendingCadastro) {
+      throw new Error('Dados do cadastro não encontrados. Envie o formulário novamente.')
+    }
+    setCartSubmitLoading(true)
+    try {
+      const body = {
+        ...pendingCadastro,
+        cartaAdesao,
+        assinaturaCarta: assinaturaDataUrl,
+        cadastroPublicoFundador: true,
+      }
+      await createEmpresa(body)
+      message.success(
+        preCadastro
+          ? 'Cadastro concluído com a carta de adesão assinada. Você receberá o PDF por e-mail.'
+          : 'Cadastro enviado com a carta de adesão assinada. Você receberá o PDF por e-mail.'
+      )
+      finalizeCadastroSucesso()
+    } catch (error) {
+      const msg = error.response?.data?.error || error.message || 'Erro ao enviar cadastro de fundador'
+      message.error(msg)
+      throw new Error(msg)
+    } finally {
+      setCartSubmitLoading(false)
+    }
+  }
+
   const onFinish = async (values) => {
     setLoading(true)
     try {
       const formData = { ...values, preCadastro }
 
-      // Limpar CNPJ e CEP (remover formatação)
       if (formData.cnpj) {
         formData.cnpj = formData.cnpj.replace(/\D/g, '')
       }
@@ -253,7 +307,6 @@ const CadastroEmpresa = () => {
 
       formData.instagram = instagramHandleToStoredUrl(values.instagram)
 
-      // Processar imagem se houver
       if (values.imagemFile && values.imagemFile.length > 0) {
         const file = values.imagemFile[0].originFileObj
         if (file) {
@@ -264,404 +317,325 @@ const CadastroEmpresa = () => {
 
       delete formData.imagemFile
 
-      await createEmpresa(formData)
-      
-      const mensagem = preCadastro
-        ? 'Cadastro de fundador realizado com sucesso! Entraremos em contato em breve.'
-        : 'Cadastro de fundador enviado com sucesso! Aguarde a aprovação do administrador.'
-      
-      message.success(mensagem)
-      form.resetFields()
-      setSubmitted(true)
+      setPendingCadastro(formData)
+      setCartaSnapshot({
+        responsavel: values.responsavel,
+        empresa: values.nome,
+        cnpj: values.cnpj || '',
+        telefone: values.telefone || '',
+        email: values.email || '',
+        endereco: values.endereco || '',
+        cep: values.cep || '',
+      })
+      setShowCarta(true)
+      message.info('Preencha todos os campos da carta, assine e clique em «Confirmar e concluir» para enviar o cadastro.')
     } catch (error) {
-      message.error(error.response?.data?.error || 'Erro ao enviar cadastro de fundador')
+      message.error(error.response?.data?.error || 'Erro ao preparar o cadastro')
     } finally {
       setLoading(false)
     }
   }
 
-  if (submitted) {
-    const mensagemSucesso = preCadastro
-      ? 'Cadastro de fundador enviado com sucesso!'
-      : 'Cadastro de fundador enviado com sucesso!'
-    
-    const descricaoSucesso = preCadastro
-      ? 'Seu cadastro de fundador foi recebido. Entraremos em contato em breve para os próximos passos!'
-      : 'Seu cadastro de fundador foi recebido e está aguardando aprovação. Você receberá uma notificação quando for aprovado.'
-    
-    return (
-      <div style={{ padding: '64px 24px', background: '#f0f2f5', minHeight: '80vh' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <Card>
-            <div style={{ textAlign: 'center', padding: '32px' }}>
-              <CheckCircleOutlined style={{ fontSize: '64px', color: '#52c41a', marginBottom: '24px' }} />
-              <Title level={2}>{mensagemSucesso}</Title>
-              <Paragraph style={{ fontSize: '16px', marginTop: '16px' }}>
-                {descricaoSucesso}
-              </Paragraph>
-              {!preCadastro && (
-                <div style={{ 
-                  marginTop: '24px', 
-                  padding: '16px', 
-                  background: '#f0f7ff', 
-                  borderRadius: '8px',
-                  textAlign: 'left'
-                }}>
-                  <Title level={4} style={{ fontSize: '16px', marginBottom: '8px' }}>
-                    📋 Próximos Passos:
-                  </Title>
-                  <Paragraph style={{ fontSize: '14px', marginBottom: '8px' }}>
-                    1. Aguarde a aprovação do administrador
-                  </Paragraph>
-                  <Paragraph style={{ fontSize: '14px', marginBottom: '8px' }}>
-                    2. Após aprovação, acesse <strong>/associado/login</strong>
-                  </Paragraph>
-                  <Paragraph style={{ fontSize: '14px' }}>
-                    3. Use o <strong>mesmo email</strong> cadastrado aqui para criar sua conta de associado
-                  </Paragraph>
-                </div>
-              )}
-              <Space size="middle" style={{ marginTop: '24px' }}>
-                <Button
-                  type="default"
-                  size="large"
-                  icon={<HomeOutlined />}
-                  onClick={() => navigate('/')}
-                >
-                  Voltar para Home
-                </Button>
-                <Button
-                  type="primary"
-                  size="large"
-                  onClick={() => setSubmitted(false)}
-                >
-                  Fazer Novo Cadastro
-                </Button>
-              </Space>
-            </div>
-          </Card>
-        </div>
-      </div>
-    )
-  }
+  const mensagemSucesso = preCadastro
+    ? 'Cadastro de fundador enviado com sucesso!'
+    : 'Cadastro de fundador enviado com sucesso!'
+
+  const descricaoSucesso = preCadastro
+    ? 'Seu cadastro de fundador foi recebido. Enviamos uma cópia da carta de adesão em PDF para o seu e-mail. Entraremos em contato em breve para os próximos passos!'
+    : 'Seu cadastro de fundador foi recebido e está aguardando aprovação. Uma cópia da carta de adesão em PDF foi enviada para o seu e-mail. Você receberá uma notificação quando for aprovado.'
 
   return (
-    <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
-      {/* Header Section com gradiente */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
-          color: '#fff',
-          padding: window.innerWidth < 768 ? '50px 16px' : '80px 24px',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Elementos decorativos */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '-30%',
-            right: '-10%',
-            width: '500px',
-            height: '500px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-20%',
-            left: '-10%',
-            width: '400px',
-            height: '400px',
-            background: 'rgba(0, 200, 83, 0.1)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          {preCadastro && (
-            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                padding: '8px 20px',
-                borderRadius: '20px',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <ShopOutlined style={{ fontSize: '18px' }} />
-                <span style={{ fontSize: '14px', fontWeight: '600' }}>Em Breve</span>
+    <>
+      <CartaAdesaoModal
+        open={showCarta}
+        dados={cartaSnapshot}
+        onDismiss={handleDismissCarta}
+        submitting={cartSubmitLoading}
+        onConfirmAndSubmit={handleConfirmCarta}
+      />
+      {submitted ? (
+        <div className="min-h-[70vh] flex items-center justify-center px-6 py-16">
+          <div className="max-w-lg w-full bg-gradient-to-b from-white/10 to-white/[0.02] border border-white/10 rounded-3xl p-10 text-center">
+            <CheckCircleOutlined className="text-6xl text-[#6cb541] mb-6" />
+            <Title level={2} className="!text-white !mb-4">
+              {mensagemSucesso}
+            </Title>
+            <Paragraph className="!text-gray-300 text-base">{descricaoSucesso}</Paragraph>
+            {!preCadastro && (
+              <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 text-left">
+                <Title level={4} className="!text-white !text-base !mb-2">
+                  Próximos passos
+                </Title>
+                <Paragraph className="!text-gray-400 !text-sm !mb-1">1. Aguarde a aprovação do administrador</Paragraph>
+                <Paragraph className="!text-gray-400 !text-sm !mb-1">
+                  2. Após a aprovação, acesse <strong className="text-white">/associado/login</strong>
+                </Paragraph>
+                <Paragraph className="!text-gray-400 !text-sm">
+                  3. Use o <strong className="text-white">mesmo e-mail</strong> cadastrado aqui para criar sua conta de associado
+                </Paragraph>
               </div>
-            </div>
-          )}
-          <ShopOutlined style={{ fontSize: '48px', color: '#fff', marginBottom: '16px' }} />
-          <Title
-            level={1}
-            style={{
-              color: '#fff',
-              marginBottom: '16px',
-              fontSize: window.innerWidth < 768 ? '32px' : '42px',
-              fontWeight: 'bold',
-              textShadow: '0 2px 10px rgba(0,0,0,0.2)',
-            }}
-          >
-            {titulo}
-          </Title>
-          <Paragraph
-            style={{
-              color: 'rgba(255,255,255,0.95)',
-              fontSize: window.innerWidth < 768 ? '16px' : '20px',
-              lineHeight: '1.8',
-              margin: 0,
-            }}
-          >
-            {subtitulo}
-          </Paragraph>
-        </div>
-      </div>
-
-      {/* Content Section */}
-      <div style={{ padding: window.innerWidth < 768 ? '32px 16px' : '48px 24px', maxWidth: '800px', margin: '0 auto' }}>
-        {/* {preCadastro && (
-          <Alert
-            message="🚀 Em breve estaremos disponíveis"
-            description="Registre seu interesse e seja um dos primeiros a fazer parte da AECAC!"
-            type="info"
-            showIcon
-            style={{ 
-              marginBottom: '24px',
-              borderRadius: '12px',
-              padding: '16px 24px'
-            }}
-          />
-        )} */}
-
-        <Card
-          style={{
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-            border: '1px solid #e0e0e0',
-          }}
-        >
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={onFinish}
-            size="large"
-          >
-            <Form.Item
-              name="cnpj"
-              label="CNPJ"
-              normalize={(value) => {
-                const formatted = formatCNPJ(value)
-                setCnpjValue(formatted)
-                return formatted
-              }}
-              rules={[
-                { required: true, message: 'CNPJ é obrigatório' },
-                {
-                  validator: (_, value) => {
-                    if (!value) return Promise.resolve()
-                    const cnpjLimpo = value.replace(/\D/g, '')
-                    if (cnpjLimpo.length !== 14) {
-                      return Promise.reject(new Error('CNPJ deve ter 14 dígitos'))
-                    }
-                    if (!validateCNPJ(cnpjLimpo)) {
-                      return Promise.reject(new Error('CNPJ inválido'))
-                    }
-                    return Promise.resolve()
-                  },
-                },
-              ]}
-            >
-              <Input
-                placeholder="00.000.000/0000-00"
-                maxLength={18}
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="nome"
-              label="Nome da empresa (fundador)"
-              rules={[{ required: true, message: 'Campo obrigatório' }]}
-            >
-              <Input placeholder="Razão social ou nome fantasia" />
-            </Form.Item>
-
-            <Form.Item
-              name="responsavel"
-              label="Nome do Responsável"
-              rules={[{ required: true, message: 'Campo obrigatório' }]}
-            >
-              <Input placeholder="Nome completo do responsável pelo cadastro de fundador" />
-            </Form.Item>
-
-            <Form.Item
-              name="categoria"
-              label="Categoria"
-              rules={[{ required: true, message: 'Campo obrigatório' }]}
-            >
-              <Select placeholder="Selecione a categoria">
-                <Select.Option value="Varejo">Varejo</Select.Option>
-                <Select.Option value="Alimentação">Alimentação</Select.Option>
-                <Select.Option value="Tecnologia">Tecnologia</Select.Option>
-                <Select.Option value="Saúde">Saúde</Select.Option>
-                <Select.Option value="Serviços">Serviços</Select.Option>
-                <Select.Option value="Beleza">Beleza</Select.Option>
-                <Select.Option value="Construção">Construção</Select.Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="descricao"
-              label="Descrição"
-              rules={[{ required: true, message: 'Campo obrigatório' }]}
-            >
-              <TextArea rows={4} placeholder="Descreva a empresa fundadora e seus serviços" maxLength={700} showCount />
-            </Form.Item>
-
-            <Form.Item
-              name="telefone"
-              label="Telefone"
-              normalize={(value) => {
-                if (!value) return ''
-                return formatPhone(value)
-              }}
-            >
-              <Input placeholder="(61) 99999-9999" maxLength={15} />
-            </Form.Item>
-
-            <Form.Item
-              name="email"
-              label="Email"
-              rules={[{ type: 'email', message: 'Email inválido' }]}
-            >
-              <Input type="email" placeholder="contato@empresa.com.br" />
-            </Form.Item>
-
-            <Form.Item
-              name="cep"
-              label="CEP"
-              normalize={(value) => {
-                const formatted = formatCEP(value)
-                setCepValue(formatted)
-                return formatted
-              }}
-              rules={[
-                {
-                  validator: (_, value) => {
-                    if (!value) return Promise.resolve()
-                    const cepLimpo = value.replace(/\D/g, '')
-                    if (cepLimpo.length !== 8) {
-                      return Promise.reject(new Error('CEP deve ter 8 dígitos'))
-                    }
-                    return Promise.resolve()
-                  },
-                },
-              ]}
-            >
-              <Input
-                placeholder="00000-000"
-                maxLength={9}
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="endereco"
-              label="Endereço Completo"
-            >
-              <TextArea rows={2} placeholder="Endereço completo do negócio" />
-            </Form.Item>
-
-            <Form.Item
-              name="site"
-              label="Site"
-              rules={[{ type: 'url', message: 'URL inválida' }]}
-            >
-              <Input placeholder="https://www.exemplo.com.br" />
-            </Form.Item>
-
-            <Form.Item
-              name="facebook"
-              label="Facebook"
-              rules={[{ type: 'url', message: 'URL inválida' }]}
-            >
-              <Input placeholder="https://facebook.com/empresa" />
-            </Form.Item>
-
-            <Form.Item
-              name="instagram"
-              label="Instagram"
-              normalize={(v) => normalizeInstagramInput(v)}
-              rules={[{ max: 50, message: 'No máximo 50 caracteres' }]}
-            >
-              <Input prefix="@" placeholder="usuario" allowClear />
-            </Form.Item>
-
-            <Form.Item
-              name="linkedin"
-              label="LinkedIn"
-              rules={[{ type: 'url', message: 'URL inválida' }]}
-            >
-              <Input placeholder="https://linkedin.com/company/empresa" />
-            </Form.Item>
-
-            <Form.Item
-              name="whatsapp"
-              label="WhatsApp"
-              normalize={(value) => {
-                if (!value) return ''
-                return formatPhone(value)
-              }}
-            >
-              <Input placeholder="(61) 99999-9999" maxLength={15} />
-            </Form.Item>
-
-            <Form.Item
-              name="imagemFile"
-              label="Logomarca"
-              valuePropName="fileList"
-              getValueFromEvent={(e) => {
-                if (Array.isArray(e)) {
-                  return e.slice(0, 1)
-                }
-                if (e?.fileList) {
-                  return e.fileList.slice(0, 1)
-                }
-                return []
-              }}
-            >
-              <Upload
-                listType="picture-card"
-                maxCount={1}
-                beforeUpload={() => false}
-                accept="image/*"
-              >
-                <div>
-                  <UploadOutlined />
-                  <div style={{ marginTop: 8 }}>Upload</div>
-                </div>
-              </Upload>
-            </Form.Item>
-
-            <Form.Item>
-              <Button type="primary" htmlType="submit" block loading={loading} size="large">
-                Enviar Cadastro
+            )}
+            <Space size="middle" className="mt-8 justify-center flex-wrap">
+              <Button type="default" size="large" icon={<HomeOutlined />} onClick={() => navigate('/')}>
+                Voltar para Home
               </Button>
-            </Form.Item>
-          </Form>
-        </Card>
-      </div>
-    </div>
+              <Button type="primary" size="large" onClick={() => setSubmitted(false)}>
+                Fazer novo cadastro
+              </Button>
+            </Space>
+          </div>
+        </div>
+      ) : (
+        <div className="pb-24 text-white">
+          <CadastroFundadorContexto preCadastro={preCadastro} formTitle={titulo} formSubtitle={subtitulo}>
+            <motion.div
+              className="space-y-8 rounded-3xl border border-white/10 bg-gradient-to-b from-white/5 to-white/[0.02] p-10 shadow-2xl backdrop-blur-xl lg:p-14"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.08 }}
+              transition={{ duration: 0.45 }}
+            >
+              <Form
+                form={form}
+                layout="vertical"
+                onFinish={onFinish}
+                size="large"
+                className="cadastro-fundador-form"
+                requiredMark
+              >
+                <CadastroFieldMotion delay={0}>
+                  <Form.Item
+                    name="cnpj"
+                    label="CNPJ"
+                    normalize={(value) => {
+                      const formatted = formatCNPJ(value)
+                      setCnpjValue(formatted)
+                      return formatted
+                    }}
+                    rules={[
+                      { required: true, message: 'CNPJ é obrigatório' },
+                      {
+                        validator: (_, value) => {
+                          if (!value) return Promise.resolve()
+                          const cnpjLimpo = value.replace(/\D/g, '')
+                          if (cnpjLimpo.length !== 14) {
+                            return Promise.reject(new Error('CNPJ deve ter 14 dígitos'))
+                          }
+                          if (!validateCNPJ(cnpjLimpo)) {
+                            return Promise.reject(new Error('CNPJ inválido'))
+                          }
+                          return Promise.resolve()
+                        },
+                      },
+                    ]}
+                  >
+                    <Input placeholder="00.000.000/0000-00" maxLength={18} />
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={0.1}>
+                  <Form.Item
+                    name="nome"
+                    label="Nome da empresa (fundador)"
+                    rules={[{ required: true, message: 'Campo obrigatório' }]}
+                  >
+                    <Input placeholder="Razão social ou nome fantasia" />
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={0.2}>
+                  <Form.Item
+                    name="responsavel"
+                    label="Nome do Responsável"
+                    rules={[{ required: true, message: 'Campo obrigatório' }]}
+                  >
+                    <Input placeholder="Nome completo do responsável pelo cadastro de fundador" />
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={0.3}>
+                  <Form.Item
+                    name="categoria"
+                    label="Categoria"
+                    rules={[{ required: true, message: 'Campo obrigatório' }]}
+                  >
+                    <Select placeholder="Selecione a categoria">
+                      <Select.Option value="Varejo">Varejo</Select.Option>
+                      <Select.Option value="Alimentação">Alimentação</Select.Option>
+                      <Select.Option value="Tecnologia">Tecnologia</Select.Option>
+                      <Select.Option value="Saúde">Saúde</Select.Option>
+                      <Select.Option value="Serviços">Serviços</Select.Option>
+                      <Select.Option value="Beleza">Beleza</Select.Option>
+                      <Select.Option value="Construção">Construção</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={0.4}>
+                  <Form.Item
+                    name="descricao"
+                    label="Descrição"
+                    rules={[{ required: true, message: 'Campo obrigatório' }]}
+                  >
+                    <TextArea
+                      rows={4}
+                      placeholder="Descreva a empresa fundadora e seus serviços"
+                      maxLength={700}
+                      showCount
+                      className="!resize-none"
+                    />
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={0.5}>
+                  <Form.Item
+                    name="telefone"
+                    label="Telefone"
+                    normalize={(value) => {
+                      if (!value) return ''
+                      return formatPhone(value)
+                    }}
+                  >
+                    <Input placeholder="(61) 99999-9999" maxLength={15} />
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={0.55}>
+                  <Form.Item
+                    name="email"
+                    label="Email"
+                    rules={[
+                      { required: true, message: 'E-mail é obrigatório para receber a carta de adesão em PDF' },
+                      { type: 'email', message: 'Email inválido' },
+                    ]}
+                  >
+                    <Input type="email" placeholder="contato@empresa.com.br" />
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={0.6}>
+                  <Form.Item
+                    name="cep"
+                    label="CEP"
+                    normalize={(value) => {
+                      const formatted = formatCEP(value)
+                      setCepValue(formatted)
+                      return formatted
+                    }}
+                    rules={[
+                      {
+                        validator: (_, value) => {
+                          if (!value) return Promise.resolve()
+                          const cepLimpo = value.replace(/\D/g, '')
+                          if (cepLimpo.length !== 8) {
+                            return Promise.reject(new Error('CEP deve ter 8 dígitos'))
+                          }
+                          return Promise.resolve()
+                        },
+                      },
+                    ]}
+                  >
+                    <Input placeholder="00000-000" maxLength={9} />
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={0.7}>
+                  <Form.Item name="site" label="Site" rules={[{ type: 'url', message: 'URL inválida' }]}>
+                    <Input placeholder="https://www.exemplo.com.br" />
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={0.8}>
+                  <Form.Item name="endereco" label="Endereço Completo">
+                    <TextArea rows={3} placeholder="Endereço completo do negócio" className="!resize-none" />
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={1.0}>
+                  <h3 className="mb-4 text-xl font-semibold text-gray-300">Redes Sociais e Contato</h3>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <Form.Item name="facebook" label="Facebook" rules={[{ type: 'url', message: 'URL inválida' }]}>
+                      <Input placeholder="https://facebook.com/empresa" />
+                    </Form.Item>
+                    <Form.Item
+                      name="instagram"
+                      label="Instagram"
+                      normalize={(v) => normalizeInstagramInput(v)}
+                      rules={[{ max: 50, message: 'No máximo 50 caracteres' }]}
+                    >
+                      <Input prefix="@" placeholder="usuario" allowClear />
+                    </Form.Item>
+                    <Form.Item name="linkedin" label="LinkedIn" rules={[{ type: 'url', message: 'URL inválida' }]}>
+                      <Input placeholder="https://linkedin.com/company/empresa" />
+                    </Form.Item>
+                    <Form.Item
+                      name="whatsapp"
+                      label="WhatsApp"
+                      normalize={(value) => {
+                        if (!value) return ''
+                        return formatPhone(value)
+                      }}
+                    >
+                      <Input placeholder="(61) 99999-9999" maxLength={15} />
+                    </Form.Item>
+                  </div>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={1.1}>
+                  <Form.Item
+                    name="imagemFile"
+                    label="Logomarca"
+                    valuePropName="fileList"
+                    getValueFromEvent={(e) => {
+                      if (Array.isArray(e)) {
+                        return e.slice(0, 1)
+                      }
+                      if (e?.fileList) {
+                        return e.fileList.slice(0, 1)
+                      }
+                      return []
+                    }}
+                  >
+                    <Upload
+                      rootClassName="cadastro-fundador-upload"
+                      listType="picture-card"
+                      maxCount={1}
+                      beforeUpload={() => false}
+                      accept="image/*"
+                    >
+                      <div>
+                        <UploadOutlined />
+                        <div style={{ marginTop: 8 }}>Upload</div>
+                      </div>
+                    </Upload>
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={1.15}>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      type="default"
+                      htmlType="submit"
+                      block
+                      loading={loading}
+                      className="!h-auto !min-h-[52px] !rounded-xl !border-0 !bg-gradient-to-r !from-[#1e4d7b] !to-[#5b9bd5] !px-4 !py-5 !text-lg !font-semibold !text-white hover:!brightness-110"
+                      style={{ boxShadow: '0 10px 40px rgba(91, 155, 213, 0.25)' }}
+                    >
+                      {preCadastro ? 'Enviar Cadastro de Fundador' : 'Enviar cadastro'}
+                    </Button>
+                  </motion.div>
+                </CadastroFieldMotion>
+
+                <p className="text-center text-sm text-gray-500">
+                  Os campos marcados com <span className="text-red-400">*</span> são obrigatórios
+                </p>
+              </Form>
+            </motion.div>
+          </CadastroFundadorContexto>
+        </div>
+      )}
+    </>
   )
 }
 
 export default CadastroEmpresa
-
