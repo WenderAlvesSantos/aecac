@@ -18,9 +18,8 @@ const staggerContainer = {
   },
 }
 
-/** Hero — mesma imagem do protótipo novo-ui-aecac (Home.tsx). */
-const HERO_IMAGE_SRC =
-  'https://images.unsplash.com/photo-1774186184398-1cc2da3d029e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHxleGVjdXRpdmUlMjBidXNpbmVzcyUyMG1lZXRpbmclMjBwcm9mZXNzaW9uYWwlMjBvZmZpY2V8ZW58MXx8fHwxNzc4NzYyMDE5fDA&ixlib=rb-4.1.0&q=80&w=1080'
+/** Hero — imagem em `public/assets/image.png`. */
+const HERO_IMAGE_SRC = '/assets/image.png'
 
 /**
  * Home alinhada ao protótipo `novo-ui-aecac/src/app/pages/Home.tsx`

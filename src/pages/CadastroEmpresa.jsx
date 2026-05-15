@@ -12,6 +12,9 @@ import { CadastroFundadorContexto } from '../components/public-site/CadastroFund
 const { Title, Paragraph } = Typography
 const { TextArea } = Input
 
+/** Valor sentinel no formulário; o envio usa o texto livre em `categoriaPersonalizada`. */
+const CATEGORIA_OUTROS = 'Outros'
+
 // Função para formatar telefone
 const formatPhone = (value) => {
   if (!value) return ''
@@ -141,6 +144,14 @@ const CadastroEmpresa = () => {
   const subtitulo = preCadastro
     ? 'Fundadores não entram depois. Eles definem as regras do jogo. A AECAC está nascendo agora e há poucas vagas de fundador. Garanta a sua.'
     : 'Preencha o formulário abaixo para se cadastrar como fundador da AECAC'
+
+  const categoriaSelecionada = Form.useWatch('categoria', form)
+
+  useEffect(() => {
+    if (categoriaSelecionada !== CATEGORIA_OUTROS) {
+      form.setFieldValue('categoriaPersonalizada', undefined)
+    }
+  }, [categoriaSelecionada, form])
 
   const convertImageToBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -347,6 +358,14 @@ const CadastroEmpresa = () => {
 
       delete formData.imagemFile
 
+      if (values.categoria === CATEGORIA_OUTROS) {
+        const livre = String(values.categoriaPersonalizada || '').trim()
+        formData.categoria = livre
+      } else {
+        formData.categoria = values.categoria
+      }
+      delete formData.categoriaPersonalizada
+
       setPendingCadastro(formData)
       setCartaSnapshot({
         responsavel: values.responsavel,
@@ -540,8 +559,29 @@ const CadastroEmpresa = () => {
                       <Select.Option value="Serviços">Serviços</Select.Option>
                       <Select.Option value="Beleza">Beleza</Select.Option>
                       <Select.Option value="Construção">Construção</Select.Option>
+                      <Select.Option value={CATEGORIA_OUTROS}>{CATEGORIA_OUTROS}</Select.Option>
                     </Select>
                   </Form.Item>
+                  {categoriaSelecionada === CATEGORIA_OUTROS ? (
+                    <Form.Item
+                      name="categoriaPersonalizada"
+                      label="Qual é a sua categoria?"
+                      rules={[
+                        { required: true, message: 'Descreva a categoria ou ramo de atividade' },
+                        {
+                          validator: (_, value) => {
+                            const t = String(value || '').trim()
+                            if (t.length < 2) return Promise.reject(new Error('Use pelo menos 2 caracteres'))
+                            if (t.length > 80) return Promise.reject(new Error('No máximo 80 caracteres'))
+                            return Promise.resolve()
+                          },
+                        },
+                      ]}
+                      className="!mt-2"
+                    >
+                      <Input placeholder="Ex.: Educação, Consultoria, Turismo..." maxLength={80} />
+                    </Form.Item>
+                  ) : null}
                 </CadastroFieldMotion>
 
                 <CadastroFieldMotion delay={0.4}>
