@@ -36,10 +36,18 @@ function trim(v) {
   return typeof v === 'string' ? v.trim() : ''
 }
 
+function formatCPFDisplay(digitsOnly) {
+  const n = String(digitsOnly || '').replace(/\D/g, '').slice(0, 11)
+  if (n.length <= 3) return n
+  if (n.length <= 6) return `${n.slice(0, 3)}.${n.slice(3)}`
+  if (n.length <= 9) return `${n.slice(0, 3)}.${n.slice(3, 6)}.${n.slice(6)}`
+  return `${n.slice(0, 3)}.${n.slice(3, 6)}.${n.slice(6, 9)}-${n.slice(9)}`
+}
+
 /**
  * @param {object} props
  * @param {boolean} props.open
- * @param {object|null} props.dados
+ * @param {object|null} props.dados — responsavel, empresa, cnpj, rg, cpf (11 dígitos), telefone, email, endereco, cep
  * @param {() => void} props.onDismiss
  * @param {(payload: { cartaAdesao: object, assinaturaDataUrl: string }) => Promise<void>} props.onConfirmAndSubmit
  * @param {boolean} [props.submitting]
@@ -76,7 +84,11 @@ export function CartaAdesaoModal({ open, dados, onDismiss, onConfirmAndSubmit, s
     ]
     const mes = meses[hoje.getMonth()]
     const ano = hoje.getFullYear().toString().slice(-2)
-    setCartaData((prev) => ({ ...prev, dia, mes, ano }))
+    const rgFilled = trim(dados.rg || '')
+    const cpfDigits = String(dados.cpf || '')
+      .replace(/\D/g, '')
+      .slice(0, 11)
+    setCartaData((prev) => ({ ...prev, dia, mes, ano, rg: rgFilled, cpf: cpfDigits }))
     setErroLocal('')
   }, [open, dados])
 
@@ -146,8 +158,9 @@ export function CartaAdesaoModal({ open, dados, onDismiss, onConfirmAndSubmit, s
     if (!dia || !/^\d{1,2}$/.test(dia)) return 'Informe o dia da data (cartão superior da carta).'
     if (!mes || mes.length < 3) return 'Informe o mês por extenso na carta.'
     if (!ano || !/^\d{2}$/.test(ano)) return 'Informe os dois dígitos do ano (ex.: 26).'
-    if (!rg || rg.length < 3) return 'RG é obrigatório.'
-    if (!cpf || cpf.length !== 11) return 'CPF deve conter 11 dígitos.'
+    if (!rg || rg.length < 3) return 'RG ausente — volte ao formulário de cadastro para preencher o RG do responsável.'
+    if (!cpf || cpf.length !== 11)
+      return 'CPF incompleto — volte ao formulário de cadastro para preencher o CPF do responsável.'
     if (!dados?.email?.trim()) return 'O cadastro deve incluir e-mail da empresa (volte e preencha o formulário).'
     const canvas = canvasRef.current
     if (!canvas || isCanvasBlank(canvas)) return 'Assine no campo de assinatura antes de confirmar.'
@@ -257,25 +270,13 @@ export function CartaAdesaoModal({ open, dados, onDismiss, onConfirmAndSubmit, s
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="border-b border-gray-300 pb-1">
                     <span className="text-xs text-gray-600">RG</span>
-                    <input
-                      type="text"
-                      placeholder="____________________"
-                      className="w-full font-medium bg-transparent focus:outline-none focus:border-blue-600 border-b border-transparent"
-                      value={cartaData.rg}
-                      onChange={(e) => setCartaData({ ...cartaData, rg: e.target.value })}
-                      disabled={submitting}
-                    />
+                    <p className="font-medium">{cartaData.rg ? cartaData.rg : '—'}</p>
                   </div>
                   <div className="border-b border-gray-300 pb-1">
                     <span className="text-xs text-gray-600">CPF</span>
-                    <input
-                      type="text"
-                      placeholder="____________________"
-                      className="w-full font-medium bg-transparent focus:outline-none focus:border-blue-600 border-b border-transparent"
-                      value={cartaData.cpf}
-                      onChange={(e) => setCartaData({ ...cartaData, cpf: e.target.value })}
-                      disabled={submitting}
-                    />
+                    <p className="font-medium">
+                      {cartaData.cpf && cartaData.cpf.length === 11 ? formatCPFDisplay(cartaData.cpf) : '—'}
+                    </p>
                   </div>
                   <div className="border-b border-gray-300 pb-1">
                     <span className="text-xs text-gray-600">Telefone</span>

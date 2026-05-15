@@ -99,3 +99,27 @@ body {
   border-color: rgb(255 255 255 / 0.1) !important;
   border-radius: 0.75rem !important;
 }
+
+/*
+ * Select de categoria: o painel abre em portal (body). Sem fundo sólido,
+ * o conteúdo do site mistura-se com as opções — este bloco é independente de .public-marketing.
+ */
+.cadastro-fundador-select-dropdown.ant-select-dropdown {
+  background: #18181b !important;
+  border: 1px solid rgb(255 255 255 / 0.12) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.65) !important;
+}
+
+.cadastro-fundador-select-dropdown .ant-select-item {
+  color: #f4f4f5 !important;
+}
+
+.cadastro-fundador-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background: rgb(91 155 213 / 0.2) !important;
+}
+
+.cadastro-fundador-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background: rgb(91 155 213 / 0.28) !important;
+  font-weight: 600;
+}

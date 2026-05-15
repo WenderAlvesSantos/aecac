@@ -47,6 +47,30 @@ const formatCEP = (value) => {
   return value
 }
 
+// Formatar CPF (000.000.000-00)
+const formatCPF = (value) => {
+  if (!value) return ''
+  const numbers = value.replace(/\D/g, '').slice(0, 11)
+  if (numbers.length <= 3) return numbers
+  if (numbers.length <= 6) return numbers.replace(/^(\d{3})(\d+)/, '$1.$2')
+  if (numbers.length <= 9) return numbers.replace(/^(\d{3})(\d{3})(\d+)/, '$1.$2.$3')
+  return numbers.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4')
+}
+
+// Validar dígitos verificadores do CPF
+const validateCPF = (cpfDigits) => {
+  const cpf = String(cpfDigits || '').replace(/\D/g, '')
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false
+  let sum = 0
+  for (let i = 0; i < 9; i++) sum += parseInt(cpf.charAt(i), 10) * (10 - i)
+  let d1 = sum % 11 < 2 ? 0 : 11 - (sum % 11)
+  if (d1 !== parseInt(cpf.charAt(9), 10)) return false
+  sum = 0
+  for (let i = 0; i < 10; i++) sum += parseInt(cpf.charAt(i), 10) * (11 - i)
+  let d2 = sum % 11 < 2 ? 0 : 11 - (sum % 11)
+  return d2 === parseInt(cpf.charAt(10), 10)
+}
+
 // Função para validar CNPJ
 const validateCNPJ = (cnpj) => {
   cnpj = cnpj.replace(/[^\d]+/g, '')
@@ -304,6 +328,12 @@ const CadastroEmpresa = () => {
       if (formData.cep) {
         formData.cep = formData.cep.replace(/\D/g, '')
       }
+      if (formData.cpf) {
+        formData.cpf = formData.cpf.replace(/\D/g, '')
+      }
+      if (formData.rg) {
+        formData.rg = String(formData.rg).trim()
+      }
 
       formData.instagram = instagramHandleToStoredUrl(values.instagram)
 
@@ -322,13 +352,17 @@ const CadastroEmpresa = () => {
         responsavel: values.responsavel,
         empresa: values.nome,
         cnpj: values.cnpj || '',
+        rg: values.rg ? String(values.rg).trim() : '',
+        cpf: values.cpf ? String(values.cpf).replace(/\D/g, '') : '',
         telefone: values.telefone || '',
         email: values.email || '',
         endereco: values.endereco || '',
         cep: values.cep || '',
       })
       setShowCarta(true)
-      message.info('Preencha todos os campos da carta, assine e clique em «Confirmar e concluir» para enviar o cadastro.')
+      message.info(
+        'Revise a carta de adesão, confira a data no topo, assine no campo indicado e clique em «Confirmar e concluir» para enviar o cadastro.'
+      )
     } catch (error) {
       message.error(error.response?.data?.error || 'Erro ao preparar o cadastro')
     } finally {
@@ -453,13 +487,52 @@ const CadastroEmpresa = () => {
                   </Form.Item>
                 </CadastroFieldMotion>
 
+                <CadastroFieldMotion delay={0.22}>
+                  <Form.Item
+                    name="rg"
+                    label="RG do responsável"
+                    rules={[
+                      { required: true, message: 'RG é obrigatório' },
+                      { min: 3, message: 'Informe um RG válido' },
+                    ]}
+                  >
+                    <Input placeholder="Número do documento de identidade" maxLength={24} />
+                  </Form.Item>
+                </CadastroFieldMotion>
+
+                <CadastroFieldMotion delay={0.24}>
+                  <Form.Item
+                    name="cpf"
+                    label="CPF do responsável"
+                    normalize={(value) => formatCPF(value || '')}
+                    rules={[
+                      { required: true, message: 'CPF é obrigatório' },
+                      {
+                        validator: (_, value) => {
+                          if (!value) return Promise.resolve()
+                          const d = value.replace(/\D/g, '')
+                          if (d.length !== 11) {
+                            return Promise.reject(new Error('CPF deve ter 11 dígitos'))
+                          }
+                          if (!validateCPF(d)) {
+                            return Promise.reject(new Error('CPF inválido'))
+                          }
+                          return Promise.resolve()
+                        },
+                      },
+                    ]}
+                  >
+                    <Input placeholder="000.000.000-00" maxLength={14} inputMode="numeric" />
+                  </Form.Item>
+                </CadastroFieldMotion>
+
                 <CadastroFieldMotion delay={0.3}>
                   <Form.Item
                     name="categoria"
                     label="Categoria"
                     rules={[{ required: true, message: 'Campo obrigatório' }]}
                   >
-                    <Select placeholder="Selecione a categoria">
+                    <Select placeholder="Selecione a categoria" popupClassName="cadastro-fundador-select-dropdown">
                       <Select.Option value="Varejo">Varejo</Select.Option>
                       <Select.Option value="Alimentação">Alimentação</Select.Option>
                       <Select.Option value="Tecnologia">Tecnologia</Select.Option>
