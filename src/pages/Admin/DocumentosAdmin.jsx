@@ -14,8 +14,8 @@ import {
   Drawer,
   Tabs,
   DatePicker,
-  Row,
-  Col,
+  Empty,
+  Tooltip,
 } from 'antd'
 import dayjs from 'dayjs'
 import {
@@ -25,8 +25,9 @@ import {
   UploadOutlined,
   EyeOutlined,
   DownloadOutlined,
-  FileOutlined,
   FolderOutlined,
+  SearchOutlined,
+  ClearOutlined,
 } from '@ant-design/icons'
 import {
   getDocumentos,
@@ -35,9 +36,9 @@ import {
   deleteDocumento,
   getCategoriasDocumentos,
   createCategoriaDocumento,
-  updateCategoriaDocumento,
   deleteCategoriaDocumento,
 } from '../../lib/api'
+import { glassPanel, pageSubtitleLeft, pageTitle } from '../../components/public-site/publicUi'
 
 const { TextArea } = Input
 const { TabPane } = Tabs
@@ -268,6 +269,21 @@ const DocumentosAdmin = () => {
     return '📎'
   }
 
+  const temFiltrosAtivos =
+    filtroNome ||
+    filtroCriadoPor ||
+    filtroDataInicio ||
+    filtroDataFim ||
+    filtroCategoria !== 'todas'
+
+  const limparFiltros = () => {
+    setFiltroCategoria('todas')
+    setFiltroNome('')
+    setFiltroCriadoPor('')
+    setFiltroDataInicio(null)
+    setFiltroDataFim(null)
+  }
+
   // Gerenciamento de Categorias
   const handleCreateCategoria = () => {
     categoriaForm.resetFields()
@@ -310,6 +326,7 @@ const DocumentosAdmin = () => {
       title: 'Nome',
       dataIndex: 'nome',
       key: 'nome',
+      ellipsis: true,
       render: (text, record) => (
         <Space>
           <span>{getFileIcon(record.tipoArquivo)}</span>
@@ -327,6 +344,7 @@ const DocumentosAdmin = () => {
       title: 'Tipo',
       dataIndex: 'tipoArquivo',
       key: 'tipoArquivo',
+      responsive: ['md'],
       render: (tipo) => {
         if (tipo?.includes('pdf')) return <Tag color="red">PDF</Tag>
         if (tipo?.includes('word') || tipo?.includes('document')) return <Tag color="blue">Word</Tag>
@@ -338,55 +356,64 @@ const DocumentosAdmin = () => {
       title: 'Tamanho',
       dataIndex: 'tamanhoArquivo',
       key: 'tamanhoArquivo',
+      responsive: ['lg'],
       render: (tamanho) => formatFileSize(tamanho),
     },
     {
       title: 'Criado por',
       dataIndex: 'criadoPor',
       key: 'criadoPor',
-      render: (criadoPor) => criadoPor?.nome || 'N/A',
+      ellipsis: true,
+      render: (criadoPor) => criadoPor?.nome || '—',
     },
     {
       title: 'Data',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (date) => new Date(date).toLocaleDateString('pt-BR'),
+      width: 110,
+      render: (date) => (date ? new Date(date).toLocaleDateString('pt-BR') : '—'),
     },
     {
       title: 'Ações',
       key: 'actions',
+      width: 160,
       render: (_, record) => (
-        <Space>
+        <Space size="middle">
           {record.tipoArquivo?.includes('pdf') && (
-            <Button
-              type="link"
-              icon={<EyeOutlined />}
-              onClick={() => handlePreview(record)}
-            >
-              Visualizar
-            </Button>
+            <Tooltip title="Visualizar PDF">
+              <Button
+                type="text"
+                icon={<EyeOutlined />}
+                onClick={() => handlePreview(record)}
+                shape="circle"
+              />
+            </Tooltip>
           )}
-          <Button
-            type="link"
-            icon={<DownloadOutlined />}
-            onClick={() => handleDownload(record)}
-          >
-            Download
-          </Button>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            Editar
-          </Button>
+          <Tooltip title="Download">
+            <Button
+              type="text"
+              icon={<DownloadOutlined />}
+              onClick={() => handleDownload(record)}
+              shape="circle"
+            />
+          </Tooltip>
+          <Tooltip title="Editar">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+              shape="circle"
+            />
+          </Tooltip>
           <Popconfirm
-            title="Tem certeza que deseja deletar este documento?"
+            title="Tem certeza que deseja excluir este documento?"
             onConfirm={() => handleDelete(record._id)}
+            okText="Sim"
+            cancelText="Não"
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
-              Deletar
-            </Button>
+            <Tooltip title="Excluir">
+              <Button type="text" danger icon={<DeleteOutlined />} shape="circle" />
+            </Tooltip>
           </Popconfirm>
         </Space>
       ),
@@ -394,129 +421,172 @@ const DocumentosAdmin = () => {
   ]
 
   return (
-    <div>
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-        <h2>Gerenciar Documentos</h2>
-        <Space>
+    <div className="mx-auto max-w-7xl">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className={`${pageTitle} !mb-2 !text-left !text-2xl sm:!text-3xl lg:!text-4xl`}>
+            Documentos
+          </h1>
+          <p className={`${pageSubtitleLeft} !mx-0 !max-w-2xl !text-base`}>
+            Gerencie atas, arquivos e categorias. Visualize PDFs ou faça download dos documentos.
+          </p>
+        </div>
+        <Space wrap className="!shrink-0">
           <Button
             icon={<FolderOutlined />}
             onClick={handleCreateCategoria}
+            className="!h-11 !rounded-xl !border-white/15 !bg-white/5 !text-gray-200 hover:!border-white/25 hover:!text-white"
           >
-            Gerenciar Categorias
+            Categorias
           </Button>
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={handleCreate}
+            size="large"
+            className="!h-11 !rounded-xl !border-0 !bg-gradient-to-r !from-[#1e4d7b] !to-[#5b9bd5] !px-5 !font-semibold hover:!brightness-110"
           >
-            Novo Documento
+            Novo documento
           </Button>
         </Space>
       </div>
 
-      <div style={{ marginBottom: '16px', background: '#fff', padding: '16px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={6}>
-            <div>
-              <div style={{ marginBottom: '8px', fontWeight: '500' }}>Categoria</div>
-              <Select
-                value={filtroCategoria}
-                onChange={setFiltroCategoria}
-                style={{ width: '100%' }}
-                placeholder="Todas as categorias"
-              >
-                <Select.Option value="todas">Todas as categorias</Select.Option>
-                {categorias.map((cat) => {
-                  const nome = typeof cat === 'string' ? cat : cat.nome
-                  return (
-                    <Select.Option key={nome} value={nome}>
-                      {nome}
-                    </Select.Option>
-                  )
-                })}
-              </Select>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <div>
-              <div style={{ marginBottom: '8px', fontWeight: '500' }}>Nome do Documento</div>
-              <Input
-                placeholder="Buscar por nome..."
-                value={filtroNome}
-                onChange={(e) => setFiltroNome(e.target.value)}
-                allowClear
-              />
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <div>
-              <div style={{ marginBottom: '8px', fontWeight: '500' }}>Criado por</div>
-              <Input
-                placeholder="Buscar por usuário..."
-                value={filtroCriadoPor}
-                onChange={(e) => setFiltroCriadoPor(e.target.value)}
-                allowClear
-              />
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <div>
-              <div style={{ marginBottom: '8px', fontWeight: '500' }}>Período</div>
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <DatePicker
-                  placeholder="Data início"
-                  value={filtroDataInicio}
-                  onChange={setFiltroDataInicio}
-                  format="DD/MM/YYYY"
-                  style={{ width: '100%' }}
-                  allowClear
-                />
-                <DatePicker
-                  placeholder="Data fim"
-                  value={filtroDataFim}
-                  onChange={setFiltroDataFim}
-                  format="DD/MM/YYYY"
-                  style={{ width: '100%' }}
-                  allowClear
-                />
-              </Space>
-            </div>
-          </Col>
-        </Row>
-        {(filtroNome || filtroCriadoPor || filtroDataInicio || filtroDataFim || filtroCategoria !== 'todas') && (
-          <div style={{ marginTop: '16px' }}>
-            <Button
-              onClick={() => {
-                setFiltroCategoria('todas')
-                setFiltroNome('')
-                setFiltroCriadoPor('')
-                setFiltroDataInicio(null)
-                setFiltroDataFim(null)
-              }}
-            >
-              Limpar Filtros
-            </Button>
+      <div className={`${glassPanel} mb-6 p-5 sm:p-6`}>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-white">
+            <SearchOutlined className="text-[#5b9bd5]" />
+            Filtros
           </div>
-        )}
+          {temFiltrosAtivos && (
+            <Button
+              type="text"
+              icon={<ClearOutlined />}
+              onClick={limparFiltros}
+              className="!text-gray-400 hover:!text-white"
+              size="small"
+            >
+              Limpar filtros
+            </Button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <div className="xl:col-span-2">
+            <label className="mb-1.5 block text-xs text-gray-500">Nome do documento</label>
+            <Input
+              placeholder="Buscar por nome..."
+              prefix={<SearchOutlined className="text-gray-600" />}
+              value={filtroNome}
+              onChange={(e) => setFiltroNome(e.target.value)}
+              allowClear
+              className="!rounded-xl"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-gray-500">Criado por</label>
+            <Input
+              placeholder="Buscar por usuário..."
+              value={filtroCriadoPor}
+              onChange={(e) => setFiltroCriadoPor(e.target.value)}
+              allowClear
+              className="!rounded-xl"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-gray-500">Categoria</label>
+            <Select
+              value={filtroCategoria}
+              onChange={setFiltroCategoria}
+              className="w-full"
+              popupClassName="admin-managed-select-dropdown"
+              options={[
+                { value: 'todas', label: 'Todas as categorias' },
+                ...categorias.map((cat) => {
+                  const nome = typeof cat === 'string' ? cat : cat.nome
+                  return { value: nome, label: nome }
+                }),
+              ]}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-gray-500">Data início</label>
+            <DatePicker
+              placeholder="Selecione"
+              value={filtroDataInicio}
+              onChange={setFiltroDataInicio}
+              format="DD/MM/YYYY"
+              className="w-full"
+              popupClassName="admin-managed-picker-dropdown"
+              allowClear
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-gray-500">Data fim</label>
+            <DatePicker
+              placeholder="Selecione"
+              value={filtroDataFim}
+              onChange={setFiltroDataFim}
+              format="DD/MM/YYYY"
+              className="w-full"
+              popupClassName="admin-managed-picker-dropdown"
+              allowClear
+            />
+          </div>
+        </div>
+
+        <p className="mb-0 mt-4 text-xs text-gray-500">
+          {loading ? 'Carregando...' : (
+            <>
+              <span className="text-gray-300">{documentos.length}</span> documento
+              {documentos.length !== 1 ? 's' : ''} encontrado{documentos.length !== 1 ? 's' : ''}
+            </>
+          )}
+        </p>
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={documentos}
-        loading={loading}
-        rowKey="_id"
-        scroll={{ x: 'max-content' }}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showTotal: (total) => `Total: ${total} documentos`,
-        }}
-      />
+      <div className={`${glassPanel} overflow-hidden p-2 sm:p-4`}>
+        <Table
+          columns={columns}
+          dataSource={documentos}
+          loading={loading}
+          rowKey="_id"
+          scroll={{ x: 'max-content' }}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `${total} documento${total !== 1 ? 's' : ''}`,
+          }}
+          locale={{
+            emptyText: (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  temFiltrosAtivos
+                    ? 'Nenhum documento encontrado com os filtros aplicados'
+                    : 'Nenhum documento cadastrado ainda'
+                }
+              >
+                {temFiltrosAtivos ? (
+                  <Button onClick={limparFiltros} icon={<ClearOutlined />}>
+                    Limpar filtros
+                  </Button>
+                ) : (
+                  <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+                    Cadastrar documento
+                  </Button>
+                )}
+              </Empty>
+            ),
+          }}
+        />
+      </div>
 
       {/* Modal de Documento */}
       <Modal
-        title={editingDocumento ? 'Editar Documento' : 'Novo Documento'}
+        title={editingDocumento ? 'Editar documento' : 'Novo documento'}
         open={modalVisible}
+        rootClassName="admin-managed-modal"
         onCancel={() => {
           setModalVisible(false)
           form.resetFields()
@@ -548,19 +618,15 @@ const DocumentosAdmin = () => {
             <Select
               placeholder="Selecione ou digite uma categoria"
               showSearch
+              popupClassName="admin-managed-select-dropdown"
               filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
               }
-            >
-              {categorias.map((cat) => {
+              options={categorias.map((cat) => {
                 const nome = typeof cat === 'string' ? cat : cat.nome
-                return (
-                  <Select.Option key={nome} value={nome}>
-                    {nome}
-                  </Select.Option>
-                )
+                return { value: nome, label: nome }
               })}
-            </Select>
+            />
           </Form.Item>
 
           <Form.Item
@@ -651,8 +717,9 @@ const DocumentosAdmin = () => {
 
       {/* Modal de Categorias */}
       <Modal
-        title="Gerenciar Categorias"
+        title="Gerenciar categorias"
         open={categoriasModalVisible}
+        rootClassName="admin-managed-modal"
         onCancel={() => {
           setCategoriasModalVisible(false)
           categoriaForm.resetFields()
@@ -692,18 +759,21 @@ const DocumentosAdmin = () => {
                 {
                   title: 'Ações',
                   key: 'actions',
+                  width: 80,
                   render: (_, record) => (
                     record.custom && record._id ? (
                       <Popconfirm
-                        title="Tem certeza que deseja deletar esta categoria?"
+                        title="Tem certeza que deseja excluir esta categoria?"
                         onConfirm={() => handleDeleteCategoria(record)}
+                        okText="Sim"
+                        cancelText="Não"
                       >
-                        <Button type="link" danger icon={<DeleteOutlined />}>
-                          Deletar
-                        </Button>
+                        <Tooltip title="Excluir">
+                          <Button type="text" danger icon={<DeleteOutlined />} shape="circle" />
+                        </Tooltip>
                       </Popconfirm>
                     ) : (
-                      <span style={{ color: '#999' }}>Não pode ser deletada</span>
+                      <span className="text-xs text-gray-500">—</span>
                     )
                   ),
                 },
@@ -761,6 +831,11 @@ const DocumentosAdmin = () => {
         }}
         open={previewVisible}
         width={window.innerWidth < 768 ? '100%' : '80%'}
+        styles={{
+          header: { background: '#18181b', borderBottom: '1px solid rgba(255,255,255,0.1)' },
+          body: { background: '#0a0a0a', padding: 0 },
+        }}
+        className="admin-managed-drawer"
       >
         {previewDocumento && (
           <iframe

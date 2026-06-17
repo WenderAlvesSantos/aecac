@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { Form, Input, Button, Card, Typography, message } from 'antd'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { Form, Input, Button, message } from 'antd'
+import { UserOutlined, LockOutlined, HomeOutlined } from '@ant-design/icons'
+import { motion } from 'motion/react'
+import { Link, useNavigate } from 'react-router-dom'
 import { login } from '../../lib/api'
-import { useNavigate } from 'react-router-dom'
-import Logo from '../../components/Logo'
-
-const { Title } = Typography
+import PublicLayout from '../../components/public-site/PublicLayout'
+import { glassPanel, pageSubtitle, pageTitle } from '../../components/public-site/publicUi'
 
 const Login = () => {
   const [loading, setLoading] = useState(false)
@@ -14,17 +14,14 @@ const Login = () => {
   const onFinish = async (values) => {
     setLoading(true)
     try {
-      console.log('Tentando fazer login com:', { email: values.email })
       const response = await login(values.email, values.password)
-      console.log('Login bem-sucedido:', response.data)
       localStorage.setItem('authToken', response.data.token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
       message.success('Login realizado com sucesso!')
       navigate('/admin')
     } catch (error) {
-      console.error('Erro no login:', error)
-      console.error('Response:', error.response)
-      const errorMessage = error.response?.data?.error || error.message || 'Erro ao fazer login. Verifique suas credenciais.'
+      const errorMessage =
+        error.response?.data?.error || error.message || 'Erro ao fazer login. Verifique suas credenciais.'
       message.error(errorMessage)
     } finally {
       setLoading(false)
@@ -32,104 +29,85 @@ const Login = () => {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
-        padding: '24px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Decorative elements */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-50%',
-          right: '-10%',
-          width: '600px',
-          height: '600px',
-          background: 'rgba(255, 255, 255, 0.05)',
-          borderRadius: '50%',
-          filter: 'blur(80px)',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '-30%',
-          left: '-10%',
-          width: '500px',
-          height: '500px',
-          background: 'rgba(0, 200, 83, 0.1)',
-          borderRadius: '50%',
-          filter: 'blur(80px)',
-        }}
-      />
-      <Card
-        style={{
-          width: '100%',
-          maxWidth: '400px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          borderRadius: '12px',
-          border: '1px solid rgba(255,255,255,0.2)',
-          background: 'rgba(255,255,255,0.95)',
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <Logo height="80px" style={{ marginBottom: '16px' }} />
-          <p>Painel Administrativo</p>
-        </div>
-
-        <Form
-          name="login"
-          onFinish={onFinish}
-          layout="vertical"
-          size="large"
-        >
-          <Form.Item
-            name="email"
-            rules={[
-              { required: true, message: 'Por favor, insira seu email!' },
-              { type: 'email', message: 'Email inválido!' },
-            ]}
+    <PublicLayout bare>
+      <div className="w-full px-6 py-12 lg:px-12">
+        <div className="mx-auto max-w-lg">
+          <motion.div
+            className="mb-8 text-center"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
           >
-            <Input
-              prefix={<UserOutlined />}
-              placeholder="Email"
-            />
-          </Form.Item>
+            <h1 className={pageTitle}>Painel Administrativo</h1>
+            <p className={`${pageSubtitle} mt-2`}>Acesse com suas credenciais para gerenciar a AECAC.</p>
+          </motion.div>
 
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: 'Por favor, insira sua senha!' }]}
+          <motion.div
+            className={`${glassPanel} p-8 sm:p-10`}
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.08 }}
           >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="Senha"
-            />
-          </Form.Item>
-
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-              loading={loading}
+            <Form
+              name="admin-login"
+              onFinish={onFinish}
+              layout="vertical"
+              size="large"
+              className="cadastro-fundador-form"
+              requiredMark
             >
-              Entrar
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
-    </div>
+              <Form.Item
+                name="email"
+                label="E-mail"
+                rules={[
+                  { required: true, message: 'Por favor, insira seu e-mail' },
+                  { type: 'email', message: 'E-mail inválido' },
+                ]}
+              >
+                <Input prefix={<UserOutlined className="text-gray-500" />} placeholder="seu@email.com" />
+              </Form.Item>
+
+              <Form.Item
+                name="password"
+                label="Senha"
+                rules={[{ required: true, message: 'Por favor, insira sua senha' }]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="text-gray-500" />}
+                  placeholder="Sua senha"
+                />
+              </Form.Item>
+
+              <Form.Item className="!mb-0">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    type="default"
+                    htmlType="submit"
+                    block
+                    loading={loading}
+                    className="!h-auto !min-h-[52px] !rounded-xl !border-0 !bg-gradient-to-r !from-[#1e4d7b] !to-[#5b9bd5] !px-4 !py-5 !text-lg !font-semibold !text-white hover:!brightness-110"
+                    style={{ boxShadow: '0 10px 40px rgba(91, 155, 213, 0.25)' }}
+                  >
+                    Entrar
+                  </Button>
+                </motion.div>
+              </Form.Item>
+            </Form>
+
+            <div className="mt-8 text-center">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
+              >
+                <HomeOutlined />
+                Voltar para o site
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </PublicLayout>
   )
 }
 
 export default Login
-

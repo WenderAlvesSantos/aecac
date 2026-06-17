@@ -19,12 +19,12 @@ const publicDarkTheme = {
   },
 }
 
-export default function PublicLayout({ children }) {
+export default function PublicLayout({ children, bare = false }) {
   return (
     <div className="public-marketing min-h-screen bg-black text-white">
       <ScrollToTop />
-      <PublicHeader />
-      <main className="relative pt-24">
+      {!bare && <PublicHeader />}
+      <main className={bare ? 'relative flex min-h-screen items-center' : 'relative pt-24'}>
         <div className="pointer-events-none fixed inset-0 -z-10 bg-black" aria-hidden />
         <div
           className="pointer-events-none fixed inset-0 -z-10 opacity-[0.55]"
@@ -34,10 +34,12 @@ export default function PublicLayout({ children }) {
           }}
           aria-hidden
         />
-        <ConfigProvider theme={publicDarkTheme}>{children}</ConfigProvider>
+        <ConfigProvider theme={publicDarkTheme}>
+          <div className={bare ? 'w-full' : undefined}>{children}</div>
+        </ConfigProvider>
       </main>
-      <PublicFooter />
-      <BackToTop />
+      {!bare && <PublicFooter />}
+      {!bare && <BackToTop />}
     </div>
   )
 }

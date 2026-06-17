@@ -1,18 +1,29 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   Table,
   Button,
   Modal,
   Form,
   Input,
+  Select,
   message,
   Space,
   Popconfirm,
   Upload,
   Image,
+  Empty,
+  Tooltip,
 } from 'antd'
 import ImgCrop from 'antd-img-crop'
-import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, HolderOutlined } from '@ant-design/icons'
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+  HolderOutlined,
+  SearchOutlined,
+  ClearOutlined,
+} from '@ant-design/icons'
 import {
   getDiretoria,
   createMembro,
@@ -29,6 +40,20 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { glassPanel, pageSubtitleLeft, pageTitle } from '../../components/public-site/publicUi'
+
+function normalizeSearch(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
+
+const FOTO_FILTER_OPTIONS = [
+  { value: 'all', label: 'Todas' },
+  { value: 'com', label: 'Com foto' },
+  { value: 'sem', label: 'Sem foto' },
+]
 
 // Componente de linha arrastável
 const Row = (props) => {
@@ -54,6 +79,9 @@ const DiretoriaAdmin = () => {
   const [editingMembro, setEditingMembro] = useState(null)
   const editingMembroRef = useRef(null)
   const [form] = Form.useForm()
+  const [filtroNome, setFiltroNome] = useState('')
+  const [filtroCargo, setFiltroCargo] = useState('all')
+  const [filtroFoto, setFiltroFoto] = useState('all')
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -77,6 +105,32 @@ const DiretoriaAdmin = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const cargosDisponiveis = useMemo(
+    () => [...new Set(diretoria.map((m) => m.cargo).filter(Boolean))].sort(),
+    [diretoria]
+  )
+
+  const diretoriaFiltrada = useMemo(() => {
+    const nomeQ = normalizeSearch(filtroNome)
+
+    return diretoria.filter((membro) => {
+      if (nomeQ && !normalizeSearch(membro.nome).includes(nomeQ)) return false
+      if (filtroCargo !== 'all' && membro.cargo !== filtroCargo) return false
+      const temFoto = Boolean(membro.foto && membro.foto.startsWith('data:image'))
+      if (filtroFoto === 'com' && !temFoto) return false
+      if (filtroFoto === 'sem' && temFoto) return false
+      return true
+    })
+  }, [diretoria, filtroNome, filtroCargo, filtroFoto])
+
+  const temFiltrosAtivos = filtroNome || filtroCargo !== 'all' || filtroFoto !== 'all'
+
+  const limparFiltros = () => {
+    setFiltroNome('')
+    setFiltroCargo('all')
+    setFiltroFoto('all')
   }
 
   const handleCreate = () => {
@@ -140,6 +194,7 @@ const DiretoriaAdmin = () => {
   }
 
   const onDragEnd = async ({ active, over }) => {
+    if (temFiltrosAtivos) return
     if (active.id !== over?.id) {
       const activeIndex = diretoria.findIndex((i) => i._id === active.id)
       const overIndex = diretoria.findIndex((i) => i._id === over?.id)
@@ -241,61 +296,82 @@ const DiretoriaAdmin = () => {
   }
 
   const columns = [
-    {
-      key: 'sort',
-      width: 50,
-      render: () => <HolderOutlined style={{ cursor: 'move', color: '#999' }} />,
-    },
+    ...(!temFiltrosAtivos
+      ? [
+          {
+            key: 'sort',
+            width: 50,
+            render: () => (
+              <HolderOutlined className="cursor-move text-gray-500" title="Arraste para reordenar" />
+            ),
+          },
+        ]
+      : []),
     {
       title: 'Foto',
       dataIndex: 'foto',
       key: 'foto',
-      width: 100,
+      width: 80,
       render: (foto) => {
         if (foto && foto.startsWith('data:image')) {
           return (
             <Image
               src={foto}
               alt="Foto"
-              width={60}
-              height={60}
-              style={{ objectFit: 'cover', borderRadius: '4px' }}
+              width={48}
+              height={48}
+              className="rounded-lg object-cover"
               preview={false}
             />
           )
         }
-        return '-'
+        return <span className="text-xs text-gray-600">—</span>
       },
     },
     {
       title: 'Nome',
       dataIndex: 'nome',
       key: 'nome',
+      ellipsis: true,
     },
     {
       title: 'Cargo',
       dataIndex: 'cargo',
       key: 'cargo',
+      ellipsis: true,
+    },
+    {
+      title: 'Ordem',
+      key: 'ordem',
+      width: 80,
+      render: (_, record) => {
+        const posicao = diretoria.findIndex((m) => m._id === record._id) + 1
+        return <span className="text-sm text-gray-400">{posicao > 0 ? posicao : '—'}</span>
+      },
     },
     {
       title: 'Ações',
       key: 'actions',
+      width: 120,
       render: (_, record) => (
-        <Space>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            Editar
-          </Button>
+        <Space size="middle">
+          <Tooltip title="Editar membro">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+              shape="circle"
+            />
+          </Tooltip>
           <Popconfirm
-            title="Tem certeza que deseja deletar este membro?"
+            title="Tem certeza que deseja excluir este membro?"
             onConfirm={() => handleDelete(record._id)}
+            okText="Sim"
+            cancelText="Não"
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
-              Deletar
-            </Button>
+            <Tooltip title="Excluir membro">
+              <Button type="text" danger icon={<DeleteOutlined />} shape="circle" />
+            </Tooltip>
           </Popconfirm>
         </Space>
       ),
@@ -303,39 +379,148 @@ const DiretoriaAdmin = () => {
   ]
 
   return (
-    <div>
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Gerenciar Diretoria</h2>
+    <div className="mx-auto max-w-7xl">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className={`${pageTitle} !mb-2 !text-left !text-2xl sm:!text-3xl lg:!text-4xl`}>
+            Diretoria
+          </h1>
+          <p className={`${pageSubtitleLeft} !mx-0 !max-w-2xl !text-base`}>
+            Gerencie os membros exibidos na página Sobre. Arraste as linhas para definir a ordem de exibição.
+          </p>
+        </div>
         <Button
           type="primary"
           icon={<PlusOutlined />}
           onClick={handleCreate}
+          size="large"
+          className="!shrink-0 !h-11 !rounded-xl !border-0 !bg-gradient-to-r !from-[#1e4d7b] !to-[#5b9bd5] !px-5 !font-semibold hover:!brightness-110"
         >
-          Novo Membro
+          Novo membro
         </Button>
       </div>
 
-      <DndContext sensors={sensors} modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-        <SortableContext items={diretoria.map((i) => i._id)} strategy={verticalListSortingStrategy}>
-          <Table
-            components={{
-              body: {
-                row: Row,
-              },
-            }}
-            columns={columns}
-            dataSource={diretoria}
-            loading={loading}
-            rowKey="_id"
-            scroll={{ x: 'max-content' }}
-            pagination={false}
-          />
-        </SortableContext>
-      </DndContext>
+      <div className={`${glassPanel} mb-6 p-5 sm:p-6`}>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-white">
+            <SearchOutlined className="text-[#5b9bd5]" />
+            Filtros
+          </div>
+          {temFiltrosAtivos && (
+            <Button
+              type="text"
+              icon={<ClearOutlined />}
+              onClick={limparFiltros}
+              className="!text-gray-400 hover:!text-white"
+              size="small"
+            >
+              Limpar filtros
+            </Button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="sm:col-span-2">
+            <label className="mb-1.5 block text-xs text-gray-500">Nome</label>
+            <Input
+              placeholder="Buscar por nome..."
+              prefix={<SearchOutlined className="text-gray-600" />}
+              value={filtroNome}
+              onChange={(e) => setFiltroNome(e.target.value)}
+              allowClear
+              className="!rounded-xl"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-gray-500">Cargo</label>
+            <Select
+              value={filtroCargo}
+              onChange={setFiltroCargo}
+              className="w-full"
+              popupClassName="admin-managed-select-dropdown"
+              options={[
+                { value: 'all', label: 'Todos os cargos' },
+                ...cargosDisponiveis.map((c) => ({ value: c, label: c })),
+              ]}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-gray-500">Foto</label>
+            <Select
+              value={filtroFoto}
+              onChange={setFiltroFoto}
+              className="w-full"
+              popupClassName="admin-managed-select-dropdown"
+              options={FOTO_FILTER_OPTIONS}
+            />
+          </div>
+        </div>
+
+        <p className="mb-0 mt-4 text-xs text-gray-500">
+          Mostrando <span className="text-gray-300">{diretoriaFiltrada.length}</span> de{' '}
+          <span className="text-gray-300">{diretoria.length}</span> membros
+          {temFiltrosAtivos && (
+            <span className="text-amber-300/80"> · reordenação desativada enquanto houver filtros</span>
+          )}
+        </p>
+      </div>
+
+      <div className={`${glassPanel} overflow-hidden p-2 sm:p-4`}>
+        <DndContext sensors={sensors} modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+          <SortableContext
+            items={diretoriaFiltrada.map((i) => i._id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <Table
+              components={
+                temFiltrosAtivos
+                  ? undefined
+                  : {
+                      body: { row: Row },
+                    }
+              }
+              columns={columns}
+              dataSource={diretoriaFiltrada}
+              loading={loading}
+              rowKey="_id"
+              scroll={{ x: 'max-content' }}
+              pagination={{
+                showSizeChanger: true,
+                showTotal: (total) => `${total} membro${total !== 1 ? 's' : ''}`,
+                pageSizeOptions: ['10', '20', '50'],
+                defaultPageSize: 10,
+              }}
+              locale={{
+                emptyText: (
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={
+                      temFiltrosAtivos
+                        ? 'Nenhum membro encontrado com os filtros aplicados'
+                        : 'Nenhum membro cadastrado na diretoria'
+                    }
+                  >
+                    {temFiltrosAtivos ? (
+                      <Button onClick={limparFiltros} icon={<ClearOutlined />}>
+                        Limpar filtros
+                      </Button>
+                    ) : (
+                      <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+                        Cadastrar membro
+                      </Button>
+                    )}
+                  </Empty>
+                ),
+              }}
+            />
+          </SortableContext>
+        </DndContext>
+      </div>
 
       <Modal
-        title={editingMembro ? 'Editar Membro' : 'Novo Membro'}
+        title={editingMembro ? 'Editar membro' : 'Novo membro'}
         open={modalVisible}
+        rootClassName="admin-managed-modal"
         onCancel={() => {
           setModalVisible(false)
           form.resetFields()

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Layout, Menu, Card, Statistic, Row, Col, Drawer, Button } from 'antd'
+import { Layout, Menu, ConfigProvider, theme, Drawer, Button } from 'antd'
 import {
   DashboardOutlined,
   CalendarOutlined,
@@ -15,139 +15,96 @@ import {
   BookOutlined,
   MenuOutlined,
   FolderOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { getEventosAdmin, getParceiros, getEmpresas, getGaleria, getDiretoria, getBeneficiosAdmin, getCapacitacoesAdmin } from '../../lib/api'
+import Logo from '../../components/Logo'
+import { AdminDashboardHome } from '../../components/admin/AdminDashboardHome'
 
-const { Header: AntHeader, Content, Sider } = Layout
+const { Content } = Layout
+const SIDER_WIDTH = 240
+
+const adminDarkTheme = {
+  algorithm: theme.darkAlgorithm,
+  token: {
+    colorBgBase: '#000000',
+    colorBgContainer: 'rgba(255, 255, 255, 0.06)',
+    colorBorder: 'rgba(255, 255, 255, 0.12)',
+    colorBorderSecondary: 'rgba(255, 255, 255, 0.08)',
+    colorText: 'rgba(255, 255, 255, 0.92)',
+    colorTextSecondary: 'rgba(255, 255, 255, 0.55)',
+    colorPrimary: '#5b9bd5',
+    colorBgElevated: '#18181b',
+    borderRadiusLG: 16,
+  },
+  components: {
+    Modal: {
+      contentBg: '#18181b',
+      headerBg: 'rgba(255, 255, 255, 0.04)',
+      titleColor: 'rgba(255, 255, 255, 0.95)',
+      colorIcon: 'rgba(255, 255, 255, 0.55)',
+      colorIconHover: 'rgba(255, 255, 255, 0.9)',
+    },
+    Select: {
+      optionSelectedBg: 'rgba(91, 155, 213, 0.28)',
+      optionActiveBg: 'rgba(91, 155, 213, 0.2)',
+    },
+  },
+}
+
+const menuItems = [
+  { key: '/admin', icon: <DashboardOutlined />, label: 'Dashboard' },
+  { type: 'divider' },
+  {
+    type: 'group',
+    label: 'Cadastros',
+    children: [
+      { key: '/admin/fundadores', icon: <ShopOutlined />, label: 'Fundadores' },
+      { key: '/admin/diretoria', icon: <UserOutlined />, label: 'Diretoria' },
+      { key: '/admin/documentos', icon: <FolderOutlined />, label: 'Documentos' },
+    ],
+  },
+  {
+    type: 'group',
+    label: 'Conteúdo',
+    children: [
+      { key: '/admin/parceiros', icon: <TeamOutlined />, label: 'Parceiros' },
+      { key: '/admin/galeria', icon: <PictureOutlined />, label: 'Galeria' },
+      { key: '/admin/sobre', icon: <FileTextOutlined />, label: 'Sobre' },
+      { key: '/admin/eventos', icon: <CalendarOutlined />, label: 'Eventos' },
+      { key: '/admin/beneficios', icon: <GiftOutlined />, label: 'Benefícios' },
+      { key: '/admin/capacitacoes', icon: <BookOutlined />, label: 'Capacitações' },
+    ],
+  },
+  {
+    type: 'group',
+    label: 'Sistema',
+    children: [
+      { key: '/admin/perfil', icon: <IdcardOutlined />, label: 'Meu Perfil' },
+      { key: '/admin/usuarios', icon: <UsergroupAddOutlined />, label: 'Usuários' },
+      { key: '/admin/configuracoes', icon: <SettingOutlined />, label: 'Configurações' },
+    ],
+  },
+]
 
 const Dashboard = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const [stats, setStats] = useState({
-    eventos: 0,
-    parceiros: 0,
-    empresas: 0,
-    galeria: 0,
-    diretoria: 0,
-    beneficios: 0,
-    capacitacoes: 0,
-  })
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    loadStats()
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
       if (window.innerWidth >= 768) {
         setMobileMenuVisible(false)
       }
     }
-    
+
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-
-  const loadStats = async () => {
-    try {
-      const [eventos, parceiros, empresas, galeria, diretoria, beneficios, capacitacoes] = await Promise.all([
-        getEventosAdmin(),
-        getParceiros(),
-        getEmpresas(),
-        getGaleria(),
-        getDiretoria(),
-        getBeneficiosAdmin().catch(() => ({ data: [] })),
-        getCapacitacoesAdmin().catch(() => ({ data: [] })),
-      ])
-
-      setStats({
-        eventos: eventos.data.length,
-        parceiros: parceiros.data.length,
-        empresas: empresas.data.length,
-        galeria: galeria.data.length,
-        diretoria: diretoria.data.length,
-        beneficios: beneficios.data.length,
-        capacitacoes: capacitacoes.data.length,
-      })
-    } catch (error) {
-      console.error('Erro ao carregar estatísticas:', error)
-    }
-  }
-
-  const menuItems = [
-    {
-      key: '/admin',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard',
-    },
-    {
-      key: '/admin/parceiros',
-      icon: <TeamOutlined />,
-      label: 'Parceiros',
-    },
-    {
-      key: '/admin/fundadores',
-      icon: <ShopOutlined />,
-      label: 'Fundadores',
-    },
-    {
-      key: '/admin/galeria',
-      icon: <PictureOutlined />,
-      label: 'Galeria',
-    },
-    {
-      key: '/admin/diretoria',
-      icon: <UserOutlined />,
-      label: 'Diretoria',
-    },
-    {
-      key: '/admin/eventos',
-      icon: <CalendarOutlined />,
-      label: 'Eventos',
-    },
-    {
-      key: '/admin/beneficios',
-      icon: <GiftOutlined />,
-      label: 'Benefícios',
-    },
-    {
-      key: '/admin/capacitacoes',
-      icon: <BookOutlined />,
-      label: 'Capacitações',
-    },
-    {
-      key: '/admin/documentos',
-      icon: <FolderOutlined />,
-      label: 'Documentos',
-    },
-    // {
-    //   key: '/admin/relatorios',
-    //   icon: <BarChartOutlined />,
-    //   label: 'Relatórios',
-    // },
-    {
-      key: '/admin/sobre',
-      icon: <FileTextOutlined />,
-      label: 'Sobre',
-    },
-    {
-      key: '/admin/perfil',
-      icon: <IdcardOutlined />,
-      label: 'Meu Perfil',
-    },
-    {
-      key: '/admin/usuarios',
-      icon: <UsergroupAddOutlined />,
-      label: 'Usuários',
-    },
-    {
-      key: '/admin/configuracoes',
-      icon: <SettingOutlined />,
-      label: 'Configurações',
-    },
-  ]
 
   const handleMenuClick = ({ key }) => {
     navigate(key)
@@ -163,264 +120,129 @@ const Dashboard = () => {
   }
 
   const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const isDashboardHome = location.pathname === '/admin'
 
   const menuContent = (
-    <>
-      <div
-        style={{
-          height: '64px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '12px',
-          borderBottom: '1px solid rgba(255,255,255,0.1)',
-          background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
-        }}
-      >
-        <span style={{ color: '#fff', marginLeft: '12px', fontSize: '18px', fontWeight: 'bold', textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
-          Admin
-        </span>
+    <Menu
+      theme="dark"
+      mode="inline"
+      selectedKeys={[location.pathname]}
+      items={menuItems}
+      onClick={handleMenuClick}
+      className="admin-sidebar-menu !border-none !bg-transparent"
+    />
+  )
+
+  const sidebar = (
+    <div className="flex h-full flex-col border-r border-white/10 bg-black/60 backdrop-blur-xl">
+      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-white/10 px-5">
+        <Logo height="36px" invert showText={false} />
+        <div>
+          <p className="m-0 text-sm font-semibold text-white">AECAC</p>
+          <p className="m-0 text-xs text-gray-500">Painel Admin</p>
+        </div>
       </div>
-      <Menu
-        theme={isMobile ? 'light' : 'dark'}
-        mode="inline"
-        selectedKeys={[location.pathname]}
-        items={menuItems}
-        onClick={handleMenuClick}
-      />
-    </>
+      <div className="flex-1 overflow-y-auto py-3">{menuContent}</div>
+    </div>
   )
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      {!isMobile && (
-        <Sider
-          breakpoint="lg"
-          collapsedWidth={80}
+    <ConfigProvider
+      theme={adminDarkTheme}
+      select={{ popupClassName: 'admin-managed-select-dropdown' }}
+      modal={{ rootClassName: 'admin-managed-modal' }}
+    >
+      <div className="admin-shell relative min-h-screen bg-black text-white">
+        <div className="pointer-events-none fixed inset-0 -z-10 bg-black" aria-hidden />
+        <div
+          className="pointer-events-none fixed inset-0 -z-10 opacity-50"
           style={{
-            background: 'linear-gradient(180deg, #1a237e 0%, #1565c0 100%)',
-            boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
-            overflow: 'auto',
-            height: '100vh',
-            position: 'fixed',
-            left: 0,
-            top: 0,
-            bottom: 0,
+            background:
+              'radial-gradient(ellipse 70% 45% at 10% 0%, rgba(91, 155, 213, 0.22), transparent), radial-gradient(ellipse 50% 40% at 100% 30%, rgba(30, 77, 123, 0.18), transparent), radial-gradient(ellipse 40% 40% at 50% 100%, rgba(108, 181, 65, 0.1), transparent)',
           }}
-        >
-          {menuContent}
-        </Sider>
-      )}
+          aria-hidden
+        />
 
-      <Drawer
-        title="Menu"
-        placement="left"
-        onClose={() => setMobileMenuVisible(false)}
-        open={mobileMenuVisible}
-        bodyStyle={{ padding: 0 }}
-        width={250}
-      >
-        {menuContent}
-      </Drawer>
+        {!isMobile && (
+          <aside className="fixed left-0 top-0 z-40 h-screen" style={{ width: SIDER_WIDTH }}>
+            {sidebar}
+          </aside>
+        )}
 
-      <Layout style={{ marginLeft: isMobile ? 0 : 200 }}>
-        <AntHeader
-          style={{
-            background: 'linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%)',
-            padding: isMobile ? '0 8px' : '0 24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            position: 'sticky',
-            top: 0,
-            zIndex: 100,
-            height: '64px',
+        <Drawer
+          title={<span className="text-white">Menu</span>}
+          placement="left"
+          onClose={() => setMobileMenuVisible(false)}
+          open={mobileMenuVisible}
+          styles={{
+            body: { padding: 0, background: '#000' },
+            header: { background: '#000', borderBottom: '1px solid rgba(255,255,255,0.1)' },
           }}
+          width={260}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px', flex: 1, minWidth: 0 }}>
-            {isMobile && (
+          {sidebar}
+        </Drawer>
+
+        <div style={{ marginLeft: isMobile ? 0 : SIDER_WIDTH }} className="min-h-screen">
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/10 bg-black/70 px-4 backdrop-blur-xl sm:px-6">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              {isMobile && (
+                <Button
+                  type="text"
+                  icon={<MenuOutlined />}
+                  onClick={() => setMobileMenuVisible(true)}
+                  className="!text-white"
+                />
+              )}
+              <div className="min-w-0">
+                <p className="m-0 truncate text-sm font-semibold text-white sm:text-base">
+                  {isDashboardHome
+                    ? 'Dashboard'
+                    : menuItems
+                        .flatMap((item) => {
+                          if (item.type === 'group') return item.children
+                          if (item.key) return [item]
+                          return []
+                        })
+                        .find((item) => item.key === location.pathname)?.label || 'Painel'}
+                </p>
+                {!isMobile && (
+                  <p className="m-0 truncate text-xs text-gray-500">
+                    {isDashboardHome
+                      ? 'Visão geral do painel administrativo'
+                      : 'Gerencie conteúdos e cadastros da AECAC'}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+              {!isMobile && (
+                <span className="hidden text-sm text-gray-400 sm:inline">
+                  <span className="text-white">{user.name || 'Admin'}</span>
+                </span>
+              )}
               <Button
-                type="text"
-                icon={<MenuOutlined />}
-                onClick={() => setMobileMenuVisible(true)}
-                style={{ fontSize: '18px', color: '#fff', flexShrink: 0 }}
-              />
-            )}
-            <div style={{ 
-              fontSize: isMobile ? '14px' : '18px', 
-              fontWeight: 'bold', 
-              color: '#fff', 
-              textShadow: '0 2px 4px rgba(0,0,0,0.2)',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}>
-              {isMobile ? 'Admin' : 'Painel Administrativo'}
+                icon={<LogoutOutlined />}
+                onClick={handleLogout}
+                className="!border-white/15 !bg-white/5 !text-white hover:!border-white/25 hover:!bg-white/10"
+                size={isMobile ? 'small' : 'middle'}
+              >
+                Sair
+              </Button>
             </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '4px' : '16px', flexShrink: 0 }}>
-            {!isMobile && (
-              <span style={{ fontSize: '16px', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.2)', whiteSpace: 'nowrap' }}>
-                Olá, {user.name || 'Admin'}
-              </span>
+          </header>
+
+          <Content className="p-4 sm:p-6 lg:p-8">
+            {isDashboardHome ? (
+              <AdminDashboardHome userName={user.name || 'Admin'} />
+            ) : (
+              <Outlet />
             )}
-            <Button 
-              onClick={handleLogout} 
-              type="default"
-              size={isMobile ? 'small' : 'middle'}
-              style={{ 
-                background: 'rgba(255,255,255,0.2)',
-                borderColor: 'rgba(255,255,255,0.3)',
-                color: '#fff',
-                flexShrink: 0,
-              }}
-            >
-              Sair
-            </Button>
-          </div>
-        </AntHeader>
-        <Content style={{ margin: isMobile ? '16px' : '24px', background: '#f0f2f5' }}>
-          {location.pathname === '/admin' ? (
-            <div>
-              <h2 style={{ marginBottom: '24px', color: '#1a237e', fontSize: '28px', fontWeight: 'bold' }}>Dashboard</h2>
-              <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} md={8}>
-                  <Card
-                    style={{
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                      border: '1px solid #e0e0e0',
-                      transition: 'all 0.3s ease',
-                    }}
-                    hoverable
-                  >
-                    <Statistic
-                      title="Eventos"
-                      value={stats.eventos}
-                      prefix={<CalendarOutlined />}
-                      valueStyle={{ color: '#1565c0' }}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} md={8}>
-                  <Card
-                    style={{
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                      border: '1px solid #e0e0e0',
-                      transition: 'all 0.3s ease',
-                    }}
-                    hoverable
-                  >
-                    <Statistic
-                      title="Parceiros"
-                      value={stats.parceiros}
-                      prefix={<TeamOutlined />}
-                      valueStyle={{ color: '#00c853' }}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} md={8}>
-                  <Card
-                    style={{
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                      border: '1px solid #e0e0e0',
-                      transition: 'all 0.3s ease',
-                    }}
-                    hoverable
-                  >
-                    <Statistic
-                      title="Fundadores"
-                      value={stats.empresas}
-                      prefix={<ShopOutlined />}
-                      valueStyle={{ color: '#1a237e' }}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} md={8}>
-                  <Card
-                    style={{
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                      border: '1px solid #e0e0e0',
-                      transition: 'all 0.3s ease',
-                    }}
-                    hoverable
-                  >
-                    <Statistic
-                      title="Imagens na Galeria"
-                      value={stats.galeria}
-                      prefix={<PictureOutlined />}
-                      valueStyle={{ color: '#1565c0' }}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} md={8}>
-                  <Card
-                    style={{
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                      border: '1px solid #e0e0e0',
-                      transition: 'all 0.3s ease',
-                    }}
-                    hoverable
-                  >
-                    <Statistic
-                      title="Membros da Diretoria"
-                      value={stats.diretoria}
-                      prefix={<UserOutlined />}
-                      valueStyle={{ color: '#1a237e' }}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} md={8}>
-                  <Card
-                    style={{
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                      border: '1px solid #e0e0e0',
-                      transition: 'all 0.3s ease',
-                    }}
-                    hoverable
-                  >
-                    <Statistic
-                      title="Benefícios Ativos"
-                      value={stats.beneficios}
-                      prefix={<GiftOutlined />}
-                      valueStyle={{ color: '#00c853' }}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} md={8}>
-                  <Card
-                    style={{
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                      border: '1px solid #e0e0e0',
-                      transition: 'all 0.3s ease',
-                    }}
-                    hoverable
-                  >
-                    <Statistic
-                      title="Capacitações"
-                      value={stats.capacitacoes}
-                      prefix={<BookOutlined />}
-                      valueStyle={{ color: '#1565c0' }}
-                    />
-                  </Card>
-                </Col>
-              </Row>
-            </div>
-          ) : (
-            <Outlet />
-          )}
-        </Content>
-      </Layout>
-    </Layout>
+          </Content>
+        </div>
+      </div>
+    </ConfigProvider>
   )
 }
 
 export default Dashboard
-

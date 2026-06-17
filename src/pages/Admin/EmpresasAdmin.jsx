@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   Table,
   Button,
@@ -13,9 +13,18 @@ import {
   Image,
   Tag,
   Tooltip,
-  Tabs,
+  Empty,
 } from 'antd'
-import { PlusOutlined, DeleteOutlined, UploadOutlined, CheckOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons'
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  EyeOutlined,
+  SearchOutlined,
+  ClearOutlined,
+} from '@ant-design/icons'
 import {
   getEmpresasPendentes,
   createEmpresa,
@@ -28,8 +37,31 @@ import {
   instagramHandleToStoredUrl,
   normalizeInstagramInput,
 } from '../../lib/instagram'
+import { glassPanel, pageSubtitleLeft, pageTitle } from '../../components/public-site/publicUi'
 
 const { TextArea } = Input
+
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'Todos os status' },
+  { value: 'pendente', label: 'Aguardando análise' },
+  { value: 'pre-cadastro', label: 'Cadastro de fundador' },
+  { value: 'aprovado', label: 'Aprovados' },
+  { value: 'rejeitado', label: 'Rejeitados' },
+]
+
+const STATUS_TAG = {
+  'pre-cadastro': { color: 'blue', label: 'Fundador' },
+  pendente: { color: 'orange', label: 'Pendente' },
+  aprovado: { color: 'green', label: 'Aprovado' },
+  rejeitado: { color: 'red', label: 'Rejeitado' },
+}
+
+function normalizeSearch(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
 
 // Função para formatar telefone
 const formatPhone = (value) => {
@@ -80,6 +112,11 @@ const EmpresasAdmin = () => {
   const [form] = Form.useForm()
   const editingEmpresaRef = useRef(null)
   const [filtroStatus, setFiltroStatus] = useState('all')
+  const [filtroNome, setFiltroNome] = useState('')
+  const [filtroCnpj, setFiltroCnpj] = useState('')
+  const [filtroEmail, setFiltroEmail] = useState('')
+  const [filtroResponsavel, setFiltroResponsavel] = useState('')
+  const [filtroCategoria, setFiltroCategoria] = useState('all')
 
   useEffect(() => {
     loadEmpresas()
@@ -102,6 +139,53 @@ const EmpresasAdmin = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const categoriasDisponiveis = useMemo(
+    () => [...new Set(empresas.map((e) => e.categoria).filter(Boolean))].sort(),
+    [empresas]
+  )
+
+  const empresasFiltradas = useMemo(() => {
+    const nomeQ = normalizeSearch(filtroNome)
+    const cnpjQ = filtroCnpj.replace(/\D/g, '')
+    const emailQ = normalizeSearch(filtroEmail)
+    const respQ = normalizeSearch(filtroResponsavel)
+
+    return empresas.filter((empresa) => {
+      if (nomeQ && !normalizeSearch(empresa.nome).includes(nomeQ)) return false
+      if (cnpjQ && !(empresa.cnpj || '').replace(/\D/g, '').includes(cnpjQ)) return false
+      if (emailQ && !normalizeSearch(empresa.email).includes(emailQ)) return false
+      if (respQ && !normalizeSearch(empresa.responsavel).includes(respQ)) return false
+      if (filtroCategoria !== 'all' && empresa.categoria !== filtroCategoria) return false
+      return true
+    })
+  }, [empresas, filtroNome, filtroCnpj, filtroEmail, filtroResponsavel, filtroCategoria])
+
+  const resumoStatus = useMemo(() => {
+    const base = { pendente: 0, aprovado: 0, rejeitado: 0, 'pre-cadastro': 0 }
+    empresasFiltradas.forEach((e) => {
+      const s = e.status || 'pendente'
+      if (base[s] !== undefined) base[s] += 1
+    })
+    return base
+  }, [empresasFiltradas])
+
+  const temFiltrosAtivos =
+    filtroNome ||
+    filtroCnpj ||
+    filtroEmail ||
+    filtroResponsavel ||
+    filtroCategoria !== 'all' ||
+    filtroStatus !== 'all'
+
+  const limparFiltros = () => {
+    setFiltroNome('')
+    setFiltroCnpj('')
+    setFiltroEmail('')
+    setFiltroResponsavel('')
+    setFiltroCategoria('all')
+    setFiltroStatus('all')
   }
 
   const handleCreate = () => {
@@ -374,30 +458,17 @@ const EmpresasAdmin = () => {
 
   const columns = [
     {
-      title: 'Imagem',
-      dataIndex: 'imagem',
-      key: 'imagem',
-      width: 100,
-      render: (imagem) => {
-        if (imagem) {
-          return (
-            <Image
-              src={imagem}
-              alt="Logomarca"
-              width={60}
-              height={60}
-              style={{ objectFit: 'cover', borderRadius: '4px' }}
-              preview={false}
-            />
-          )
-        }
-        return <span style={{ color: '#ccc' }}>Sem imagem</span>
-      },
-    },
-    {
       title: 'Nome',
       dataIndex: 'nome',
       key: 'nome',
+      ellipsis: true,
+    },
+    {
+      title: 'CNPJ',
+      dataIndex: 'cnpj',
+      key: 'cnpj',
+      width: 160,
+      render: (cnpj) => (cnpj ? formatCNPJ(cnpj) : '-'),
     },
     {
       title: 'Categoria',
@@ -405,34 +476,12 @@ const EmpresasAdmin = () => {
       key: 'categoria',
     },
     {
-      title: 'Telefone',
-      dataIndex: 'telefone',
-      key: 'telefone',
-      render: (telefone) => telefone ? formatPhone(telefone) : '-',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-    },
-    {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
       render: (status) => {
-        const colors = {
-          'pre-cadastro': 'blue',
-          pendente: 'orange',
-          aprovado: 'green',
-          rejeitado: 'red',
-        }
-        const labels = {
-          'pre-cadastro': 'Fundador',
-          pendente: 'Pendente',
-          aprovado: 'Aprovado',
-          rejeitado: 'Rejeitado',
-        }
-        return <Tag color={colors[status] || 'default'}>{labels[status] || status}</Tag>
+        const meta = STATUS_TAG[status] || { color: 'default', label: status || 'Pendente' }
+        return <Tag color={meta.color}>{meta.label}</Tag>
       },
     },
     {
@@ -510,48 +559,189 @@ const EmpresasAdmin = () => {
   ]
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ 
-        marginBottom: '24px', 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '16px'
-      }}>
-        <h2 style={{ margin: 0 }}>Gerenciar Fundadores</h2>
+    <div className="mx-auto max-w-7xl">
+      {/* Cabeçalho */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className={`${pageTitle} !mb-2 !text-left !text-2xl sm:!text-3xl lg:!text-4xl`}>
+            Fundadores
+          </h1>
+          <p className={`${pageSubtitleLeft} !mx-0 !max-w-2xl !text-base`}>
+            Gerencie cadastros, aprove ou rejeite fundadores e acompanhe o status de cada empresa.
+          </p>
+        </div>
         <Button
           type="primary"
           icon={<PlusOutlined />}
           onClick={handleCreate}
           size="large"
+          className="!shrink-0 !h-11 !rounded-xl !border-0 !bg-gradient-to-r !from-[#1e4d7b] !to-[#5b9bd5] !px-5 !font-semibold hover:!brightness-110"
         >
           Novo fundador
         </Button>
       </div>
 
-      <Tabs 
-        activeKey={filtroStatus} 
-        onChange={setFiltroStatus}
-        style={{ marginBottom: '24px' }}
-      >
-        <Tabs.TabPane tab="Todos" key="all" />
-        <Tabs.TabPane tab="Pendentes" key="pendente" />
-        <Tabs.TabPane tab="Aprovados" key="aprovado" />
-        <Tabs.TabPane tab="Rejeitados" key="rejeitado" />
-      </Tabs>
+      {/* Resumo */}
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          { label: 'Exibidos', value: empresasFiltradas.length, color: 'text-white' },
+          { label: 'Aguardando', value: resumoStatus.pendente + resumoStatus['pre-cadastro'], color: 'text-amber-300' },
+          { label: 'Aprovados', value: resumoStatus.aprovado, color: 'text-[#6cb541]' },
+          { label: 'Rejeitados', value: resumoStatus.rejeitado, color: 'text-red-400' },
+        ].map((item) => (
+          <div key={item.label} className={`${glassPanel} px-4 py-3`}>
+            <p className="m-0 text-xs text-gray-500">{item.label}</p>
+            <p className={`m-0 mt-1 text-2xl font-bold ${item.color}`}>{item.value}</p>
+          </div>
+        ))}
+      </div>
 
-      <Table
-        columns={columns}
-        dataSource={empresas}
-        loading={loading}
-        rowKey="_id"
-        scroll={{ x: 'max-content' }}
-      />
+      {/* Filtros */}
+      <div className={`${glassPanel} mb-6 p-5 sm:p-6`}>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-white">
+            <SearchOutlined className="text-[#5b9bd5]" />
+            Filtros
+          </div>
+          {temFiltrosAtivos && (
+            <Button
+              type="text"
+              icon={<ClearOutlined />}
+              onClick={limparFiltros}
+              className="!text-gray-400 hover:!text-white"
+              size="small"
+            >
+              Limpar filtros
+            </Button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          <div className="xl:col-span-2">
+            <label className="mb-1.5 block text-xs text-gray-500">Nome da empresa</label>
+            <Input
+              placeholder="Buscar por nome..."
+              prefix={<SearchOutlined className="text-gray-600" />}
+              value={filtroNome}
+              onChange={(e) => setFiltroNome(e.target.value)}
+              allowClear
+              className="!rounded-xl"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-gray-500">CNPJ</label>
+            <Input
+              placeholder="00.000.000/0000-00"
+              value={filtroCnpj}
+              onChange={(e) => setFiltroCnpj(formatCNPJ(e.target.value))}
+              allowClear
+              className="!rounded-xl"
+              maxLength={18}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-gray-500">E-mail</label>
+            <Input
+              placeholder="contato@empresa.com"
+              value={filtroEmail}
+              onChange={(e) => setFiltroEmail(e.target.value)}
+              allowClear
+              className="!rounded-xl"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-gray-500">Responsável</label>
+            <Input
+              placeholder="Nome do responsável"
+              value={filtroResponsavel}
+              onChange={(e) => setFiltroResponsavel(e.target.value)}
+              allowClear
+              className="!rounded-xl"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-gray-500">Categoria</label>
+            <Select
+              value={filtroCategoria}
+              onChange={setFiltroCategoria}
+              className="w-full"
+              popupClassName="admin-managed-select-dropdown"
+              options={[
+                { value: 'all', label: 'Todas' },
+                ...categoriasDisponiveis.map((c) => ({ value: c, label: c })),
+              ]}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-gray-500">Status</label>
+            <Select
+              value={filtroStatus}
+              onChange={setFiltroStatus}
+              className="w-full"
+              popupClassName="admin-managed-select-dropdown"
+              options={STATUS_OPTIONS}
+            />
+          </div>
+        </div>
+
+        <p className="mb-0 mt-4 text-xs text-gray-500">
+          Mostrando <span className="text-gray-300">{empresasFiltradas.length}</span> de{' '}
+          <span className="text-gray-300">{empresas.length}</span> cadastros
+          {filtroStatus !== 'all' && (
+            <>
+              {' '}
+              · status:{' '}
+              <span className="text-gray-300">
+                {STATUS_OPTIONS.find((o) => o.value === filtroStatus)?.label}
+              </span>
+            </>
+          )}
+        </p>
+      </div>
+
+      {/* Tabela */}
+      <div className={`${glassPanel} overflow-hidden p-2 sm:p-4`}>
+        <Table
+          columns={columns}
+          dataSource={empresasFiltradas}
+          loading={loading}
+          rowKey="_id"
+          scroll={{ x: 'max-content' }}
+          pagination={{
+            showSizeChanger: true,
+            showTotal: (total) => `${total} fundador${total !== 1 ? 'es' : ''}`,
+            pageSizeOptions: ['10', '20', '50'],
+            defaultPageSize: 10,
+          }}
+          locale={{
+            emptyText: (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  temFiltrosAtivos
+                    ? 'Nenhum fundador encontrado com os filtros aplicados'
+                    : 'Nenhum cadastro de fundador ainda'
+                }
+              >
+                {temFiltrosAtivos ? (
+                  <Button onClick={limparFiltros} icon={<ClearOutlined />}>
+                    Limpar filtros
+                  </Button>
+                ) : (
+                  <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+                    Cadastrar fundador
+                  </Button>
+                )}
+              </Empty>
+            ),
+          }}
+        />
+      </div>
 
       <Modal
         title={editingEmpresa ? 'Editar cadastro de fundador' : 'Novo cadastro de fundador'}
         open={modalVisible}
+        rootClassName="admin-managed-modal"
         onCancel={() => {
           setModalVisible(false)
           form.resetFields()
@@ -612,7 +802,7 @@ const EmpresasAdmin = () => {
             label="Categoria"
             rules={[{ required: true, message: 'Campo obrigatório' }]}
           >
-            <Select>
+            <Select popupClassName="admin-managed-select-dropdown">
               <Select.Option value="Varejo">Varejo</Select.Option>
               <Select.Option value="Alimentação">Alimentação</Select.Option>
               <Select.Option value="Tecnologia">Tecnologia</Select.Option>
@@ -833,6 +1023,7 @@ const EmpresasAdmin = () => {
       <Modal
         title="Visualizar cadastro de fundador"
         open={viewModalVisible}
+        rootClassName="admin-managed-modal"
         onCancel={() => {
           setViewModalVisible(false)
           setViewingEmpresa(null)
@@ -848,8 +1039,8 @@ const EmpresasAdmin = () => {
         width={window.innerWidth < 768 ? '95%' : 700}
       >
         {viewingEmpresa && (
-          <div style={{ padding: '16px 0' }}>
-            <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+          <div className="admin-modal-detail-grid py-4">
+            <div className="mb-6 text-center">
               {viewingEmpresa.imagem && (
                 <Image
                   src={viewingEmpresa.imagem}
@@ -967,13 +1158,11 @@ const EmpresasAdmin = () => {
               </div>
             </div>
 
-            <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #f0f0f0' }}>
-              <div style={{ fontSize: '12px', color: '#8c8c8c' }}>
+            <div className="admin-modal-detail-footer mt-6 pt-4 text-xs">
                 <div><strong>Cadastrado em:</strong> {viewingEmpresa.createdAt ? new Date(viewingEmpresa.createdAt).toLocaleString('pt-BR') : '-'}</div>
                 {viewingEmpresa.updatedAt && (
                   <div><strong>Atualizado em:</strong> {new Date(viewingEmpresa.updatedAt).toLocaleString('pt-BR')}</div>
                 )}
-              </div>
             </div>
           </div>
         )}

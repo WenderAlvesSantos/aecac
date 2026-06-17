@@ -1,19 +1,23 @@
 /*
- * Identidade visual Admin / Associado.
- * Tudo sob .aecac-managed-ui para não sobrescrever o site público (Tailwind + layout escuro).
+ * Identidade visual Admin / Associado — tema escuro alinhado ao site público.
+ * Tudo sob .aecac-managed-ui para não sobrescrever o site público.
  */
 
+.aecac-managed-ui {
+  color: rgba(255, 255, 255, 0.92);
+}
+
 .aecac-managed-ui .ant-btn-primary {
-  background: linear-gradient(135deg, #1a237e 0%, #1565c0 50%, #00c853 100%);
+  background: linear-gradient(135deg, #1e4d7b 0%, #5b9bd5 100%);
   border: none;
-  box-shadow: 0 2px 8px rgba(26, 35, 126, 0.3);
+  box-shadow: 0 4px 16px rgba(91, 155, 213, 0.25);
   transition: all 0.3s ease;
 }
 
 .aecac-managed-ui .ant-btn-primary:hover {
-  background: linear-gradient(135deg, #1565c0 0%, #1a237e 50%, #00c853 100%);
-  box-shadow: 0 4px 12px rgba(26, 35, 126, 0.4);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #5b9bd5 0%, #1e4d7b 100%);
+  box-shadow: 0 6px 20px rgba(91, 155, 213, 0.35);
+  transform: translateY(-1px);
 }
 
 .aecac-managed-ui .ant-btn-primary:active {
@@ -21,15 +25,17 @@
 }
 
 .aecac-managed-ui .ant-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   transition: all 0.3s ease;
 }
 
 .aecac-managed-ui .ant-card:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 }
 
 .aecac-managed-ui h1,
@@ -38,53 +44,76 @@
 .aecac-managed-ui h4,
 .aecac-managed-ui h5,
 .aecac-managed-ui h6 {
-  color: #1a237e;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .aecac-managed-ui a {
-  color: #1565c0;
+  color: #5b9bd5;
 }
 
 .aecac-managed-ui a:hover {
-  color: #00c853;
+  color: #8fd652;
+}
+
+.aecac-managed-ui .ant-input,
+.aecac-managed-ui .ant-input-affix-wrapper,
+.aecac-managed-ui .ant-select-selector,
+.aecac-managed-ui textarea.ant-input {
+  background: rgba(0, 0, 0, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
 }
 
 .aecac-managed-ui .ant-input:focus,
 .aecac-managed-ui .ant-input-affix-wrapper:focus,
 .aecac-managed-ui .ant-input-affix-wrapper-focused {
-  border-color: #1565c0;
-  box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.2);
+  border-color: #5b9bd5 !important;
+  box-shadow: 0 0 0 2px rgba(91, 155, 213, 0.2) !important;
 }
 
 .aecac-managed-ui .ant-select-focused .ant-select-selector {
-  border-color: #1565c0 !important;
-  box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.2) !important;
+  border-color: #5b9bd5 !important;
+  box-shadow: 0 0 0 2px rgba(91, 155, 213, 0.2) !important;
 }
 
 .aecac-managed-ui .ant-table {
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
+  background: transparent;
 }
 
 .aecac-managed-ui .ant-table-thead > tr > th {
-  background: linear-gradient(135deg, rgba(26, 35, 126, 0.05) 0%, rgba(21, 101, 192, 0.05) 100%);
-  color: #1a237e;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
   font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.aecac-managed-ui .ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.aecac-managed-ui .ant-table-tbody > tr:hover > td {
+  background: rgba(255, 255, 255, 0.04) !important;
 }
 
 .aecac-managed-ui .ant-modal-content {
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-radius: 16px;
+  background: #18181b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
 }
 
 .aecac-managed-ui .ant-modal-header {
-  background: linear-gradient(135deg, rgba(26, 35, 126, 0.05) 0%, rgba(21, 101, 192, 0.05) 100%);
-  border-radius: 12px 12px 0 0;
-  border-bottom: 1px solid #e0e0e0;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px 16px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .aecac-managed-ui .ant-modal-title {
-  color: #1a237e;
+  color: rgba(255, 255, 255, 0.95);
   font-weight: 600;
 }
 
@@ -93,51 +122,259 @@
 }
 
 .aecac-managed-ui .ant-progress-bg {
-  background: linear-gradient(90deg, #1565c0 0%, #00c853 100%);
+  background: linear-gradient(90deg, #5b9bd5 0%, #6cb541 100%);
+}
+
+.aecac-managed-ui .ant-statistic-title {
+  color: rgba(255, 255, 255, 0.55) !important;
 }
 
 .aecac-managed-ui .ant-statistic-content {
-  color: #1a237e;
+  color: rgba(255, 255, 255, 0.95);
 }
 
-.aecac-managed-ui .ant-menu-dark {
-  background: linear-gradient(180deg, #1a237e 0%, #1565c0 100%);
+.aecac-managed-ui .ant-menu-dark.admin-sidebar-menu .ant-menu-item-selected {
+  background: rgba(91, 155, 213, 0.22) !important;
+  color: #fff !important;
 }
 
-.aecac-managed-ui .ant-menu-dark .ant-menu-item-selected {
-  background: rgba(0, 200, 83, 0.2) !important;
-  color: #fff;
+.aecac-managed-ui .ant-menu-dark.admin-sidebar-menu .ant-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
-.aecac-managed-ui .ant-menu-dark .ant-menu-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+.aecac-managed-ui .admin-sidebar-menu .ant-menu-item-group-title {
+  color: rgba(255, 255, 255, 0.38) !important;
+  font-size: 11px !important;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding-top: 14px !important;
+}
+
+.aecac-managed-ui .admin-sidebar-menu .ant-menu-item-divider {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  margin: 8px 16px !important;
+}
+
+.aecac-managed-ui .admin-dashboard-skeleton .ant-skeleton-content .ant-skeleton-title,
+.aecac-managed-ui .admin-dashboard-skeleton .ant-skeleton-content .ant-skeleton-paragraph > li {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.06) 75%
+  ) !important;
 }
 
 .aecac-managed-ui .ant-drawer-content {
-  background: linear-gradient(180deg, #1a237e 0%, #1565c0 100%);
+  background: #000;
 }
 
 .aecac-managed-ui .ant-badge-count {
-  background: linear-gradient(135deg, #1565c0 0%, #00c853 100%);
-  box-shadow: 0 2px 4px rgba(21, 101, 192, 0.3);
+  background: linear-gradient(135deg, #5b9bd5 0%, #6cb541 100%);
+  box-shadow: 0 2px 8px rgba(91, 155, 213, 0.35);
 }
 
 .aecac-managed-ui .ant-picker-focused {
-  border-color: #1565c0;
-  box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.2);
+  border-color: #5b9bd5;
+  box-shadow: 0 0 0 2px rgba(91, 155, 213, 0.2);
 }
 
 .aecac-managed-ui .ant-upload {
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .aecac-managed-ui .ant-upload-drag {
-  border-color: #e0e0e0;
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 12px;
   transition: all 0.3s ease;
 }
 
 .aecac-managed-ui .ant-upload-drag:hover {
-  border-color: #1565c0;
-  background: rgba(21, 101, 192, 0.05);
+  border-color: #5b9bd5;
+  background: rgba(91, 155, 213, 0.08);
+}
+
+.aecac-managed-ui .ant-tabs-tab {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.aecac-managed-ui .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #5b9bd5 !important;
+}
+
+.aecac-managed-ui .ant-alert-info {
+  background: rgba(91, 155, 213, 0.12);
+  border-color: rgba(91, 155, 213, 0.3);
+}
+
+.aecac-managed-ui .ant-alert-warning {
+  background: rgba(250, 173, 20, 0.12);
+  border-color: rgba(250, 173, 20, 0.3);
+}
+
+.aecac-managed-ui .ant-form-item-label > label {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.aecac-managed-ui .ant-divider {
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.aecac-managed-ui .ant-pagination-item a {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.aecac-managed-ui .ant-pagination-item-active {
+  border-color: #5b9bd5;
+  background: rgba(91, 155, 213, 0.15);
+}
+
+.aecac-managed-ui .ant-empty-description {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Gradient text no admin shell */
+.admin-shell .bg-clip-text.text-transparent {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+}
+
+/*
+ * Portais Ant Design (Select, Modal) — renderizados no body, fora de .aecac-managed-ui.
+ * Classes aplicadas via ConfigProvider do painel admin.
+ */
+.admin-managed-select-dropdown.ant-select-dropdown {
+  background: #18181b !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65) !important;
+}
+
+.admin-managed-select-dropdown .ant-select-item {
+  color: #f4f4f5 !important;
+}
+
+.admin-managed-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background: rgba(91, 155, 213, 0.2) !important;
+}
+
+.admin-managed-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background: rgba(91, 155, 213, 0.28) !important;
+  font-weight: 600;
+}
+
+.admin-managed-modal .ant-modal-content {
+  background: #18181b !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55) !important;
+}
+
+.admin-managed-modal .ant-modal-header {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.admin-managed-modal .ant-modal-title {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.admin-managed-modal .ant-modal-body {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.admin-managed-modal .ant-modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: transparent !important;
+}
+
+.admin-managed-modal .ant-modal-close {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.admin-managed-modal .ant-modal-close:hover {
+  color: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.admin-managed-modal strong {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+}
+
+.admin-managed-modal .admin-modal-detail-grid {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.admin-managed-modal .admin-modal-detail-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* DatePicker / Calendar em portal */
+.admin-managed-picker-dropdown.ant-picker-dropdown {
+  background: #18181b !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+}
+
+.admin-managed-picker-dropdown .ant-picker-panel-container {
+  background: #18181b !important;
+}
+
+.admin-managed-picker-dropdown .ant-picker-header,
+.admin-managed-picker-dropdown .ant-picker-content th,
+.admin-managed-picker-dropdown .ant-picker-cell {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.admin-managed-picker-dropdown .ant-picker-header button {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.admin-managed-picker-dropdown .ant-picker-header button:hover {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.admin-managed-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner {
+  background: #1e4d7b !important;
+}
+
+.admin-managed-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+  border-color: #5b9bd5 !important;
+}
+
+.admin-managed-picker-dropdown .ant-picker-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Drawer de preview */
+.admin-managed-drawer .ant-drawer-content {
+  background: #0a0a0a !important;
+}
+
+.admin-managed-drawer .ant-drawer-title {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.admin-managed-drawer .ant-drawer-close {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.admin-managed-drawer .ant-drawer-close:hover {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.admin-managed-modal .ant-tabs-tab {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.admin-managed-modal .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #5b9bd5 !important;
+}
+
+.admin-managed-modal .ant-tabs-ink-bar {
+  background: #5b9bd5 !important;
 }

@@ -33,15 +33,16 @@ const Admin = () => {
   }, [token, navigate])
 
   return (
-    <div className="aecac-managed-ui min-h-screen">
     <Routes>
       <Route path="login" element={<Login />} />
       <Route
         path="/*"
         element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
+          <div className="aecac-managed-ui min-h-screen">
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          </div>
         }
       >
         <Route path="eventos" element={<EventosAdmin />} />
@@ -60,7 +61,6 @@ const Admin = () => {
         <Route path="documentos" element={<DocumentosAdmin />} />
       </Route>
     </Routes>
-    </div>
   )
 }
 
