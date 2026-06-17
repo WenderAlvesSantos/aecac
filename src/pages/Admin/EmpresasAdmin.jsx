@@ -24,7 +24,10 @@ import {
   EyeOutlined,
   SearchOutlined,
   ClearOutlined,
+  FileExcelOutlined,
 } from '@ant-design/icons'
+import * as XLSX from 'xlsx'
+import dayjs from 'dayjs'
 import {
   getEmpresasPendentes,
   createEmpresa,
@@ -101,6 +104,52 @@ const formatCEP = (value) => {
   return value
 }
 
+const formatCPF = (value) => {
+  if (!value) return ''
+  const numbers = String(value).replace(/\D/g, '')
+  if (numbers.length === 11) {
+    return numbers.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4')
+  }
+  return value
+}
+
+const statusLabel = (status) => STATUS_TAG[status]?.label || status || 'Pendente'
+
+const prepararDadosExportacao = (lista) =>
+  lista.map((empresa) => ({
+    Nome: empresa.nome || '',
+    CNPJ: empresa.cnpj ? formatCNPJ(empresa.cnpj) : '',
+    Categoria: empresa.categoria || '',
+    Status: statusLabel(empresa.status),
+    Responsável: empresa.responsavel || '',
+    Descrição: empresa.descricao || '',
+    Telefone: empresa.telefone ? formatPhone(empresa.telefone) : '',
+    WhatsApp: empresa.whatsapp ? formatPhone(empresa.whatsapp) : '',
+    'E-mail': empresa.email || '',
+    CEP: empresa.cep ? formatCEP(empresa.cep) : '',
+    Endereço: empresa.endereco || '',
+    RG: empresa.rg || '',
+    CPF: empresa.cpf ? formatCPF(empresa.cpf) : '',
+    Site: empresa.site || '',
+    Facebook: empresa.facebook || '',
+    Instagram: empresa.instagram || '',
+    LinkedIn: empresa.linkedin || '',
+    'Carta - RG': empresa.cartaAdesao?.rg || '',
+    'Carta - CPF': empresa.cartaAdesao?.cpf ? formatCPF(empresa.cartaAdesao.cpf) : '',
+    'Carta - Dia': empresa.cartaAdesao?.dia || '',
+    'Carta - Mês': empresa.cartaAdesao?.mes || '',
+    'Carta - Ano': empresa.cartaAdesao?.ano || '',
+    'Carta assinada em': empresa.cartaAssinadaEm
+      ? dayjs(empresa.cartaAssinadaEm).format('DD/MM/YYYY HH:mm')
+      : '',
+    'Cadastrado em': empresa.createdAt
+      ? dayjs(empresa.createdAt).format('DD/MM/YYYY HH:mm')
+      : '',
+    'Atualizado em': empresa.updatedAt
+      ? dayjs(empresa.updatedAt).format('DD/MM/YYYY HH:mm')
+      : '',
+  }))
+
 
 const EmpresasAdmin = () => {
   const [empresas, setEmpresas] = useState([])
@@ -117,6 +166,7 @@ const EmpresasAdmin = () => {
   const [filtroEmail, setFiltroEmail] = useState('')
   const [filtroResponsavel, setFiltroResponsavel] = useState('')
   const [filtroCategoria, setFiltroCategoria] = useState('all')
+  const [exportandoExcel, setExportandoExcel] = useState(false)
 
   useEffect(() => {
     loadEmpresas()
@@ -186,6 +236,45 @@ const EmpresasAdmin = () => {
     setFiltroResponsavel('')
     setFiltroCategoria('all')
     setFiltroStatus('all')
+  }
+
+  const handleExportarExcel = async () => {
+    if (!empresasFiltradas.length) {
+      message.warning('Não há fundadores para exportar com os filtros atuais.')
+      return
+    }
+
+    setExportandoExcel(true)
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      const dados = prepararDadosExportacao(empresasFiltradas)
+      const wb = XLSX.utils.book_new()
+      const ws = XLSX.utils.json_to_sheet(dados)
+
+      const colWidths = Object.keys(dados[0] || {}).map((key) => ({
+        wch: Math.min(
+          50,
+          Math.max(
+            key.length + 2,
+            ...dados.map((row) => String(row[key] || '').length)
+          )
+        ),
+      }))
+      ws['!cols'] = colWidths
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Fundadores')
+
+      const fileName = `fundadores_${dayjs().format('YYYY-MM-DD_HHmm')}.xlsx`
+      XLSX.writeFile(wb, fileName)
+
+      message.success(`Excel exportado com sucesso! (${empresasFiltradas.length} registro${empresasFiltradas.length !== 1 ? 's' : ''})`)
+    } catch (error) {
+      console.error('Erro ao exportar Excel:', error)
+      message.error('Erro ao exportar arquivo Excel.')
+    } finally {
+      setExportandoExcel(false)
+    }
   }
 
   const handleCreate = () => {
@@ -570,15 +659,26 @@ const EmpresasAdmin = () => {
             Gerencie cadastros, aprove ou rejeite fundadores e acompanhe o status de cada empresa.
           </p>
         </div>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleCreate}
-          size="large"
-          className="!shrink-0 !h-11 !rounded-xl !border-0 !bg-gradient-to-r !from-[#1e4d7b] !to-[#5b9bd5] !px-5 !font-semibold hover:!brightness-110"
-        >
-          Novo fundador
-        </Button>
+        <Space wrap className="!shrink-0">
+          <Button
+            icon={<FileExcelOutlined />}
+            onClick={handleExportarExcel}
+            loading={exportandoExcel}
+            disabled={empresasFiltradas.length === 0}
+            className="!h-11 !rounded-xl !border-white/15 !bg-white/5 !text-gray-200 hover:!border-white/25 hover:!text-white"
+          >
+            Exportar Excel
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleCreate}
+            size="large"
+            className="!h-11 !rounded-xl !border-0 !bg-gradient-to-r !from-[#1e4d7b] !to-[#5b9bd5] !px-5 !font-semibold hover:!brightness-110"
+          >
+            Novo fundador
+          </Button>
+        </Space>
       </div>
 
       {/* Resumo */}
