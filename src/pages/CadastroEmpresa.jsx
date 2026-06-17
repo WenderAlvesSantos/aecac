@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Form, Input, Select, Button, Typography, message, Upload, Space } from 'antd'
-import { UploadOutlined, CheckCircleOutlined, HomeOutlined } from '@ant-design/icons'
+import { UploadOutlined, CheckCircleOutlined, HomeOutlined, WhatsAppOutlined } from '@ant-design/icons'
 import { motion } from 'motion/react'
 import { createEmpresa, buscarCNPJ as buscarCNPJAPI, buscarCEP as buscarCEPAPI } from '../lib/api'
 import { instagramHandleToStoredUrl, normalizeInstagramInput } from '../lib/instagram'
@@ -14,6 +14,8 @@ const { TextArea } = Input
 
 /** Valor sentinel no formulário; o envio usa o texto livre em `categoriaPersonalizada`. */
 const CATEGORIA_OUTROS = 'Outros'
+
+const WHATSAPP_COMUNIDADE_URL = 'https://chat.whatsapp.com/E7CQNt3bOroIG2JHjPXKvz'
 
 // Função para formatar telefone
 const formatPhone = (value) => {
@@ -414,6 +416,25 @@ const CadastroEmpresa = () => {
               {mensagemSucesso}
             </Title>
             <Paragraph className="!text-gray-300 text-base">{descricaoSucesso}</Paragraph>
+            <div className="mt-6 p-4 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 text-left">
+              <Title level={4} className="!text-white !text-base !mb-2">
+                Comunidade de fundadores no WhatsApp
+              </Title>
+              <Paragraph className="!text-gray-300 !text-sm !mb-3">
+                Entre na nossa comunidade para acompanhar novidades, conversar com outros fundadores e ficar por dentro dos próximos passos da AECAC.
+              </Paragraph>
+              <Button
+                type="primary"
+                size="large"
+                icon={<WhatsAppOutlined />}
+                href={WHATSAPP_COMUNIDADE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="!bg-[#25D366] !border-[#25D366] hover:!bg-[#20bd5a] hover:!border-[#20bd5a]"
+              >
+                Entrar na comunidade do WhatsApp
+              </Button>
+            </div>
             {!preCadastro && (
               <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 text-left">
                 <Title level={4} className="!text-white !text-base !mb-2">
