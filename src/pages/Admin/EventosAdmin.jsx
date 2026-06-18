@@ -14,7 +14,7 @@ import {
   Upload,
   Image,
 } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, LinkOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, LinkOutlined, TeamOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import {
   getEventosAdmin,
@@ -24,6 +24,7 @@ import {
 } from '../../lib/api'
 import { copyEventoInscricaoLink } from '../../lib/eventoInscricaoLink'
 import { EventoInscricaoLinkField } from '../../components/EventoInscricaoLinkField'
+import { EventoInscritosModal } from '../../components/admin/EventoInscritosModal'
 
 const { TextArea } = Input
 
@@ -33,6 +34,7 @@ const EventosAdmin = () => {
   const [modalVisible, setModalVisible] = useState(false)
   const [editingEvento, setEditingEvento] = useState(null)
   const [linkModalEvento, setLinkModalEvento] = useState(null)
+  const [inscritosEvento, setInscritosEvento] = useState(null)
   const [imagemRemovida, setImagemRemovida] = useState(false)
   const [form] = Form.useForm()
 
@@ -169,13 +171,20 @@ const EventosAdmin = () => {
     {
       title: 'Vagas',
       key: 'vagas',
-      render: (_, record) => `${record.vagasDisponiveis}/${record.vagas}`,
+      render: (_, record) => `${record.vagasDisponiveis ?? record.vagas}/${record.vagas}`,
     },
     {
       title: 'Ações',
       key: 'actions',
       render: (_, record) => (
         <Space>
+          <Button
+            type="link"
+            icon={<TeamOutlined />}
+            onClick={() => setInscritosEvento(record)}
+          >
+            Inscritos
+          </Button>
           <Button
             type="link"
             icon={<LinkOutlined />}
@@ -227,6 +236,7 @@ const EventosAdmin = () => {
       <Modal
         title={editingEvento ? 'Editar Evento' : 'Novo Evento'}
         open={modalVisible}
+        rootClassName="admin-managed-modal"
         onCancel={() => {
           setModalVisible(false)
           form.resetFields()
@@ -391,6 +401,7 @@ const EventosAdmin = () => {
       <Modal
         title="Link de inscrição do evento"
         open={!!linkModalEvento}
+        rootClassName="admin-managed-modal"
         onCancel={() => setLinkModalEvento(null)}
         footer={null}
         width={window.innerWidth < 768 ? '95%' : 560}
@@ -405,6 +416,12 @@ const EventosAdmin = () => {
           </>
         )}
       </Modal>
+
+      <EventoInscritosModal
+        evento={inscritosEvento}
+        open={!!inscritosEvento}
+        onClose={() => setInscritosEvento(null)}
+      />
     </div>
   )
 }

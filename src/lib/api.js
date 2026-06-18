@@ -51,12 +51,13 @@ api.interceptors.request.use((config) => {
     '/auth/register-associado',
     '/auth/perfil-associado',
     '/beneficios/resgates',
-    '/eventos/inscritos',
-    '/capacitacoes/inscritos',
     '/capacitacoes/inscrever',
     // CRUD de Eventos, Benefícios e Capacitações (com area=logged)
     // Essas rotas são detectadas pela presença de area=logged
   ]
+
+  // Rotas de inscritos: admin e associado (token conforme quem está logado)
+  const inscritosRoutes = ['/eventos/inscritos', '/capacitacoes/inscritos']
   
   // ============================================
   // ROTAS PÚBLICAS (não usar token)
@@ -77,6 +78,8 @@ api.interceptors.request.use((config) => {
   
   // Verificar se é rota exclusiva de associado
   const isAssociadoRoute = associadoRoutes.some(route => url.startsWith(route))
+
+  const isInscritosRoute = inscritosRoutes.some((route) => url.startsWith(route))
   
   // Verificar se é rota pública
   const isPublicRoute = publicRoutes.some(route => url.startsWith(route))
@@ -114,6 +117,9 @@ api.interceptors.request.use((config) => {
   if (isAdminRoute) {
     // Rotas exclusivas de admin: SEMPRE usar authToken
     token = adminToken || null
+  } else if (isInscritosRoute) {
+    // Inscritos: admin ou associado autenticado
+    token = adminToken || associadoToken || null
   } else if (isAssociadoRoute || (isLoggedArea && associadoToken)) {
     // Rotas exclusivas de associado ou área logada: SEMPRE usar associadoToken
     token = associadoToken || null
