@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Row, Col, Typography, Card, Tag, Space, Button, Calendar, Badge, Empty, Modal, Form, Input, message, Statistic, Select, Pagination } from 'antd'
 import { CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined, UserOutlined, BankOutlined, ShopOutlined, FilterOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
@@ -34,6 +35,8 @@ const formatPhone = (value) => {
 }
 
 const Eventos = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const inscricaoViaUrlRef = useRef(false)
   const [viewMode, setViewMode] = useState('list') // 'list' ou 'calendar'
   const [eventos, setEventos] = useState([])
   const [empresas, setEmpresas] = useState([])
@@ -105,9 +108,7 @@ const Eventos = () => {
         telefoneLimpo
       )
       message.success('Inscrição realizada com sucesso!')
-      setModalInscricaoPublica(false)
-      formInscricaoPublica.resetFields()
-      setEventoSelecionado(null)
+      fecharModalInscricao()
       loadEventos()
     } catch (error) {
       message.error(error.response?.data?.error || 'Erro ao realizar inscrição')
@@ -120,6 +121,41 @@ const Eventos = () => {
     setEventoSelecionado(evento)
     setModalInscricaoPublica(true)
   }
+
+  const fecharModalInscricao = () => {
+    setModalInscricaoPublica(false)
+    formInscricaoPublica.resetFields()
+    setEventoSelecionado(null)
+    if (searchParams.has('inscrever')) {
+      const next = new URLSearchParams(searchParams)
+      next.delete('inscrever')
+      setSearchParams(next, { replace: true })
+    }
+  }
+
+  useEffect(() => {
+    if (loading || inscricaoViaUrlRef.current) return
+
+    const inscreverId = searchParams.get('inscrever')
+    if (!inscreverId || eventos.length === 0) return
+
+    const evento = eventos.find(
+      (e) => e._id === inscreverId || e._id?.toString() === inscreverId
+    )
+
+    inscricaoViaUrlRef.current = true
+
+    if (evento) {
+      setViewMode('list')
+      abrirModalInscricaoPublica(evento)
+      return
+    }
+
+    message.warning('Evento não encontrado ou inscrições não disponíveis.')
+    const next = new URLSearchParams(searchParams)
+    next.delete('inscrever')
+    setSearchParams(next, { replace: true })
+  }, [loading, eventos, searchParams, setSearchParams])
 
   if (loading) {
     return <PublicLoading label="Carregando eventos…" />
@@ -223,38 +259,35 @@ const Eventos = () => {
                     <Select
                       showSearch
                       placeholder="Selecione um fundador"
-                      optionFilterProp="children"
+                      optionFilterProp="label"
                       style={{ width: '100%' }}
                       allowClear
                       size="large"
+                      popupClassName="public-marketing-select-dropdown"
                       value={filtroEmpresa}
                       onChange={(value) => {
                         setFiltroEmpresa(value)
                         setPaginaAtual(1)
                       }}
                       filterOption={(input, option) =>
-                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                        String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                       }
                       options={[
                         {
                           value: 'aecac',
-                          label: (
-                            <Space>
-                              <BankOutlined />
-                              AECAC - Associação Empresarial e Comercial de Águas Claras
-                            </Space>
-                          )
+                          label: 'AECAC - Associação Empresarial e Comercial de Águas Claras',
                         },
-                        ...empresas.map(empresa => ({
+                        ...empresas.map((empresa) => ({
                           value: empresa._id,
-                          label: (
-                            <Space>
-                              <ShopOutlined />
-                              {empresa.nome}
-                            </Space>
-                          )
-                        }))
+                          label: empresa.nome,
+                        })),
                       ]}
+                      optionRender={(option) => (
+                        <Space>
+                          {option.value === 'aecac' ? <BankOutlined /> : <ShopOutlined />}
+                          {option.label}
+                        </Space>
+                      )}
                     />
                   </div>
                   <div style={{ flex: 1, minWidth: '200px' }}>
@@ -265,6 +298,7 @@ const Eventos = () => {
                       placeholder="Selecione uma categoria"
                       style={{ width: '100%' }}
                       size="large"
+                      popupClassName="public-marketing-select-dropdown"
                       value={filtroCategoria}
                       onChange={(value) => {
                         setFiltroCategoria(value)
@@ -548,11 +582,8 @@ const Eventos = () => {
           </div>
         }
         open={modalInscricaoPublica}
-        onCancel={() => {
-          setModalInscricaoPublica(false)
-          formInscricaoPublica.resetFields()
-          setEventoSelecionado(null)
-        }}
+        rootClassName="public-marketing-modal"
+        onCancel={fecharModalInscricao}
         footer={null}
         width={window.innerWidth < 768 ? '95%' : 600}
       >
@@ -610,11 +641,7 @@ const Eventos = () => {
           </Form.Item>
           <Form.Item>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-              <Button onClick={() => {
-                setModalInscricaoPublica(false)
-                formInscricaoPublica.resetFields()
-                setEventoSelecionado(null)
-              }}>
+              <Button onClick={fecharModalInscricao}>
                 Cancelar
               </Button>
               <Button type="primary" htmlType="submit" loading={inscricaoLoading}>

@@ -101,9 +101,10 @@ body {
 }
 
 /*
- * Select de categoria: o painel abre em portal (body). Sem fundo sólido,
- * o conteúdo do site mistura-se com as opções — este bloco é independente de .public-marketing.
+ * Portais Ant Design no site público (Select, Modal) — renderizados no body.
+ * Sem fundo sólido, o conteúdo do site mistura-se com dropdowns e modais.
  */
+.public-marketing-select-dropdown.ant-select-dropdown,
 .cadastro-fundador-select-dropdown.ant-select-dropdown {
   background: #18181b !important;
   border: 1px solid rgb(255 255 255 / 0.12) !important;
@@ -111,15 +112,91 @@ body {
   box-shadow: 0 12px 40px rgb(0 0 0 / 0.65) !important;
 }
 
+.public-marketing-select-dropdown .ant-select-item,
 .cadastro-fundador-select-dropdown .ant-select-item {
   color: #f4f4f5 !important;
 }
 
+.public-marketing-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled),
 .cadastro-fundador-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
   background: rgb(91 155 213 / 0.2) !important;
 }
 
+.public-marketing-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled),
 .cadastro-fundador-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   background: rgb(91 155 213 / 0.28) !important;
   font-weight: 600;
+}
+
+.public-marketing-select-dropdown .ant-select-dropdown-search .ant-input {
+  background: rgb(0 0 0 / 0.45) !important;
+  border-color: rgb(255 255 255 / 0.12) !important;
+  color: #fff !important;
+}
+
+.public-marketing-select-dropdown .ant-select-dropdown-search .ant-input::placeholder {
+  color: rgb(113 113 122) !important;
+}
+
+.public-marketing-modal .ant-modal-content {
+  background: #18181b !important;
+  border: 1px solid rgb(255 255 255 / 0.12) !important;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.55) !important;
+}
+
+.public-marketing-modal .ant-modal-header {
+  background: rgb(255 255 255 / 0.04) !important;
+  border-bottom: 1px solid rgb(255 255 255 / 0.1) !important;
+}
+
+.public-marketing-modal .ant-modal-title {
+  color: rgb(255 255 255 / 0.95) !important;
+}
+
+.public-marketing-modal .ant-modal-body {
+  color: rgb(255 255 255 / 0.85) !important;
+}
+
+.public-marketing-modal .ant-modal-footer {
+  border-top: 1px solid rgb(255 255 255 / 0.1) !important;
+  background: transparent !important;
+}
+
+.public-marketing-modal .ant-modal-close {
+  color: rgb(255 255 255 / 0.55) !important;
+}
+
+.public-marketing-modal .ant-modal-close:hover {
+  color: rgb(255 255 255 / 0.9) !important;
+  background: rgb(255 255 255 / 0.08) !important;
+}
+
+.public-marketing-modal .ant-form-item-label > label {
+  color: rgb(212 212 216) !important;
+}
+
+.public-marketing-modal .ant-input,
+.public-marketing-modal .ant-input-affix-wrapper {
+  background: rgb(0 0 0 / 0.45) !important;
+  border-color: rgb(255 255 255 / 0.12) !important;
+  color: #fff !important;
+}
+
+.public-marketing-modal .ant-input::placeholder {
+  color: rgb(113 113 122) !important;
+}
+
+.public-marketing-modal .ant-input:focus,
+.public-marketing-modal .ant-input-affix-wrapper:focus,
+.public-marketing-modal .ant-input-affix-wrapper-focused {
+  border-color: #5b9bd5 !important;
+  box-shadow: 0 0 0 2px rgb(91 155 213 / 0.25) !important;
+}
+
+.public-marketing-modal .ant-statistic-title {
+  color: rgb(161 161 170) !important;
+}
+
+.public-marketing-modal .ant-statistic-content {
+  color: #fff !important;
 }

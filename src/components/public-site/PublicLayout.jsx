@@ -34,7 +34,11 @@ export default function PublicLayout({ children, bare = false }) {
           }}
           aria-hidden
         />
-        <ConfigProvider theme={publicDarkTheme}>
+        <ConfigProvider
+          theme={publicDarkTheme}
+          select={{ popupClassName: 'public-marketing-select-dropdown' }}
+          modal={{ rootClassName: 'public-marketing-modal' }}
+        >
           <div className={bare ? 'w-full' : undefined}>{children}</div>
         </ConfigProvider>
       </main>

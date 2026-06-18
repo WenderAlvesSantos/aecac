@@ -42,7 +42,7 @@ function InstagramGlyph({ className }) {
 }
 
 export function PublicFooter() {
-  const { flags } = useFeatureFlags()
+  const { flags, isSectionVisible } = useFeatureFlags()
   const [configuracoes, setConfiguracoes] = useState({
     contato: {},
     redesSociais: {},
@@ -74,15 +74,15 @@ export function PublicFooter() {
       { path: '/sobre', label: 'Sobre' },
       { path: '/como-associar', label: 'Como associar' },
     ]
-    if (!flags.preLancamento && flags.mostrarGaleria) links.push({ path: '/galeria', label: 'Galeria' })
-    if (!flags.preLancamento && flags.mostrarParceiros) links.push({ path: '/parceiros', label: 'Parceiros' })
-    if (!flags.preLancamento && flags.mostrarEmpresas) links.push({ path: '/empresas', label: 'Fundadores' })
-    if (!flags.preLancamento && flags.mostrarEventos) links.push({ path: '/eventos', label: 'Eventos' })
-    if (!flags.preLancamento && flags.mostrarBeneficios) links.push({ path: '/beneficios', label: 'Benefícios' })
-    if (!flags.preLancamento && flags.mostrarCapacitacoes) links.push({ path: '/capacitacoes', label: 'Capacitações' })
+    if (isSectionVisible('mostrarGaleria')) links.push({ path: '/galeria', label: 'Galeria' })
+    if (isSectionVisible('mostrarParceiros')) links.push({ path: '/parceiros', label: 'Parceiros' })
+    if (isSectionVisible('mostrarEmpresas')) links.push({ path: '/empresas', label: 'Fundadores' })
+    if (isSectionVisible('mostrarEventos')) links.push({ path: '/eventos', label: 'Eventos' })
+    if (isSectionVisible('mostrarBeneficios')) links.push({ path: '/beneficios', label: 'Benefícios' })
+    if (isSectionVisible('mostrarCapacitacoes')) links.push({ path: '/capacitacoes', label: 'Capacitações' })
     links.push({ path: '/cadastro-empresa', label: 'Ser Fundador' })
     return links
-  }, [flags])
+  }, [flags, isSectionVisible])
 
   const gridClass = showContatoCol ? 'grid md:grid-cols-3 gap-16 mb-16' : 'grid md:grid-cols-2 gap-16 mb-16'
 

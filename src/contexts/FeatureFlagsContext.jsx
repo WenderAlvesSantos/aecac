@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { getFeatureFlags } from '../lib/api'
 
 const FeatureFlagsContext = createContext({})
@@ -39,15 +39,33 @@ export const FeatureFlagsProvider = ({ children }) => {
   }
 
   const isFeatureEnabled = (feature) => {
-    // Se preLancamento = true, desabilita tudo exceto Home e Sobre
-    if (flags.preLancamento && feature !== 'home' && feature !== 'sobre') {
-      return false
+    if (feature === 'home' || feature === 'sobre') return true
+
+    const visibilityKeys = [
+      'mostrarParceiros',
+      'mostrarEmpresas',
+      'mostrarEventos',
+      'mostrarBeneficios',
+      'mostrarCapacitacoes',
+      'mostrarGaleria',
+    ]
+
+    if (visibilityKeys.includes(feature)) {
+      return flags[feature] === true
     }
+
     return flags[feature] !== false
   }
 
+  const isSectionVisible = useCallback(
+    (flagKey) => flags[flagKey] === true,
+    [flags]
+  )
+
   return (
-    <FeatureFlagsContext.Provider value={{ flags, loading, isFeatureEnabled, refresh: loadFeatureFlags }}>
+    <FeatureFlagsContext.Provider
+      value={{ flags, loading, isFeatureEnabled, isSectionVisible, refresh: loadFeatureFlags }}
+    >
       {children}
     </FeatureFlagsContext.Provider>
   )

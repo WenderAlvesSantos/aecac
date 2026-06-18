@@ -22,7 +22,7 @@ const Layout = ({ children }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false)
-  const { flags } = useFeatureFlags()
+  const { flags, isSectionVisible } = useFeatureFlags()
 
   // Scroll para o topo quando a rota mudar
   useEffect(() => {
@@ -41,32 +41,32 @@ const Layout = ({ children }) => {
       label: 'Sobre',
     },
     // Itens condicionais baseados nas feature flags
-    !flags.preLancamento && flags.mostrarGaleria && {
+    isSectionVisible('mostrarGaleria') && {
       key: '/galeria',
       icon: <PictureOutlined />,
       label: 'Galeria',
     },
-    !flags.preLancamento && flags.mostrarParceiros && {
+    isSectionVisible('mostrarParceiros') && {
       key: '/parceiros',
       icon: <TeamOutlined />,
       label: 'Parceiros',
     },
-    !flags.preLancamento && flags.mostrarEmpresas && {
+    isSectionVisible('mostrarEmpresas') && {
       key: '/empresas',
       icon: <ShopOutlined />,
       label: 'Fundadores',
     },
-    !flags.preLancamento && flags.mostrarEventos && {
+    isSectionVisible('mostrarEventos') && {
       key: '/eventos',
       icon: <CalendarOutlined />,
       label: 'Eventos',
     },
-    !flags.preLancamento && flags.mostrarBeneficios && {
+    isSectionVisible('mostrarBeneficios') && {
       key: '/beneficios',
       icon: <GiftOutlined />,
       label: 'Benefícios',
     },
-    !flags.preLancamento && flags.mostrarCapacitacoes && {
+    isSectionVisible('mostrarCapacitacoes') && {
       key: '/capacitacoes',
       icon: <BookOutlined />,
       label: 'Capacitações',

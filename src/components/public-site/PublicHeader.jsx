@@ -10,32 +10,32 @@ const LOGO_SRC = '/assets/logo-aecac.png'
 export function PublicHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
-  const { flags } = useFeatureFlags()
+  const { flags, isSectionVisible } = useFeatureFlags()
 
   const isActive = (path) => location.pathname === path
 
   const menuItems = useMemo(() => {
     const items = [{ path: '/sobre', label: 'Sobre' }]
-    if (!flags.preLancamento && flags.mostrarGaleria) {
+    if (isSectionVisible('mostrarGaleria')) {
       items.push({ path: '/galeria', label: 'Galeria' })
     }
-    if (!flags.preLancamento && flags.mostrarParceiros) {
+    if (isSectionVisible('mostrarParceiros')) {
       items.push({ path: '/parceiros', label: 'Parceiros' })
     }
-    if (!flags.preLancamento && flags.mostrarEmpresas) {
+    if (isSectionVisible('mostrarEmpresas')) {
       items.push({ path: '/empresas', label: 'Fundadores' })
     }
-    if (!flags.preLancamento && flags.mostrarEventos) {
+    if (isSectionVisible('mostrarEventos')) {
       items.push({ path: '/eventos', label: 'Eventos' })
     }
-    if (!flags.preLancamento && flags.mostrarBeneficios) {
+    if (isSectionVisible('mostrarBeneficios')) {
       items.push({ path: '/beneficios', label: 'Benefícios' })
     }
-    if (!flags.preLancamento && flags.mostrarCapacitacoes) {
+    if (isSectionVisible('mostrarCapacitacoes')) {
       items.push({ path: '/capacitacoes', label: 'Capacitações' })
     }
     return items
-  }, [flags])
+  }, [flags, isSectionVisible])
 
   return (
     <motion.header

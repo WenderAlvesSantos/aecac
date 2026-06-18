@@ -14,9 +14,12 @@ import {
   FileExcelOutlined,
   PrinterOutlined,
   MailOutlined,
+  LinkOutlined,
 } from '@ant-design/icons'
 import * as XLSX from 'xlsx'
 import { getEventos, createEvento, updateEvento, deleteEvento, getInscritosEvento } from '../../lib/api'
+import { copyEventoInscricaoLink } from '../../lib/eventoInscricaoLink'
+import { EventoInscricaoLinkField } from '../../components/EventoInscricaoLinkField'
 import dayjs from 'dayjs'
 
 const { Title, Text } = Typography
@@ -27,6 +30,7 @@ const EventosAssociado = () => {
   const [loading, setLoading] = useState(true)
   const [eventoModalVisible, setEventoModalVisible] = useState(false)
   const [editingEvento, setEditingEvento] = useState(null)
+  const [linkModalEvento, setLinkModalEvento] = useState(null)
   const [eventoForm] = Form.useForm()
   const [inscritosModalVisible, setInscritosModalVisible] = useState(false)
   const [inscritos, setInscritos] = useState([])
@@ -78,14 +82,19 @@ const EventosAssociado = () => {
       if (editingEvento) {
         await updateEvento(editingEvento._id, data)
         message.success('Evento atualizado com sucesso!')
+        setEventoModalVisible(false)
+        setEditingEvento(null)
+        eventoForm.resetFields()
       } else {
-        await createEvento(data)
+        const response = await createEvento(data)
         message.success('Evento criado com sucesso!')
+        setEventoModalVisible(false)
+        eventoForm.resetFields()
+        if (response.data?._id) {
+          setLinkModalEvento(response.data)
+        }
       }
       
-      setEventoModalVisible(false)
-      setEditingEvento(null)
-      eventoForm.resetFields()
       loadData()
     } catch (error) {
       message.error(error.response?.data?.error || 'Erro ao salvar evento')
@@ -578,6 +587,12 @@ const EventosAssociado = () => {
         <Space>
           <Button
             type="text"
+            icon={<LinkOutlined />}
+            onClick={() => copyEventoInscricaoLink(record._id)}
+            title="Copiar link de inscrição"
+          />
+          <Button
+            type="text"
             icon={<TeamOutlined />}
             onClick={() => handleVerInscritos(record)}
             title="Ver Inscritos"
@@ -715,6 +730,10 @@ const EventosAssociado = () => {
           layout="vertical"
           onFinish={handleCreateEvento}
         >
+          {editingEvento?._id && (
+            <EventoInscricaoLinkField eventoId={editingEvento._id} />
+          )}
+
           <Form.Item
             name="titulo"
             label="Título"
@@ -807,6 +826,24 @@ const EventosAssociado = () => {
             </Space>
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Link de inscrição do evento"
+        open={!!linkModalEvento}
+        onCancel={() => setLinkModalEvento(null)}
+        footer={null}
+        width={window.innerWidth < 768 ? '95%' : 560}
+      >
+        {linkModalEvento && (
+          <>
+            <p style={{ marginBottom: 16, color: 'rgba(255,255,255,0.65)' }}>
+              Compartilhe este link para inscrições em{' '}
+              <strong>{linkModalEvento.titulo}</strong>.
+            </p>
+            <EventoInscricaoLinkField eventoId={linkModalEvento._id} />
+          </>
+        )}
       </Modal>
 
       {/* Modal de Inscritos */}

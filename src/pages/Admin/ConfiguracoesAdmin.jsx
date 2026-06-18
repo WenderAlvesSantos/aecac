@@ -311,7 +311,7 @@ const ConfiguracoesAdmin = () => {
         >
           <Alert
             message="Modo Pré-Lançamento"
-            description="Ative para ocultar todas as funcionalidades públicas (exceto Home e Sobre). Útil durante a fase de pré-lançamento da associação."
+            description="Quando ativo, o site permanece em fase de pré-lançamento (Home e Sobre sempre visíveis). Use as opções de visibilidade abaixo para liberar seções específicas na área pública."
             type="warning"
             showIcon
             style={{ marginBottom: '24px' }}
@@ -321,7 +321,7 @@ const ConfiguracoesAdmin = () => {
             name={['featureFlags', 'preLancamento']}
             label="Modo Pré-Lançamento"
             valuePropName="checked"
-            tooltip="Quando ativo, oculta todos os menus exceto Home e Sobre"
+            tooltip="Indica que a associação está em pré-lançamento. As seções públicas dependem das flags de visibilidade abaixo."
           >
             <Switch 
               checkedChildren="Ativo" 
@@ -342,12 +342,12 @@ const ConfiguracoesAdmin = () => {
           </Form.Item>
 
           <Divider style={{ fontSize: isMobile ? '12px' : '14px' }}>
-            {isMobile ? 'Visibilidade Individual' : 'Visibilidade Individual (sobrescritas pelo Pré-Lançamento)'}
+            {isMobile ? 'Visibilidade' : 'Visibilidade por seção (área pública)'}
           </Divider>
           
           <Alert
-            message="Nota"
-            description="Se o Modo Pré-Lançamento estiver ATIVO, estas configurações serão ignoradas."
+            message="Como funciona"
+            description="Cada seção marcada como Visível aparece no menu e na área deslogada, mesmo com o Modo Pré-Lançamento ativo. Desmarque para ocultar."
             type="info"
             style={{ marginBottom: '16px' }}
           />

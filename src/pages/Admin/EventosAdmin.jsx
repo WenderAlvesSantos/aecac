@@ -14,7 +14,7 @@ import {
   Upload,
   Image,
 } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, LinkOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import {
   getEventosAdmin,
@@ -22,6 +22,8 @@ import {
   updateEvento,
   deleteEvento,
 } from '../../lib/api'
+import { copyEventoInscricaoLink } from '../../lib/eventoInscricaoLink'
+import { EventoInscricaoLinkField } from '../../components/EventoInscricaoLinkField'
 
 const { TextArea } = Input
 
@@ -30,6 +32,7 @@ const EventosAdmin = () => {
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [editingEvento, setEditingEvento] = useState(null)
+  const [linkModalEvento, setLinkModalEvento] = useState(null)
   const [imagemRemovida, setImagemRemovida] = useState(false)
   const [form] = Form.useForm()
 
@@ -117,14 +120,19 @@ const EventosAdmin = () => {
       if (editingEvento) {
         await updateEvento(editingEvento._id, data)
         message.success('Evento atualizado com sucesso')
+        setModalVisible(false)
       } else {
-        await createEvento(data)
+        const response = await createEvento(data)
         message.success('Evento criado com sucesso')
+        setModalVisible(false)
+        if (response.data?._id) {
+          setLinkModalEvento(response.data)
+        }
       }
 
-      setModalVisible(false)
       form.resetFields()
       setImagemRemovida(false)
+      setEditingEvento(null)
       loadEventos()
     } catch (error) {
       message.error('Erro ao salvar evento')
@@ -168,6 +176,13 @@ const EventosAdmin = () => {
       key: 'actions',
       render: (_, record) => (
         <Space>
+          <Button
+            type="link"
+            icon={<LinkOutlined />}
+            onClick={() => copyEventoInscricaoLink(record._id)}
+          >
+            Link
+          </Button>
           <Button
             type="link"
             icon={<EditOutlined />}
@@ -224,6 +239,10 @@ const EventosAdmin = () => {
           layout="vertical"
           onFinish={handleSubmit}
         >
+          {editingEvento?._id && (
+            <EventoInscricaoLinkField eventoId={editingEvento._id} />
+          )}
+
           <Form.Item
             name="titulo"
             label="Título"
@@ -367,6 +386,24 @@ const EventosAdmin = () => {
             </Space>
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Link de inscrição do evento"
+        open={!!linkModalEvento}
+        onCancel={() => setLinkModalEvento(null)}
+        footer={null}
+        width={window.innerWidth < 768 ? '95%' : 560}
+      >
+        {linkModalEvento && (
+          <>
+            <p className="mb-4 text-gray-400">
+              Compartilhe este link para que as pessoas se inscrevam diretamente em{' '}
+              <strong className="text-white">{linkModalEvento.titulo}</strong>.
+            </p>
+            <EventoInscricaoLinkField eventoId={linkModalEvento._id} />
+          </>
+        )}
       </Modal>
     </div>
   )

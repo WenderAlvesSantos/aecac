@@ -30,7 +30,7 @@ const formatPhone = (value) => {
 }
 
 const Footer = () => {
-  const { flags } = useFeatureFlags()
+  const { flags, isSectionVisible } = useFeatureFlags()
   const [configuracoes, setConfiguracoes] = useState({
     contato: {},
     redesSociais: {},
@@ -160,7 +160,7 @@ const Footer = () => {
               >
                 Sobre Nós
               </a>
-              {!flags.preLancamento && flags.mostrarParceiros && (
+              {isSectionVisible('mostrarParceiros') && (
                 <a
                   href="/parceiros"
                   style={{ color: 'rgba(255,255,255,0.85)', display: 'block' }}
@@ -168,7 +168,7 @@ const Footer = () => {
                   Parceiros
                 </a>
               )}
-              {!flags.preLancamento && flags.mostrarEmpresas && (
+              {isSectionVisible('mostrarEmpresas') && (
                 <a
                   href="/empresas"
                   style={{ color: 'rgba(255,255,255,0.85)', display: 'block' }}
@@ -176,7 +176,7 @@ const Footer = () => {
                   Fundadores
                 </a>
               )}
-              {!flags.preLancamento && flags.mostrarGaleria && (
+              {isSectionVisible('mostrarGaleria') && (
                 <a
                   href="/galeria"
                   style={{ color: 'rgba(255,255,255,0.85)', display: 'block' }}
